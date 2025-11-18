@@ -4,28 +4,40 @@ class MovableObject {
     img;
     height = 100;
     width = 100;
+    imageCache = {};
+    currentImage = 0;
+    speed = 0.25;
 
     loadImage(path) {
         this.img = new Image();
         this.img.src = path;
-
     }
 
-    moveLeft() {
-        console.log("move left");
+    loadImages(arr) {
+        arr.forEach(path => {
+            let img = new Image();
+            img.src = path;
+            this.imageCache[path] = img
+        });
+    }
+
+    moveLeft(speed = this.speed) {
+        setInterval(() => {
+            this.x -= speed;
+        }, 1000 / 60);
     }
 
     moveRight() {
         console.log("move left");
     }
 
-    animate(basePath, start, end, fps = 12) {
-        let current = start;
 
+    animate(arr, fps = 12) {
+        let i = 0;
         setInterval(() => {
-            this.loadImage(`${basePath}${current}.png`);
-            current = (current < end) ? current + 1 : start;
+            const path = arr[i];
+            this.img = this.imageCache[path];
+            i = (i + 1) % arr.length;
         }, 1000 / fps);
     }
-
 }

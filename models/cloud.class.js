@@ -1,3 +1,4 @@
+
 class Cloud extends MovableObject {
     x = 0;
     y = 0;
@@ -12,8 +13,6 @@ class Cloud extends MovableObject {
 
 
     animate() {
-        setInterval(() => {
-            this.x -=  0.25;
-        }, 1000 / 120)
+       this.moveLeft();
     }
 }
