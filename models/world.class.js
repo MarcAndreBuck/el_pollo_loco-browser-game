@@ -13,7 +13,7 @@ class World {
         this.canvas = canvas;
         this.keyboard = keyboard;
 
-        this.character = new Character(); 
+        this.character = new Character();
         this.enemies = [
             new Chicken(),
             new Chicken(),
@@ -61,6 +61,28 @@ class World {
 
     addToMap(mo) {
         if (!mo.img) return;
-        this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+
+        this.ctx.save();
+
+        if (mo.otherDirection) {
+            this.ctx.scale(-1, 1);
+            this.ctx.drawImage(
+                mo.img,
+                -mo.x - mo.width, 
+                mo.y,
+                mo.width,
+                mo.height
+            );
+        } else {
+            this.ctx.drawImage(
+                mo.img,
+                mo.x,
+                mo.y,
+                mo.width,
+                mo.height
+            );
+        }
+
+        this.ctx.restore();
     }
 }

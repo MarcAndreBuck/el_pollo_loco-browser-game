@@ -1,5 +1,5 @@
 class Keyboard {
-    constructor(menuSelector = "#keybind-menu", overlaySelector = "#keybind-overlay") {
+    constructor() {
 
         this.bindings = {
             LEFT: ["ArrowLeft"],

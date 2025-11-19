@@ -21,22 +21,24 @@ class Character extends MovableObject {
 
 
     checkMovement() {
-        if (keyboard.RIGHT) {
-            this.x += this.speed;
-            this.isMoving = true;
-            this.resetIdleTimer();
-            return;
-        }
-
-        if (keyboard.LEFT) {
-            this.x -= this.speed;
-            this.isMoving = true;
-            this.resetIdleTimer();
-            return;
-        }
-
-        this.isMoving = false;
+    if (keyboard.RIGHT) {
+        this.x += this.speed;
+        this.isMoving = true;
+        this.otherDirection = false; 
+        this.resetIdleTimer();
+        return;
     }
+
+    if (keyboard.LEFT) {
+        this.x -= this.speed;
+        this.isMoving = true;
+        this.otherDirection = true;   
+        this.resetIdleTimer();
+        return;
+    }
+
+    this.isMoving = false;
+}
 
     resetIdleTimer() {
         this.lastActionTime = Date.now();
