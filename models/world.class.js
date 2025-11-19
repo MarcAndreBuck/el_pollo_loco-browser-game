@@ -1,52 +1,66 @@
 class World {
+    character;
+    enemies;
+    background;
+    clouds;
 
-    character = new Character();
-    enemies = [
-        new Chicken(),
-        new Chicken(),
-        new Chicken(),
-    ]
-    background = [
-        new BackgroundObject("assets/5_background/layers/air.png", 0, 0),
-        new BackgroundObject("assets/5_background/layers/3_third_layer/1.png", 0, 0),
-        new BackgroundObject("assets/5_background/layers/2_second_layer/1.png", 0, 0),
-        new BackgroundObject("assets/5_background/layers/1_first_layer/1.png", 0, 0)
-    ]
-    cloud = [
-        new Cloud(),
-    ]
-
-    
     ctx;
     canvas;
+    keyboard;
 
-    constructor(canvas) {
+    constructor(canvas, keyboard) {
         this.ctx = canvas.getContext("2d");
         this.canvas = canvas;
-        this.draw();
+        this.keyboard = keyboard;
+
+        this.character = new Character(); 
+        this.enemies = [
+            new Chicken(),
+            new Chicken(),
+            new Chicken(),
+        ];
+        this.background = [
+            new BackgroundObject("assets/5_background/layers/air.png", 0, 0),
+            new BackgroundObject("assets/5_background/layers/3_third_layer/1.png", 0, 0),
+            new BackgroundObject("assets/5_background/layers/2_second_layer/1.png", 0, 0),
+            new BackgroundObject("assets/5_background/layers/1_first_layer/1.png", 0, 0)
+        ];
+        this.clouds = [
+            new Cloud(),
+        ];
+
+        this.gameLoop();
     }
 
+    gameLoop() {
+        this.update();
+        this.draw();
+
+        let self = this
+        requestAnimationFrame(() => self.gameLoop());
+    }
+
+    update() {
+        this.character.update();
+        this.enemies.forEach(e => e.update && e.update());
+        this.clouds.forEach(c => c.update && c.update());
+    }
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.addObjectToMap(this.background);
         this.addObjectToMap(this.enemies);
-        this.addObjectToMap(this.cloud)
+        this.addObjectToMap(this.clouds);
         this.addToMap(this.character);
-
-
-        let self = this;
-        requestAnimationFrame(function () {
-            self.draw();
-        });
     }
 
-    addObjectToMap(object) {
-        object.forEach(o => this.addToMap(o))
+    addObjectToMap(objects) {
+        objects.forEach(o => this.addToMap(o));
     }
 
     addToMap(mo) {
-        this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height)
+        if (!mo.img) return;
+        this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
     }
 }
