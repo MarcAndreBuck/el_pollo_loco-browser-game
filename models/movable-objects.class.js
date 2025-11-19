@@ -6,6 +6,7 @@ class MovableObject {
     width = 100;
     imageCache = {};
     currentImage = 0;
+    animationFrame = 0;
     speed = 0.25;
 
     loadImage(path) {
@@ -17,27 +18,31 @@ class MovableObject {
         arr.forEach(path => {
             let img = new Image();
             img.src = path;
-            this.imageCache[path] = img
+            this.imageCache[path] = img;
         });
     }
 
-    moveLeft(speed = this.speed) {
-        setInterval(() => {
-            this.x -= speed;
-        }, 1000 / 60);
-    }
+    playAnimation(images, fps = 10) {
+        const now = performance.now();
+        const frameDuration = 1000 / fps;
 
-    moveRight() {
-        console.log("move left");
-    }
+        if (!this.lastFrameTime) {
+            this.lastFrameTime = now;
+        }
 
+        if (now - this.lastFrameTime >= frameDuration) {
+            this.currentImage = (this.currentImage + 1) % images.length;
 
-    animate(arr, fps = 12) {
-        let i = 0;
-        setInterval(() => {
-            const path = arr[i];
+            const path = images[this.currentImage];
             this.img = this.imageCache[path];
-            i = (i + 1) % arr.length;
-        }, 1000 / fps);
+
+            this.lastFrameTime = now;
+        }
+    }
+
+    preloadAnimations(animations) {
+        Object.values(animations).forEach(frames => {
+            this.loadImages(frames);
+        });
     }
 }
