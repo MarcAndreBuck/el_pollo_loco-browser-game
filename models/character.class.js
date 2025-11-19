@@ -3,28 +3,73 @@ class Character extends MovableObject {
     y = 50;
     height = 400;
     width = 180;
+    speed = 3;
+    isMoving = false;
+    isJumping = false;
+    lastActionTime = Date.now();
 
-    CHARAKTER_IDLE = [
-        "assets/2_character_pepe/1_idle/idle/I-1.png",
-        "assets/2_character_pepe/1_idle/idle/I-2.png",
-        "assets/2_character_pepe/1_idle/idle/I-3.png",
-        "assets/2_character_pepe/1_idle/idle/I-4.png",
-        "assets/2_character_pepe/1_idle/idle/I-5.png",
-        "assets/2_character_pepe/1_idle/idle/I-6.png",
-        "assets/2_character_pepe/1_idle/idle/I-7.png",
-        "assets/2_character_pepe/1_idle/idle/I-8.png",
-        "assets/2_character_pepe/1_idle/idle/I-9.png",
-        "assets/2_character_pepe/1_idle/idle/I-10.png"
-    ];
 
     constructor() {
         super();
-        
-        this.loadImages(this.CHARAKTER_IDLE);
-        this.loadImage(this.CHARAKTER_IDLE[0]);
-        
-        this.animate(this.CHARAKTER_IDLE, 4);
+
+        this.animations = ASSETS.character;
+
+        this.preloadAnimations(this.animations);
+
+        this.loadImage(this.animations.idle[0]);
     }
 
-    jump() {}
+
+    checkMovement() {
+        if (keyboard.RIGHT) {
+            this.x += this.speed;
+            this.isMoving = true;
+            this.resetIdleTimer();
+            return;
+        }
+
+        if (keyboard.LEFT) {
+            this.x -= this.speed;
+            this.isMoving = true;
+            this.resetIdleTimer();
+            return;
+        }
+
+        this.isMoving = false;
+    }
+
+    resetIdleTimer() {
+        this.lastActionTime = Date.now();
+    }
+
+    idleTooLong() {
+        return Date.now() - this.lastActionTime > 4000;
+    }
+
+
+
+    updateAnimation() {
+        if (this.isJumping && this.animations.jump) {
+            this.playAnimation(this.animations.jump, 12);  
+            return;
+        }
+
+        if (this.isMoving && this.animations.walk) {
+            this.playAnimation(this.animations.walk, 12); 
+            return;
+        }
+
+        if (this.idleTooLong() && this.animations.long_idle) {
+            this.playAnimation(this.animations.long_idle, 8); 
+            return;
+        }
+
+        this.playAnimation(this.animations.idle, 8); 
+    }
+
+    update() {
+        this.checkMovement();
+        this.updateAnimation();
+    }
+
 }
