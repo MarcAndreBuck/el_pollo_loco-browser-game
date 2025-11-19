@@ -7,13 +7,13 @@ const ASSETS = {
             `assets/2_character_pepe/2_walk/W-${i + 21}.png`
         ),
         jump: Array.from({ length: 9 }, (_, i) =>
-            `assets/2_character_pepe/2_walk/W-${i + 31}.png`
+            `assets/2_character_pepe/3_jump/J-${i + 31}.png`
         ),
         hurt: Array.from({ length: 3 }, (_, i) =>
-            `assets/2_character_pepe/2_walk/W-${i + 41}.png`
+            `assets/2_character_pepe/4_hurt/H-${i + 41}.png`
         ),
         dead: Array.from({ length: 7 }, (_, i) =>
-            `assets/2_character_pepe/2_walk/W-${i + 51}.png`
+            `assets/2_character_pepe/5_dead/D-${i + 51}.png`
         ),
         long_idle: Array.from({ length: 10 }, (_, i) =>
             `assets/2_character_pepe/1_idle/long_idle/I-${i + 11}.png`
@@ -25,7 +25,7 @@ const ASSETS = {
             `assets/3_enemies_chicken/chicken_normal/1_walk/${i + 1}_w.png`
         ),
         dead: Array.from({ length: 1 }, (_, i) =>
-            `assets/3_enemies_chicken/chicken_normal/1_walk/${i + 1}_w.png`
+            `assets/3_enemies_chicken/chicken_normal/2_dead/dead.png`
         ),
     },
 
@@ -34,7 +34,7 @@ const ASSETS = {
             `assets/3_enemies_chicken/chicken_small/1_walk/${i + 1}_w.png`
         ),
         dead: Array.from({ length: 1 }, (_, i) =>
-            `assets/3_enemies_chicken/chicken_small/1_walk/${i + 1}_w.png`
+            `assets/3_enemies_chicken/chicken_small/2_dead/dead.png`
         ),
     },
 
@@ -43,16 +43,16 @@ const ASSETS = {
             `assets/4_enemie_boss_chicken/1_walk/G${i + 1}.png`
         ),
         alert: Array.from({ length: 4 }, (_, i) =>
-            `assets/4_enemie_boss_chicken/1_alert/G${i + 1}.png`
+            `assets/4_enemie_boss_chicken/2_alert/G${i + 1}.png`
         ),
         attack: Array.from({ length: 4 }, (_, i) =>
-            `assets/4_enemie_boss_chicken/1_attack/G${i + 1}.png`
+            `assets/4_enemie_boss_chicken/3_attack/G${i + 1}.png`
         ),
         hurt: Array.from({ length: 4 }, (_, i) =>
-            `assets/4_enemie_boss_chicken/1_hurt/G${i + 1}.png`
+            `assets/4_enemie_boss_chicken/4_hurt/G${i + 1}.png`
         ),
         dead: Array.from({ length: 4 }, (_, i) =>
-            `assets/4_enemie_boss_chicken/1_dead/G${i + 1}.png`
+            `assets/4_enemie_boss_chicken/5_dead/G${i + 1}.png`
         ),
     },
 
