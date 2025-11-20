@@ -1,10 +1,11 @@
 class World {
     character;
-
     ctx;
     canvas;
     keyboard;
     camera_x = 0;
+    worldWidth;
+
 
     constructor(canvas, keyboard, level) {
         this.ctx = canvas.getContext("2d");
@@ -13,6 +14,7 @@ class World {
 
         this.character = new Character();
         this.level = level;
+        this.worldWidth = CONFIG.world.width; 
 
         this.gameLoop();
     }
@@ -29,6 +31,10 @@ class World {
         return this.level.backgroundObjects;
     }
 
+    get collectables() {
+    return this.level.collectables ;
+}
+
     gameLoop() {
         this.update();
         this.draw();
@@ -42,14 +48,18 @@ class World {
 
         this.enemies.forEach(e => e.update && e.update());
         this.clouds.forEach(c => c.update && c.update());
+        this.collectables.forEach(c => c.update && c.update());
     }
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.addObjectToMap(this.backgroundObjects);
-        this.addObjectToMap(this.enemies);
         this.addObjectToMap(this.clouds);
+        
+        this.addObjectToMap(this.collectables);
+        
+        this.addObjectToMap(this.enemies);
         this.addToMap(this.character);
     }
 

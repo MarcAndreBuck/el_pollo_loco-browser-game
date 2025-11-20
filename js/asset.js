@@ -136,10 +136,9 @@ const ASSETS = {
 
     coin: [
         "assets/8_coin/coin_1.png",
-        "assets/8_coin/coin_2.png"
-
+        "assets/8_coin/coin_2.png",
     ],
-    
+
     star_and_end_screen: {
 
         game_over: [
