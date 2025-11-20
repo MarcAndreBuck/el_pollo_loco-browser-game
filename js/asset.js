@@ -43,16 +43,16 @@ const ASSETS = {
             `assets/4_enemie_boss_chicken/1_walk/G${i + 1}.png`
         ),
         alert: Array.from({ length: 4 }, (_, i) =>
-            `assets/4_enemie_boss_chicken/2_alert/G${i + 1}.png`
+            `assets/4_enemie_boss_chicken/2_alert/G${i + 5}.png`
         ),
         attack: Array.from({ length: 4 }, (_, i) =>
-            `assets/4_enemie_boss_chicken/3_attack/G${i + 1}.png`
+            `assets/4_enemie_boss_chicken/3_attack/G${i + 13}.png`
         ),
-        hurt: Array.from({ length: 4 }, (_, i) =>
-            `assets/4_enemie_boss_chicken/4_hurt/G${i + 1}.png`
+        hurt: Array.from({ length: 3 }, (_, i) =>
+            `assets/4_enemie_boss_chicken/4_hurt/G${i + 21}.png`
         ),
-        dead: Array.from({ length: 4 }, (_, i) =>
-            `assets/4_enemie_boss_chicken/5_dead/G${i + 1}.png`
+        dead: Array.from({ length: 3 }, (_, i) =>
+            `assets/4_enemie_boss_chicken/5_dead/G${i + 24}.png`
         ),
     },
 

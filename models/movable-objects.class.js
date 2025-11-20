@@ -46,4 +46,8 @@ class MovableObject {
             this.loadImages(frames);
         });
     }
+
+    get worldWidth() {
+    return CONFIG.world.width;
+  }
 }

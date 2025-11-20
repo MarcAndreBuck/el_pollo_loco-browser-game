@@ -5,7 +5,6 @@ class World {
     canvas;
     keyboard;
     camera_x = 0;
-    worldWidth = 0;
 
     constructor(canvas, keyboard, level) {
         this.ctx = canvas.getContext("2d");
@@ -14,8 +13,6 @@ class World {
 
         this.character = new Character();
         this.level = level;
-
-        this.worldWidth = this.calculateWorldWidth(); 
 
         this.gameLoop();
     }
@@ -114,18 +111,5 @@ class World {
         if (this.camera_x > maxCameraX) {
             this.camera_x = maxCameraX;
         }
-    }
-
-    calculateWorldWidth() {
-        let max = 0;
-
-        this.level.backgroundObjects.forEach(bg => {
-            const end = bg.x + bg.width;
-            if (end > max) {
-                max = end;
-            }
-        });
-
-        return max;
     }
 }
