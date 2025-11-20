@@ -66,4 +66,103 @@ const ASSETS = {
     clouds: [
         "assets/5_background/layers/4_clouds/1.png",
     ],
+
+    bottle: {
+        rotation: Array.from({ length: 4 }, (_, i) =>
+            `assets/6_salsa_bottle/bottle_rotation/${i + 1}_bottle_rotation.png`
+        ),
+        splash: Array.from({ length: 6 }, (_, i) =>
+            `assets/6_salsa_bottle/bottle_rotation/bottle_splash/${i + 1}_bottle_splash.png`
+        ),
+        on_ground: Array.from({ length: 2 }, (_, i) =>
+            `assets/6_salsa_bottle/${i + 1}_salsa_bottle_on_ground.png`
+        )
+    },
+
+    statusbar: {
+
+        coin: {
+            blue: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/${i * 20}.png`
+            ),
+            green: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/1_statusbar/1_statusbar_coin/green/${i * 20}.png`
+            ),
+            orange: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/${i * 20}.png`
+            ),
+            icon: ["assets/7_statusbars/3_icons/icon_coin.png"],
+        },
+
+        healt: {
+            blue: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/1_statusbar/2_statusbar_health/blue/${i * 20}.png`
+            ),
+            green: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/1_statusbar/2_statusbar_health/green/${i * 20}.png`
+            ),
+            orange: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/1_statusbar/2_statusbar_health/orange/${i * 20}.png`
+            ),
+            icon: ["assets/7_statusbars/3_icons/icon_health.png"],
+        },
+
+        bottle: {
+            blue: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/${i * 20}.png`
+            ),
+            green: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/1_statusbar/3_statusbar_bottle/green/${i * 20}.png`
+            ),
+            orange: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/1_statusbar/3_statusbar_bottle/orange/${i * 20}.png`
+            ),
+            icon: ["assets/7_statusbars/3_icons/icon_salsa_bottle.png"],
+        },
+
+        endboss: {
+            blue: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/2_statusbar_endboss/blue/blue${i * 20}.png`
+            ),
+            green: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/2_statusbar_endboss/green/green${i * 20}.png`
+            ),
+            orange: Array.from({ length: 6 }, (_, i) =>
+                `assets/7_statusbars/2_statusbar_endboss/orange/orange${i * 20}.png`
+            ),
+            icon: ["assets/7_statusbars/3_icons/icon_health_endboss.png"],
+        },
+    },
+
+    coin: [
+        "assets/8_coin/coin_1.png",
+        "assets/8_coin/coin_2.png"
+
+    ],
+    
+    star_and_end_screen: {
+
+        game_over: [
+            "assets/9_intro_outro_screens/game_over/game over!.png",
+            "assets/9_intro_outro_screens/game_over/game over.png",
+            "assets/9_intro_outro_screens/game_over/oh no you lost!.png",
+            "assets/9_intro_outro_screens/game_over/you lost.png",
+            "assets/You won, you lost/Game Over.png",
+            "assets/You won, you lost/You lost.png",
+
+        ],
+
+        start: [
+            "assets/9_intro_outro_screens/start/startscreen_1.png",
+            "assets/9_intro_outro_screens/start/startscreen_2.png",
+        ],
+
+        win: [
+            "assets/You won, you lost/You Win A.png",
+            "assets/You won, you lost/You win B.png",
+            "assets/You won, you lost/You won A.png",
+            "assets/You won, you lost/You Won B.png",
+        ]
+    },
+
 };
