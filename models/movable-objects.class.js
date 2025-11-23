@@ -9,6 +9,7 @@ class MovableObject {
     animationFrame = 0;
     speed = 0.25;
     otherDirection = false;
+    isDead = false;
 
     speedY = 0;
     acceleration = 0.2;
@@ -17,6 +18,16 @@ class MovableObject {
     groundY = 430;
     isGrounded = false;
     feetOffset = 0;
+
+    collisionCategory = "other";
+    health;
+
+    hitbox = {
+        offsetX: 0,
+        offsetY: 0,
+        width: null,
+        height: null,
+    };
 
     loadImage(path) {
         this.img = new Image();
@@ -61,6 +72,29 @@ class MovableObject {
         return this.y + this.height - this.feetOffset;
     }
 
+    setHitbox(offsetX = 0, offsetY = 0, width = null, height = null) {
+        this.hitbox.offsetX = offsetX;
+        this.hitbox.offsetY = offsetY;
+        this.hitbox.width = width;
+        this.hitbox.height = height;
+    }
+
+
+    getHitbox() {
+        const width = this.hitbox.width ?? this.width;
+        const height = this.hitbox.height ?? this.height;
+
+        return {
+            x: this.x + this.hitbox.offsetX,
+            y: this.y + this.hitbox.offsetY,
+            width,
+            height,
+        };
+    }
+
+    snapToGround() {
+        this.y = this.groundY - this.height + this.feetOffset;
+    }
 
     applyGravity() {
         if (!this.hasGravity) return;
@@ -69,7 +103,7 @@ class MovableObject {
         this.y += this.speedY;
 
         if (this.bottom >= this.groundY) {
-            this.y = this.groundY - this.height;
+            this.snapToGround();
             this.speedY = 0;
             this.isGrounded = true;
         } else {
@@ -89,22 +123,32 @@ class MovableObject {
         this.moveHorizontal(-speed);
     }
 
-    snapToGround() {
-        this.y = this.groundY - this.height + this.feetOffset;;
+    playOnce(images, fps = 10) {
+        const now = performance.now();
+        const frameDuration = 1000 / fps;
+        if (!this.lastFrameTime) this.lastFrameTime = now;
+
+        if (now - this.lastFrameTime >= frameDuration && this.currentImage < images.length - 1) {
+            this.currentImage++;
+            this.img = this.imageCache[images[this.currentImage]];
+            this.lastFrameTime = now;
+        }
     }
 
-    applyGravity() {
-        if (!this.hasGravity) return;
+    die() {
+        this.isDead = true;
+        this.currentImage = 0;
+        this.lastFrameTime = null;
+    }
 
-        this.speedY += this.acceleration;
-        this.y += this.speedY;
+    takeDamage(amount = 1) {
+        if (this.isDead) return;
 
-        if (this.bottom >= this.groundY) {
-            this.snapToGround();
-            this.speedY = 0;
-            this.isGrounded = true;
-        } else {
-            this.isGrounded = false;
+        this.health -= amount;
+        console.log(this.collisionCategory, "HP:", this.health);
+
+        if (this.health <= 0) {
+            this.die();
         }
     }
 }
