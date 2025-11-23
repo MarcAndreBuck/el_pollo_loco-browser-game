@@ -16,6 +16,7 @@ class MovableObject {
 
     groundY = 430;
     isGrounded = false;
+    feetOffset = 0;
 
     loadImage(path) {
         this.img = new Image();
@@ -57,7 +58,7 @@ class MovableObject {
     }
 
     get bottom() {
-        return this.y + this.height;
+        return this.y + this.height - this.feetOffset;
     }
 
 
@@ -86,5 +87,24 @@ class MovableObject {
 
     moveLeft(speed = this.speed) {
         this.moveHorizontal(-speed);
+    }
+
+    snapToGround() {
+        this.y = this.groundY - this.height + this.feetOffset;;
+    }
+
+    applyGravity() {
+        if (!this.hasGravity) return;
+
+        this.speedY += this.acceleration;
+        this.y += this.speedY;
+
+        if (this.bottom >= this.groundY) {
+            this.snapToGround();
+            this.speedY = 0;
+            this.isGrounded = true;
+        } else {
+            this.isGrounded = false;
+        }
     }
 }
