@@ -1,7 +1,7 @@
 class Cloud extends MovableObject {
     constructor() {
         super();
-        this.x = Math.random() * 720;
+        this.x = Math.random() * this.worldWidth;
         this.y = 0;
         this.height = 480;
         this.width = 720;
@@ -11,10 +11,10 @@ class Cloud extends MovableObject {
     }
 
     update() {
-        this.x -= this.speed;
+        this.moveLeft(this.speed)
 
         if (this.x + this.width < 0) {
-            this.x = this.x + this.width + 720; 
+            this.x = this.x + this.width + this.worldWidth; 
         }
     }
 }
