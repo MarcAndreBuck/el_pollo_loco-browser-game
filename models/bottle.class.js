@@ -4,7 +4,7 @@ class Bottle extends MovableObject {
 
         this.animations = ASSETS.bottle; 
         this.x = x;
-        this.y = y;
+        this.snapToGround() ;
 
         this.loadImage(this.animations.on_ground[0]); 
     }
