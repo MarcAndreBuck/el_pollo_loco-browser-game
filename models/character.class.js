@@ -134,6 +134,8 @@ class Character extends MovableObject {
         const isNearGround = d > 0 && d <= margin;
         const isFallingDown = v > 0;
 
+        if (!isNearGround || !isFallingDown || frameCount < 9) return null;
+
         if (d > margin * (2 / 3)) return 6;
         if (d > margin * (1 / 3)) return 7;
         return 8;
