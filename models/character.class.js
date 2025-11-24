@@ -1,4 +1,5 @@
 class Character extends MovableObject {
+    collisionCategory = "player";
     x = 50;
     y = 0;
     height = 250;
@@ -7,6 +8,7 @@ class Character extends MovableObject {
 
     isMoving = false;
     lastActionTime = Date.now();
+    deathFinished = false;
 
     constructor() {
         super();
@@ -14,11 +16,15 @@ class Character extends MovableObject {
         this.animations = ASSETS.character;
         this.preloadAnimations(this.animations);
         this.loadImage(this.animations.idle[0]);
+        this.setHitbox(0, 95, 100, 145);
+        this.health = 100;
     }
+
+    /* ---------- Input / Movement ---------- */
 
     checkMovement() {
         if (keyboard.RIGHT) {
-            this.moveRight(this.speed)
+            this.moveRight(this.speed);
             this.otherDirection = false;
             this.isMoving = true;
             this.resetIdleTimer();
@@ -26,7 +32,7 @@ class Character extends MovableObject {
         }
 
         if (keyboard.LEFT) {
-            this.moveLeft(this.speed)
+            this.moveLeft(this.speed);
             this.otherDirection = true;
             this.isMoving = true;
             this.resetIdleTimer();
@@ -37,9 +43,7 @@ class Character extends MovableObject {
     }
 
     handleJumpInput() {
-        if (keyboard.SPACE) {
-            this.jump();
-        }
+        if (keyboard.SPACE) this.jump();
     }
 
     jump() {
@@ -49,6 +53,8 @@ class Character extends MovableObject {
         this.resetIdleTimer();
     }
 
+    /* ---------- Idle / Timer ---------- */
+
     resetIdleTimer() {
         this.lastActionTime = Date.now();
     }
@@ -57,7 +63,24 @@ class Character extends MovableObject {
         return Date.now() - this.lastActionTime > 4000;
     }
 
+    /* ---------- Animation ---------- */
+
+    handleDeathAnimation() {
+        if (!this.isDead) return false;
+
+        this.playAnimation(
+            this.animations.dead,
+            8,
+            false,
+            () => { this.deathFinished = true; },
+        );
+
+        return true;
+    }
+
     updateAnimation() {
+        if (this.handleDeathAnimation()) return;
+
         if (!this.isGrounded && this.animations.jump) {
             this.updateJumpFrame();
             return;
@@ -77,6 +100,12 @@ class Character extends MovableObject {
     }
 
     update() {
+        if (this.isDead) {
+            this.applyGravity();
+            this.updateAnimation();
+            return;
+        }
+
         this.checkMovement();
         this.handleJumpInput();
         this.wasGrounded = this.isGrounded;
@@ -84,47 +113,38 @@ class Character extends MovableObject {
         this.updateAnimation();
     }
 
+    /* ---------- Jump-Frames ---------- */
 
     updateJumpFrame() {
         const frames = this.animations.jump;
-        const v = this.speedY;
+
         const d = this.distanceToGround;
+        const v = this.speedY;
         const margin = 10;
-        let idx;
 
-
-        if (d > 0 && d <= margin && v > 0 && frames.length >= 9) {
-
-            if (d > margin * (2 / 3)) {
-                idx = 6;
-            } else if (d > margin * (1 / 3)) {
-                idx = 7
-            } else {
-                idx = 8
-            }
-
-            this.img = this.imageCache[frames[idx]];
-            return;
+        let idx = this.getLandingFrameIndex(d, v, margin, frames.length);
+        if (idx === null) {
+            idx = this.getAirFrameIndex(v);
         }
 
+        this.img = this.imageCache[frames[idx]];
+    }
 
+    getLandingFrameIndex(d, v, margin, frameCount) {
+        const isNearGround = d > 0 && d <= margin;
+        const isFallingDown = v > 0;
 
+        if (d > margin * (2 / 3)) return 6;
+        if (d > margin * (1 / 3)) return 7;
+        return 8;
+    }
 
-        if (v < -15) {
-            idx = 0;
-        } else if (v < -12) {
-            idx = 1;
-        } else if (v < -10) {
-            idx = 2;
-        } else if (v < 0) {
-            idx = 3;
-        } else if (v < 4) {
-            idx = 4;
-        } else {
-            idx = 5;
-        }
-
-        const path = frames[idx];
-        this.img = this.imageCache[path];
+    getAirFrameIndex(v) {
+        if (v < -15) return 0;
+        if (v < -12) return 1;
+        if (v < -10) return 2;
+        if (v < 0) return 3;
+        if (v < 2) return 4;
+        return 5;
     }
 }
