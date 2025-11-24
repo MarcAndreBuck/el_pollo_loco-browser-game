@@ -54,21 +54,24 @@ class MovableObject {
 
     /* ---------- Animation (universal) ---------- */
 
+
     playAnimation(images, fps = 10, loop = true, cb = null) {
         if (!this.updateAnimationFrame(images, fps)) return;
 
-        const end = this.isLastFrame(images);
-        if (end && !loop) {
-            cb && cb();
-            return;
-        }
-
-        this.currentImage = end ? 0 : this.currentImage + 1;
         this.applyFrame(images);
+
+        if (this.isLastFrame(images)) {
+            if (!loop) {
+                cb && cb();
+                return;
+            }
+            this.currentImage = 0;
+        } else {
+            this.currentImage++;
+        }
     }
 
     updateAnimationFrame(images, fps) {
-        if (!images?.length) return false;
 
         const now = performance.now();
         const frameDur = 1000 / fps;
