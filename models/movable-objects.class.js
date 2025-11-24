@@ -6,7 +6,7 @@ class MovableObject {
     width = 100;
     imageCache = {};
     currentImage = 0;
-    animationFrame = 0;
+    currentAnimation = null;
     speed = 0.25;
     otherDirection = false;
     isDead = false;
@@ -20,7 +20,7 @@ class MovableObject {
     feetOffset = 0;
 
     collisionCategory = "other";
-    health;
+    health = 0;
 
     hitbox = {
         offsetX: 0,
@@ -29,40 +29,75 @@ class MovableObject {
         height: null,
     };
 
+    constructor() {
+        this.lastFrameTime = 0;
+    }
+
+    /* ---------- Assets ---------- */
+
     loadImage(path) {
         this.img = new Image();
         this.img.src = path;
     }
 
     loadImages(arr) {
-        arr.forEach((path) => {
+        arr.forEach(path => {
             const img = new Image();
             img.src = path;
             this.imageCache[path] = img;
         });
     }
 
-    playAnimation(images, fps = 10) {
-        const now = performance.now();
-        const frameDuration = 1000 / fps;
-
-        if (!this.lastFrameTime) {
-            this.lastFrameTime = now;
-        }
-
-        if (now - this.lastFrameTime >= frameDuration) {
-            this.currentImage = (this.currentImage + 1) % images.length;
-            const path = images[this.currentImage];
-            this.img = this.imageCache[path];
-            this.lastFrameTime = now;
-        }
-    }
-
     preloadAnimations(animations) {
-        Object.values(animations).forEach((frames) => {
-            this.loadImages(frames);
-        });
+        Object.values(animations).forEach(frames => this.loadImages(frames));
     }
+
+    /* ---------- Animation (universal) ---------- */
+
+    playAnimation(images, fps = 10, loop = true, cb = null) {
+        if (!this.updateAnimationFrame(images, fps)) return;
+
+        const end = this.isLastFrame(images);
+        if (end && !loop) {
+            cb && cb();
+            return;
+        }
+
+        this.currentImage = end ? 0 : this.currentImage + 1;
+        this.applyFrame(images);
+    }
+
+    updateAnimationFrame(images, fps) {
+        if (!images?.length) return false;
+
+        const now = performance.now();
+        const frameDur = 1000 / fps;
+
+        this.startNewAnimation(images, now);
+
+        if (!this.lastFrameTime) this.lastFrameTime = now;
+        if (now - this.lastFrameTime < frameDur) return false;
+
+        this.lastFrameTime = now;
+        return true;
+    }
+
+    startNewAnimation(images, now) {
+        if (this.currentAnimation === images) return;
+        this.currentAnimation = images;
+        this.currentImage = 0;
+        this.lastFrameTime = now;
+    }
+
+    isLastFrame(images) {
+        return this.currentImage >= images.length - 1;
+    }
+
+    applyFrame(images) {
+        this.img = this.imageCache[images[this.currentImage]];
+    }
+
+    /* ---------- Geometrie / Hitbox ---------- */
 
     get worldWidth() {
         return CONFIG.world.width;
@@ -79,7 +114,6 @@ class MovableObject {
         this.hitbox.height = height;
     }
 
-
     getHitbox() {
         const width = this.hitbox.width ?? this.width;
         const height = this.hitbox.height ?? this.height;
@@ -91,6 +125,8 @@ class MovableObject {
             height,
         };
     }
+
+    /* ---------- Bewegung / Physik ---------- */
 
     snapToGround() {
         this.y = this.groundY - this.height + this.feetOffset;
@@ -123,31 +159,22 @@ class MovableObject {
         this.moveHorizontal(-speed);
     }
 
-    playOnce(images, fps = 10) {
-        const now = performance.now();
-        const frameDuration = 1000 / fps;
-        if (!this.lastFrameTime) this.lastFrameTime = now;
-
-        if (now - this.lastFrameTime >= frameDuration && this.currentImage < images.length - 1) {
-            this.currentImage++;
-            this.img = this.imageCache[images[this.currentImage]];
-            this.lastFrameTime = now;
-        }
-    }
+    /* ---------- Leben / Schaden ---------- */
 
     die() {
         this.isDead = true;
         this.currentImage = 0;
-        this.lastFrameTime = null;
+        this.lastFrameTime = 0;
+        this.currentAnimation = null;
     }
 
     takeDamage(amount = 1) {
         if (this.isDead) return;
 
-        this.health -= amount;
+        this.health = Math.max(0, this.health - amount);
         console.log(this.collisionCategory, "HP:", this.health);
 
-        if (this.health <= 0) {
+        if (this.health === 0) {
             this.die();
         }
     }
