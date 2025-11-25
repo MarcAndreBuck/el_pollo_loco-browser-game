@@ -172,13 +172,13 @@ class MovableObject {
     }
 
     takeDamage(amount = 1) {
-        if (this.isDead) return;
+    if (this.isDead) return;
 
-        this.health = Math.max(0, this.health - amount);
-        console.log(this.collisionCategory, "HP:", this.health);
+    this.health = Math.max(0, this.health - amount);
 
-        if (this.health === 0) {
-            this.die();
-        }
-    }
+    this.isHurt = true;
+    this.hurtUntil = performance.now() + 300; 
+
+    if (this.health === 0) this.die();
+}
 }

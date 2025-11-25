@@ -65,21 +65,17 @@ class Character extends MovableObject {
 
     /* ---------- Animation ---------- */
 
-    handleDeathAnimation() {
-        if (!this.isDead) return false;
-
-        this.playAnimation(
-            this.animations.dead,
-            8,
-            false,
-            () => { this.deathFinished = true; },
-        );
-
-        return true;
-    }
-
     updateAnimation() {
-        if (this.handleDeathAnimation()) return;
+        if (this.isHurt && performance.now() > this.hurtUntil) { this.isHurt = false; }
+        if (this.isDead) {
+            this.playAnimation(this.animations.dead, 8, false, () => { this.deathFinished = true; },);
+            return
+        }
+
+        if (this.isHurt && this.animations.hurt) {
+            this.playAnimation(this.animations.hurt, 10);
+            return;
+        }
 
         if (!this.isGrounded && this.animations.jump) {
             this.updateJumpFrame();
