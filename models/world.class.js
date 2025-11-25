@@ -12,9 +12,13 @@ class World {
     collisionSystem;
     debug;
 
-
     coins = 0;
     bottles = 0;
+    maxBottles = 0;
+
+    endboss = null;
+    bossFightStarted = false;
+    bossHealthBar = null;
 
 
     constructor(canvas, keyboard, level) {
@@ -25,12 +29,25 @@ class World {
         this.worldWidth = CONFIG.world.width;
 
         this.character = new Character();
+
+        // Anzahl Flaschen im Level zählen
+        this.maxBottles = this.level.collectables.filter(
+            (c) => c instanceof Bottle
+        ).length;
+
+        // UI-Bars initialisieren
+        this.healthBar  = new HealthBar(20, 10, this);
+        this.bottleBar  = new BottleBar(20, 50, this);
+        this.coinCounter = new CoinCounter(20, 100);
+
         this.collisionSystem = new CollisionSystem(this);
         this.debug = new DebugSystem(this);
 
         this.initEndscreenLoader();
         this.gameLoop();
     }
+
+    /* ---------- Getter für Level-Objekte ---------- */
 
     get enemies() {
         return this.level.enemies;
@@ -47,6 +64,8 @@ class World {
     get collectables() {
         return this.level.collectables;
     }
+
+    /* ---------- Game-Loop ---------- */
 
     gameLoop() {
         this.update();
@@ -73,9 +92,21 @@ class World {
 
         this.enemies.forEach(e => e.update());
         this.clouds.forEach(c => c.update());
+        this.level.collectables.forEach(c => c.update());
         this.level.collectables = this.level.collectables.filter(c => !c.isCollected);
 
         this.collisionSystem.update();
+
+        // Boss-Kampf triggern, falls erreicht
+        this.checkBossTrigger();
+
+        // UI aktualisieren (Health, Bottles)
+        this.updateUI();
+
+        // Boss-Healthbar updaten, falls aktiv
+        if (this.bossFightStarted && this.bossHealthBar) {
+            this.bossHealthBar.update();
+        }
     }
 
     draw() {
@@ -86,6 +117,8 @@ class World {
         this.addObjectToMap(this.collectables);
         this.addObjectToMap(this.enemies);
         this.addToMap(this.character);
+
+        this.drawUI();
 
         if (this.gameOver) {
             this.drawEndScreen(ASSETS.start_and_end_screen.game_over);
@@ -100,12 +133,59 @@ class World {
         this.debug.drawHitboxes();
     }
 
+    /* ---------- UI ---------- */
+
+    updateUI() {
+        this.healthBar.update();
+        this.bottleBar.update();
+    }
+
+    drawUI() {
+        this.healthBar.draw(this.ctx);
+        this.bottleBar.draw(this.ctx);
+        this.coinCounter.draw(this.ctx, this);
+
+        if (this.bossFightStarted && this.bossHealthBar) {
+            this.bossHealthBar.draw(this.ctx);
+        }
+    }
+
+    /* ---------- Boss-Trigger ---------- */
+
+    checkBossTrigger() {
+        if (this.bossFightStarted) return;
+
+        const BOSS_TRIGGER_X = this.worldWidth * 0.6;
+
+        if (this.character.x >= BOSS_TRIGGER_X) {
+            this.startBossFight();
+        }
+    }
+
+    startBossFight() {
+        this.bossFightStarted = true;
+
+        this.endboss = new Endboss();
+        this.endboss.x = this.worldWidth - 350;
+
+        this.level.enemies.push(this.endboss);
+
+        this.bossHealthBar = new ChickenBossHealth(
+            this.canvas.width - 240,
+            10,
+            this
+        );
+
+        console.log("[World] Bossfight gestartet");
+    }
+
+    /* ---------- Render-Helper ---------- */
+
     addObjectToMap(objects) {
         objects.forEach(o => this.addToMap(o));
     }
 
     addToMap(mo) {
-
         const drawX = mo.x - this.camera_x;
         this.ctx.save();
 
@@ -131,7 +211,7 @@ class World {
         this.ctx.restore();
     }
 
-    /* ---------- Grenzen & Kamera ---------- */
+    /* ---------- Kamera & Bewegung ---------- */
 
     keepCharacterInBounds() {
         const right = this.worldWidth - this.character.width;
