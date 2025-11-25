@@ -12,6 +12,11 @@ class World {
     collisionSystem;
     debug;
 
+
+    coins = 0;
+    bottles = 0;
+
+
     constructor(canvas, keyboard, level) {
         this.ctx = canvas.getContext("2d");
         this.canvas = canvas;
@@ -66,9 +71,9 @@ class World {
         this.keepCharacterInBounds();
         this.updateCamera();
 
-        this.enemies.forEach(e => e.update && e.update());
-        this.clouds.forEach(c => c.update && c.update());
-        this.collectables.forEach(c => c.update && c.update());
+        this.enemies.forEach(e => e.update());
+        this.clouds.forEach(c => c.update());
+        this.level.collectables = this.level.collectables.filter(c => !c.isCollected);
 
         this.collisionSystem.update();
     }

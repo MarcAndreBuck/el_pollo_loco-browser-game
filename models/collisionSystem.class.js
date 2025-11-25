@@ -8,7 +8,7 @@ class CollisionSystem {
         this.handleCollectableCollisions();
     }
 
-    static hitTest(a, b) {
+    hitTest(a, b) {
         const boxA = a.getHitbox();
         const boxB = b.getHitbox();
 
@@ -35,13 +35,14 @@ class CollisionSystem {
         const { character, enemies } = this.world;
 
         enemies.forEach(enemy => {
-            if (!CollisionSystem.hitTest(character, enemy)) return;
+            if (enemy.isDead) return;
+            if (!this.hitTest(character, enemy)) return;
 
             if (this.isStompFromAbove(character, enemy)) {
-                if (!enemy.isDead && typeof enemy.die === "function") {
+                if (!enemy.isDead) {
                     enemy.die();
                 }
-                character.speedY = -2;
+                character.speedY = -6;  // TODO: bearbeiten des Rebounce beim stomp
                 return;
             }
 
@@ -53,10 +54,9 @@ class CollisionSystem {
         const { character, collectables } = this.world;
 
         collectables.forEach(item => {
-            if (!CollisionSystem.hitTest(character, item)) return;
+            if (!this.hitTest(character, item)) return;
 
-            console.log("Character collected item:", item);
-            // TODO: Score erhöhen, Item entfernen etc.
+            item.onCollect(this.world)
         });
     }
 }
