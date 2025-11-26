@@ -1,10 +1,6 @@
-class MovableObject {
+class MovableObject extends DrawableObject {
     x = 120;
     y = 335;
-    img;
-    height = 100;
-    width = 100;
-    imageCache = {};
     currentImage = 0;
     currentAnimation = null;
     speed = 0.25;
@@ -30,30 +26,17 @@ class MovableObject {
     };
 
     constructor() {
+        super(); 
         this.lastFrameTime = 0;
     }
 
-    /* ---------- Assets ---------- */
-
-    loadImage(path) {
-        this.img = new Image();
-        this.img.src = path;
-    }
-
-    loadImages(arr) {
-        arr.forEach(path => {
-            const img = new Image();
-            img.src = path;
-            this.imageCache[path] = img;
-        });
-    }
+    /* ---------- Assets (nutzt DrawableObject.loadImages) ---------- */
 
     preloadAnimations(animations) {
         Object.values(animations).forEach(frames => this.loadImages(frames));
     }
 
     /* ---------- Animation (universal) ---------- */
-
 
     playAnimation(images, fps = 10, loop = true, cb = null) {
         if (!this.updateAnimationFrame(images, fps)) return;
@@ -72,7 +55,6 @@ class MovableObject {
     }
 
     updateAnimationFrame(images, fps) {
-
         const now = performance.now();
         const frameDur = 1000 / fps;
 
@@ -97,7 +79,8 @@ class MovableObject {
     }
 
     applyFrame(images) {
-        this.img = this.imageCache[images[this.currentImage]];
+        const path = images[this.currentImage];
+        this.img = this.imageCache[path];
     }
 
     /* ---------- Geometrie / Hitbox ---------- */
@@ -172,13 +155,13 @@ class MovableObject {
     }
 
     takeDamage(amount = 1) {
-    if (this.isDead) return;
+        if (this.isDead) return;
 
-    this.health = Math.max(0, this.health - amount);
+        this.health = Math.max(0, this.health - amount);
 
-    this.isHurt = true;
-    this.hurtUntil = performance.now() + 300; 
+        this.isHurt = true;
+        this.hurtUntil = performance.now() + 300;
 
-    if (this.health === 0) this.die();
-}
+        if (this.health === 0) this.die();
+    }
 }
