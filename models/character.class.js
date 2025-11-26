@@ -8,7 +8,6 @@ class Character extends MovableObject {
 
     isMoving = false;
     lastActionTime = Date.now();
-    deathFinished = false;
 
     constructor() {
         super();
@@ -18,6 +17,7 @@ class Character extends MovableObject {
         this.loadImage(this.animations.idle[0]);
         this.setHitbox(0, 95, 100, 145);
         this.health = 100;
+        this.snapToGround()
     }
 
     /* ---------- Input / Movement ---------- */
@@ -37,6 +37,10 @@ class Character extends MovableObject {
             this.isMoving = true;
             this.resetIdleTimer();
             return;
+        }
+
+        if (keyboard.THROW) {
+            this.wantsToThrow = true;
         }
 
         this.isMoving = false;
@@ -63,31 +67,34 @@ class Character extends MovableObject {
         return Date.now() - this.lastActionTime > 4000;
     }
 
+    isHurtActive() {
+        return this.isHurt && performance.now() <= this.hurtUntil;
+    }
+
     /* ---------- Animation ---------- */
 
     updateAnimation() {
-        if (this.isHurt && performance.now() > this.hurtUntil) { this.isHurt = false; }
         if (this.isDead) {
             this.playAnimation(this.animations.dead, 8, false, () => { this.deathFinished = true; },);
             return
         }
 
-        if (this.isHurt && this.animations.hurt) {
+        if (this.isHurtActive()) {
             this.playAnimation(this.animations.hurt, 10);
             return;
         }
 
-        if (!this.isGrounded && this.animations.jump) {
+        if (!this.isGrounded) {
             this.updateJumpFrame();
             return;
         }
 
-        if (this.isMoving && this.animations.walk) {
+        if (this.isMoving) {
             this.playAnimation(this.animations.walk, 12);
             return;
         }
 
-        if (this.idleTooLong() && this.animations.long_idle) {
+        if (this.idleTooLong()) {
             this.playAnimation(this.animations.long_idle, 8);
             return;
         }
