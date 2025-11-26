@@ -6,6 +6,7 @@ class CollisionSystem {
     update() {
         this.handleEnemyCollisions();
         this.handleCollectableCollisions();
+        this.handleProjectileCollisions();
     }
 
     hitTest(a, b) {
@@ -42,7 +43,7 @@ class CollisionSystem {
                 if (!enemy.isDead) {
                     enemy.die();
                 }
-                character.speedY = -6;  // TODO: bearbeiten des Rebounce beim stomp
+                character.speedY = -6;
                 return;
             }
             character.takeDamage(1);
@@ -60,22 +61,24 @@ class CollisionSystem {
     }
 
     handleProjectileCollisions() {
-    const { projectiles, enemies, endboss } = this.world;
+        const { projectiles, enemies, endboss } = this.world;
 
-    projectiles.forEach(p => {
-        enemies.forEach(enemy => {
-            if (enemy.isDead) return;
-            if (!this.hitTest(p, enemy)) return;
+        projectiles.forEach(bottle => {
+            if (bottle.hasHit) return;
 
-            enemy.takeDamage?.(1);
-            p.break();
+            enemies.forEach(enemy => {
+                if (enemy.isDead || enemy === endboss) return;
+                if (!this.hitTest(bottle, enemy)) return;
+
+                enemy.takeDamage?.(1);
+                bottle.break();
+            });
+
+            if (endboss && !endboss.isDead && this.hitTest(bottle, endboss)) {
+                endboss.takeDamage(20);
+                bottle.break();
+            }
         });
-
-        if (endboss && !endboss.isDead && this.hitTest(p, endboss)) {
-            endboss.takeDamage(1);
-            p.break();
-        }
-    });
-}
+    }
 
 }

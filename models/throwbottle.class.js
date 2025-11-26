@@ -1,5 +1,6 @@
 class ThrowBottle extends MovableObject {
     collisionCategory = "projectile";
+    hasHit = false;
 
     constructor(x, y, direction = 1) {
         super();
@@ -11,8 +12,8 @@ class ThrowBottle extends MovableObject {
         this.x = x;
         this.y = y;
 
-        this.speedX = 4 * direction;
-        this.speedY = -8;
+        this.speedX = 6 * direction;
+        this.speedY = -7;
 
         this.hasGravity = true;
 
@@ -49,5 +50,6 @@ class ThrowBottle extends MovableObject {
         this.speedX = 0;
         this.speedY = 0;
         this.hasGravity = false;
+        this.hasHit = true;
     }
 }
