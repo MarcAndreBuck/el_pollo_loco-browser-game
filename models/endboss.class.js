@@ -13,7 +13,7 @@ class Endboss extends MovableObject {
         this.feetOffset = 30;
         this.speed = 0.4;
 
-        this.x = CONFIG.world.width - 300;
+        this.x = this.world.worldWidth - 300;
         this.snapToGround();
 
         this.preloadAnimations(this.animations);

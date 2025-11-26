@@ -85,9 +85,6 @@ class MovableObject extends DrawableObject {
 
     /* ---------- Geometrie / Hitbox ---------- */
 
-    get worldWidth() {
-        return CONFIG.world.width;
-    }
 
     get bottom() {
         return this.y + this.height - this.feetOffset;

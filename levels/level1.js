@@ -1,8 +1,9 @@
 const LEVEL1_SEGMENTS = 4;
 const TILE_WIDTH = 719;
+const LEVEL1_WIDTH = LEVEL1_SEGMENTS * TILE_WIDTH;
 
 
-CONFIG.world.width = LEVEL1_SEGMENTS * TILE_WIDTH;
+
 
 const level1 = new Level(
     [
@@ -38,8 +39,16 @@ const level1 = new Level(
     [
         new Coin(200, 270),
         new Coin(800, 350),
-        new Bottle(1200, 360),
-    ],
 
+
+
+        new Bottle(500, 360),
+        new Bottle(600, 360),
+        new Bottle(900, 360),
+        new Bottle(1450, 360),
+        new Bottle(1600, 360),
+        new Bottle(2000, 360),
+    ],
+    LEVEL1_WIDTH,
 );
 

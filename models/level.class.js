@@ -5,12 +5,13 @@ class Level {
     backgroundObjects;
     worldWidth = 0;
 
-    constructor(enemies, backgroundObjects, clouds, collectables = []) {
+    constructor(enemies = [], backgroundObjects = [], clouds = [], collectables = [], levelWidth = 0) {
 
         this.enemies = enemies;
-        this.clouds = clouds;
         this.backgroundObjects = backgroundObjects;
+        this.clouds = clouds;
         this.collectables = collectables;
+        this.worldWidth = levelWidth
     }
 
 }

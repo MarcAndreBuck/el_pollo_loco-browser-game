@@ -36,7 +36,7 @@ class World {
         this.canvas = canvas;
         this.keyboard = keyboard;
         this.level = level;
-        this.worldWidth = CONFIG.world.width;
+        this.worldWidth = level.worldWidth;
 
         this.initCharacter();
         this.initUI();
@@ -44,13 +44,7 @@ class World {
         this.initMaxBottles();
         this.initEndscreenLoader();
 
-        // ✅ NEW — Kamera erzeugen
-        this.camera = new Camera(
-            this.worldWidth,
-            this.canvas.width,
-            150,  // Sicht nach links
-            300   // Sicht nach rechts
-        );
+        this.camera = new Camera(this.worldWidth, this.canvas.width, 150, 300);
 
         this.gameLoop();
     }
@@ -116,8 +110,6 @@ class World {
         }
 
         this.keepCharacterInBounds();
-
-        // ✅ Kamera folgt Charakter
         this.camera.update(this.character);
 
         this.updateLevelObjects();
@@ -198,7 +190,7 @@ class World {
     startBossFight() {
         this.bossFightStarted = true;
 
-        this.endboss = new Endboss();
+        this.endboss = new Endboss(this);
         this.endboss.world = this;
         this.endboss.x = this.worldWidth - 350;
         this.level.enemies.push(this.endboss);
