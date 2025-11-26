@@ -10,7 +10,7 @@ class World {
     collisionSystem;
     debug;
 
-    camera_x = 0;
+    camera;
     worldWidth;
 
     coins = 0;
@@ -44,10 +44,18 @@ class World {
         this.initMaxBottles();
         this.initEndscreenLoader();
 
+        // ✅ NEW — Kamera erzeugen
+        this.camera = new Camera(
+            this.worldWidth,
+            this.canvas.width,
+            150,  // Sicht nach links
+            300   // Sicht nach rechts
+        );
+
         this.gameLoop();
     }
 
-    /* ---------- Level Object Getters (wichtig!) ---------- */
+    /* ---------- Level Object Getters ---------- */
 
     get enemies() {
         return this.level.enemies;
@@ -102,13 +110,15 @@ class World {
         this.character.update();
 
         if (this.character.isDead) {
-            this.updateCamera();
+            this.camera.update(this.character);
             if (this.character.deathFinished) this.gameOver = true;
             return;
         }
 
         this.keepCharacterInBounds();
-        this.updateCamera();
+
+        // ✅ Kamera folgt Charakter
+        this.camera.update(this.character);
 
         this.updateLevelObjects();
         this.handleThrow();
@@ -189,7 +199,7 @@ class World {
         this.bossFightStarted = true;
 
         this.endboss = new Endboss();
-        this.endboss.world = this;   
+        this.endboss.world = this;
         this.endboss.x = this.worldWidth - 350;
         this.level.enemies.push(this.endboss);
 
@@ -235,7 +245,8 @@ class World {
     }
 
     addToMap(mo) {
-        const drawX = mo.x - this.camera_x;
+        const drawX = mo.x - this.camera.x; // ✅ Kamera Offset
+
         this.ctx.save();
 
         if (mo.otherDirection) {
@@ -248,19 +259,11 @@ class World {
         this.ctx.restore();
     }
 
-    /* ---------- Camera ---------- */
+    /* ---------- Character Bounds ---------- */
 
     keepCharacterInBounds() {
         const right = this.worldWidth - this.character.width;
         this.character.x = Math.max(0, Math.min(this.character.x, right));
-    }
-
-    updateCamera() {
-        const offset = (this.canvas.width - this.character.width) / 2;
-        const target = this.character.x - offset;
-        const max = this.worldWidth - this.canvas.width;
-
-        this.camera_x = Math.max(0, Math.min(target, max));
     }
 
     /* ---------- Endscreen ---------- */
