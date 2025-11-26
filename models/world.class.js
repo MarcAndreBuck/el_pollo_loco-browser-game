@@ -139,8 +139,8 @@ class World {
         this.clearCanvas();
         this.drawWorldObjects();
         this.drawUI();
-        this.drawEndscreen();
         this.debug.drawHitboxes();
+        this.drawEndscreen();
     }
 
     clearCanvas() {
@@ -151,9 +151,9 @@ class World {
         this.addObjectToMap(this.backgroundObjects);
         this.addObjectToMap(this.clouds);
         this.addObjectToMap(this.collectables);
+        this.addToMap(this.character);
         this.addObjectToMap(this.enemies);
         this.addObjectToMap(this.projectiles);
-        this.addToMap(this.character);
     }
 
     drawUI() {
