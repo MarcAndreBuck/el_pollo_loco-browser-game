@@ -1,25 +1,35 @@
 class World {
-    character;
+    /* ---------- Properties ---------- */
+
     ctx;
     canvas;
     keyboard;
-    camera_x = 0;
-    worldWidth;
-    endScreenImage = null;
-    hasWon = false;
-    gameOver = false;
-    endLoader;
+    level;
+
+    character;
     collisionSystem;
     debug;
+
+    camera_x = 0;
+    worldWidth;
 
     coins = 0;
     bottles = 0;
     maxBottles = 0;
 
-    endboss = null;
+    projectiles = [];
+    lastThrowTime = 0;
+
     bossFightStarted = false;
+    endboss = null;
     bossHealthBar = null;
 
+    gameOver = false;
+    hasWon = false;
+    endScreenImage = null;
+    endLoader = null;
+
+    /* ---------- Constructor ---------- */
 
     constructor(canvas, keyboard, level) {
         this.ctx = canvas.getContext("2d");
@@ -28,44 +38,39 @@ class World {
         this.level = level;
         this.worldWidth = CONFIG.world.width;
 
-        this.character = new Character();
-
-        // Anzahl Flaschen im Level zählen
-        this.maxBottles = this.level.collectables.filter(
-            (c) => c instanceof Bottle
-        ).length;
-
-        // UI-Bars initialisieren
-        this.healthBar  = new HealthBar(20, 10, this);
-        this.bottleBar  = new BottleBar(20, 50, this);
-        this.coinCounter = new CoinCounter(20, 100);
-
-        this.collisionSystem = new CollisionSystem(this);
-        this.debug = new DebugSystem(this);
-
+        this.initCharacter();
+        this.initUI();
+        this.initSystems();
+        this.initMaxBottles();
         this.initEndscreenLoader();
+
         this.gameLoop();
     }
 
-    /* ---------- Getter für Level-Objekte ---------- */
+    /* ---------- Init Helpers ---------- */
 
-    get enemies() {
-        return this.level.enemies;
+    initCharacter() {
+        this.character = new Character();
     }
 
-    get clouds() {
-        return this.level.clouds;
+    initUI() {
+        this.healthBar = new HealthBar(20, 10, this);
+        this.bottleBar = new BottleBar(20, 50, this);
+        this.coinCounter = new CoinCounter(20, 100);
     }
 
-    get backgroundObjects() {
-        return this.level.backgroundObjects;
+    initSystems() {
+        this.collisionSystem = new CollisionSystem(this);
+        this.debug = new DebugSystem(this);
     }
 
-    get collectables() {
-        return this.level.collectables;
+    initMaxBottles() {
+        this.maxBottles = this.level.collectables.filter(
+            c => c instanceof Bottle
+        ).length;
     }
 
-    /* ---------- Game-Loop ---------- */
+    /* ---------- Game Loop ---------- */
 
     gameLoop() {
         this.update();
@@ -74,70 +79,61 @@ class World {
     }
 
     update() {
-        if (this.gameOver || this.hasWon) return;
+        if (this.hasWon || this.gameOver) return;
 
         this.character.update();
 
         if (this.character.isDead) {
             this.updateCamera();
-
-            if (this.character.deathFinished) {
-                this.gameOver = true;
-            }
+            if (this.character.deathFinished) this.gameOver = true;
             return;
         }
 
         this.keepCharacterInBounds();
         this.updateCamera();
 
-        this.enemies.forEach(e => e.update());
-        this.clouds.forEach(c => c.update());
+        this.updateLevelObjects();
+        this.handleThrow();
+        this.updateProjectiles();
+        this.collisionSystem.update();
+        this.checkBossTrigger();
+        this.updateUI();
+    }
+
+    updateLevelObjects() {
+        this.level.enemies.forEach(e => e.update());
+        this.level.clouds.forEach(c => c.update());
         this.level.collectables.forEach(c => c.update());
         this.level.collectables = this.level.collectables.filter(c => !c.isCollected);
-
-        this.collisionSystem.update();
-
-        // Boss-Kampf triggern, falls erreicht
-        this.checkBossTrigger();
-
-        // UI aktualisieren (Health, Bottles)
-        this.updateUI();
-
-        // Boss-Healthbar updaten, falls aktiv
-        if (this.bossFightStarted && this.bossHealthBar) {
-            this.bossHealthBar.update();
-        }
     }
-
-    draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.addObjectToMap(this.backgroundObjects);
-        this.addObjectToMap(this.clouds);
-        this.addObjectToMap(this.collectables);
-        this.addObjectToMap(this.enemies);
-        this.addToMap(this.character);
-
-        this.drawUI();
-
-        if (this.gameOver) {
-            this.drawEndScreen(ASSETS.start_and_end_screen.game_over);
-            return;
-        }
-
-        if (this.hasWon) {
-            this.drawEndScreen(ASSETS.start_and_end_screen.win);
-            return;
-        }
-
-        this.debug.drawHitboxes();
-    }
-
-    /* ---------- UI ---------- */
 
     updateUI() {
         this.healthBar.update();
         this.bottleBar.update();
+        if (this.bossFightStarted) this.bossHealthBar?.update();
+    }
+
+    /* ---------- Drawing ---------- */
+
+    draw() {
+        this.clearCanvas();
+        this.drawWorldObjects();
+        this.drawUI();
+        this.drawEndscreen();
+        this.debug.drawHitboxes();
+    }
+
+    clearCanvas() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    drawWorldObjects() {
+        this.addObjectToMap(this.level.backgroundObjects);
+        this.addObjectToMap(this.level.clouds);
+        this.addObjectToMap(this.collectables);
+        this.addObjectToMap(this.enemies);
+        this.addObjectToMap(this.projectiles);
+        this.addToMap(this.character);
     }
 
     drawUI() {
@@ -145,19 +141,28 @@ class World {
         this.bottleBar.draw(this.ctx);
         this.coinCounter.draw(this.ctx, this);
 
-        if (this.bossFightStarted && this.bossHealthBar) {
-            this.bossHealthBar.draw(this.ctx);
+        if (this.bossFightStarted) {
+            this.bossHealthBar?.draw(this.ctx);
         }
     }
 
-    /* ---------- Boss-Trigger ---------- */
+    drawEndscreen() {
+        if (!this.gameOver && !this.hasWon) return;
+
+        const screen = this.gameOver
+            ? ASSETS.start_and_end_screen.game_over
+            : ASSETS.start_and_end_screen.win;
+
+        this.drawEndScreen(screen);
+    }
+
+    /* ---------- Boss Trigger ---------- */
 
     checkBossTrigger() {
         if (this.bossFightStarted) return;
 
-        const BOSS_TRIGGER_X = this.worldWidth * 0.6;
-
-        if (this.character.x >= BOSS_TRIGGER_X) {
+        const TRIGGER = this.worldWidth * 0.6;
+        if (this.character.x >= TRIGGER) {
             this.startBossFight();
         }
     }
@@ -167,7 +172,6 @@ class World {
 
         this.endboss = new Endboss();
         this.endboss.x = this.worldWidth - 350;
-
         this.level.enemies.push(this.endboss);
 
         this.bossHealthBar = new ChickenBossHealth(
@@ -175,11 +179,38 @@ class World {
             10,
             this
         );
-
-        console.log("[World] Bossfight gestartet");
     }
 
-    /* ---------- Render-Helper ---------- */
+    /* ---------- Throw Logic ---------- */
+
+    handleThrow() {
+        const now = performance.now();
+        const COOLDOWN = 300;
+
+        if (!this.keyboard.THROW) return;
+        if (now - this.lastThrowTime < COOLDOWN) return;
+        if (this.bottles <= 0) return;
+
+        this.spawnThrowBottle();
+        this.bottles--;
+        this.lastThrowTime = now;
+    }
+
+    spawnThrowBottle() {
+        const dir = this.character.otherDirection ? -1 : 1;
+
+        const startX = this.character.x + (dir > 0 ? this.character.width * 0.6 : -10);
+        const startY = this.character.y + this.character.height * 0.5;
+
+        this.projectiles.push(new ThrowBottle(startX, startY, dir));
+    }
+
+    updateProjectiles() {
+        this.projectiles.forEach(p => p.update());
+        this.projectiles = this.projectiles.filter(p => !p.isDead);
+    }
+
+    /* ---------- Rendering Helpers ---------- */
 
     addObjectToMap(objects) {
         objects.forEach(o => this.addToMap(o));
@@ -191,27 +222,15 @@ class World {
 
         if (mo.otherDirection) {
             this.ctx.scale(-1, 1);
-            this.ctx.drawImage(
-                mo.img,
-                -drawX - mo.width,
-                mo.y,
-                mo.width,
-                mo.height,
-            );
+            this.ctx.drawImage(mo.img, -drawX - mo.width, mo.y, mo.width, mo.height);
         } else {
-            this.ctx.drawImage(
-                mo.img,
-                drawX,
-                mo.y,
-                mo.width,
-                mo.height,
-            );
+            this.ctx.drawImage(mo.img, drawX, mo.y, mo.width, mo.height);
         }
 
         this.ctx.restore();
     }
 
-    /* ---------- Kamera & Bewegung ---------- */
+    /* ---------- Camera ---------- */
 
     keepCharacterInBounds() {
         const right = this.worldWidth - this.character.width;
@@ -219,11 +238,11 @@ class World {
     }
 
     updateCamera() {
-        const centerOffset = (this.canvas.width - this.character.width) / 2;
-        const target = this.character.x - centerOffset;
-        const maxCameraX = this.worldWidth - this.canvas.width;
+        const offset = (this.canvas.width - this.character.width) / 2;
+        const target = this.character.x - offset;
+        const max = this.worldWidth - this.canvas.width;
 
-        this.camera_x = Math.max(0, Math.min(target, maxCameraX));
+        this.camera_x = Math.max(0, Math.min(target, max));
     }
 
     /* ---------- Endscreen ---------- */
@@ -246,12 +265,6 @@ class World {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.restore();
 
-        this.ctx.drawImage(
-            this.endScreenImage,
-            0,
-            0,
-            this.canvas.width,
-            this.canvas.height,
-        );
+        this.ctx.drawImage(this.endScreenImage, 0, 0, this.canvas.width, this.canvas.height);
     }
 }
