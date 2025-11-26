@@ -8,7 +8,7 @@ class DebugSystem {
                 player: true,
                 enemy: true,
                 boss: true,
-                collectable: false,
+                collectable: true,
                 projectile: true,
                 other: false,
             },
@@ -17,7 +17,7 @@ class DebugSystem {
                 enemy: "#f44336",
                 boss: "#9c27b0",
                 collectable: "#4caf50",
-                projectile: "#ffeb3b",
+                projectile: "#ff3b3bff",
                 other: "#ff9800",
             },
             lineWidth: 2,
@@ -25,7 +25,7 @@ class DebugSystem {
     }
 
     getCategory(gameObject) {
-        return gameObject?.collisionCategory || "other";
+        return gameObject.collisionCategory || "other";
     }
 
     isHitboxVisibleFor(gameObject) {
@@ -60,8 +60,8 @@ class DebugSystem {
     drawHitboxes() {
         if (!this.hitboxEnabled) return;
 
-        const { character, enemies, collectables } = this.world;
-        const objects = [character, ...enemies, ...collectables];
+        const { character, enemies, collectables, projectiles } = this.world;
+        const objects = [character, ...enemies, ...collectables, ...projectiles];
 
         objects.forEach(obj => this.drawHitbox(obj));
     }

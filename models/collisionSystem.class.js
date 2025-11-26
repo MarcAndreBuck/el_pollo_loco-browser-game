@@ -45,7 +45,6 @@ class CollisionSystem {
                 character.speedY = -6;  // TODO: bearbeiten des Rebounce beim stomp
                 return;
             }
-
             character.takeDamage(1);
         });
     }
@@ -59,4 +58,24 @@ class CollisionSystem {
             item.onCollect(this.world)
         });
     }
+
+    handleProjectileCollisions() {
+    const { projectiles, enemies, endboss } = this.world;
+
+    projectiles.forEach(p => {
+        enemies.forEach(enemy => {
+            if (enemy.isDead) return;
+            if (!this.hitTest(p, enemy)) return;
+
+            enemy.takeDamage?.(1);
+            p.break();
+        });
+
+        if (endboss && !endboss.isDead && this.hitTest(p, endboss)) {
+            endboss.takeDamage(1);
+            p.break();
+        }
+    });
+}
+
 }

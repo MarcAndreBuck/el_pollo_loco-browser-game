@@ -24,9 +24,9 @@ const ASSETS = {
         walk: Array.from({ length: 3 }, (_, i) =>
             `assets/3_enemies_chicken/chicken_normal/1_walk/${i + 1}_w.png`
         ),
-        dead: Array.from({ length: 1 }, (_, i) =>
-            `assets/3_enemies_chicken/chicken_normal/2_dead/dead.png`
-        ),
+        dead: [
+            `assets/3_enemies_chicken/chicken_normal/2_dead/dead.png`,
+        ]
     },
 
     chicken_small: {
@@ -65,6 +65,7 @@ const ASSETS = {
 
     clouds: [
         "assets/5_background/layers/4_clouds/1.png",
+        "assets/5_background/layers/4_clouds/2.png",
     ],
 
     bottle: {
@@ -94,7 +95,7 @@ const ASSETS = {
             icon: ["assets/7_statusbars/3_icons/icon_coin.png"],
         },
 
-        healt: {
+        health: {
             blue: Array.from({ length: 6 }, (_, i) =>
                 `assets/7_statusbars/1_statusbar/2_statusbar_health/blue/${i * 20}.png`
             ),
@@ -139,7 +140,7 @@ const ASSETS = {
         "assets/8_coin/coin_2.png",
     ],
 
-    star_and_end_screen: {
+    start_and_end_screen: {
 
         game_over: [
             "assets/9_intro_outro_screens/game_over/game over!.png",

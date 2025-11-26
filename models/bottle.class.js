@@ -17,29 +17,10 @@ class Bottle extends Collectable {
     }
 
     onCollect(world) {
-        world.bottle = (world.bottle) + this.value;
+        world.bottles = (world.bottles) + this.value;
         super.onCollect(world);
     }
 }
 
 
 
-class ThrowBottle extends MovableObject {
-    collisionCategory = "projectile";
-
-    constructor(x, y) {
-        super();
-
-        this.animations = ASSETS.bottle;
-        this.x = x;
-        this.snapToGround();
-
-        this.loadImage(this.animations.rotation[0]);
-        this.playAnimation(this.animations.rotation)
-        this.setHitbox(0, 95, 100, 100);
-    }
-
-    update() {
-
-    }
-}
