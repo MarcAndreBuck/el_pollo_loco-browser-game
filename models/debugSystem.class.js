@@ -40,12 +40,12 @@ class DebugSystem {
     }
 
     drawHitbox(gameObject) {
-        const { ctx, camera_x } = this.world;
+        const { ctx, camera } = this.world;
         if (!gameObject?.getHitbox) return;
         if (!this.isHitboxVisibleFor(gameObject)) return;
 
         const hitbox = gameObject.getHitbox();
-        const drawX = hitbox.x - camera_x;
+        const drawX = hitbox.x - camera.x;
         const color = this.getHitboxColorFor(gameObject);
 
         ctx.save();
