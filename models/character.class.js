@@ -15,7 +15,7 @@ class Character extends MovableObject {
         this.animations = ASSETS.character;
         this.preloadAnimations(this.animations);
         this.loadImage(this.animations.idle[0]);
-        this.setHitbox(0, 95, 100, 145);
+        this.setHitbox(20, 120, 60, 120);
         this.health = 100;
         this.snapToGround()
     }
