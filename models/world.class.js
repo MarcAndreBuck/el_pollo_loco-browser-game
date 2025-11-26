@@ -54,7 +54,7 @@ class World {
     }
 
     get clouds() {
-        return this.level.clouds ;
+        return this.level.clouds;
     }
 
     get backgroundObjects() {
@@ -189,6 +189,7 @@ class World {
         this.bossFightStarted = true;
 
         this.endboss = new Endboss();
+        this.endboss.world = this;   
         this.endboss.x = this.worldWidth - 350;
         this.level.enemies.push(this.endboss);
 
