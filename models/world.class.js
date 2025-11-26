@@ -47,6 +47,24 @@ class World {
         this.gameLoop();
     }
 
+    /* ---------- Level Object Getters (wichtig!) ---------- */
+
+    get enemies() {
+        return this.level.enemies;
+    }
+
+    get clouds() {
+        return this.level.clouds ;
+    }
+
+    get backgroundObjects() {
+        return this.level.backgroundObjects;
+    }
+
+    get collectables() {
+        return this.level.collectables;
+    }
+
     /* ---------- Init Helpers ---------- */
 
     initCharacter() {
@@ -101,10 +119,10 @@ class World {
     }
 
     updateLevelObjects() {
-        this.level.enemies.forEach(e => e.update());
-        this.level.clouds.forEach(c => c.update());
-        this.level.collectables.forEach(c => c.update());
-        this.level.collectables = this.level.collectables.filter(c => !c.isCollected);
+        this.enemies.forEach(e => e.update());
+        this.clouds.forEach(c => c.update());
+        this.collectables.forEach(c => c.update());
+        this.level.collectables = this.collectables.filter(c => !c.isCollected);
     }
 
     updateUI() {
@@ -128,8 +146,8 @@ class World {
     }
 
     drawWorldObjects() {
-        this.addObjectToMap(this.level.backgroundObjects);
-        this.addObjectToMap(this.level.clouds);
+        this.addObjectToMap(this.backgroundObjects);
+        this.addObjectToMap(this.clouds);
         this.addObjectToMap(this.collectables);
         this.addObjectToMap(this.enemies);
         this.addObjectToMap(this.projectiles);
@@ -198,7 +216,6 @@ class World {
 
     spawnThrowBottle() {
         const dir = this.character.otherDirection ? -1 : 1;
-
         const startX = this.character.x + (dir > 0 ? this.character.width * 0.6 : -10);
         const startY = this.character.y + this.character.height * 0.5;
 
