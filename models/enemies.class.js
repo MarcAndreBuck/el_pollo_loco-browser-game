@@ -1,86 +1,56 @@
-class Chicken extends MovableObject {
+class Enemies extends MovableObject {
     collisionCategory = "enemy";
 
-    constructor() {
-        super();
+    constructor(x, y, width, height, animations) {
+        super(x, y, width, height);
 
-        this.animations = ASSETS.chicken_normal;
-        this.feetOffset = -10;
-
+        this.animations = animations;
         this.speed = 0.2 + Math.random() * 0.4;
-
         this.health = 1;
-        this.isDead = false;
-        this.deathFinished = false;
-
-        this.x = 200 + Math.random() * 500;
-        this.snapToGround();
+        this.feetOffset = -10;
 
         this.preloadAnimations(this.animations);
         this.loadImage(this.animations.walk[0]);
-        this.setHitbox(0, 0, 100, 100);
     }
 
     update() {
-
-        this.updateAnimation();
         this.applyGravity();
 
         if (!this.isDead) {
             this.moveLeft(this.speed);
         }
+
+        this.updateAnimation();
     }
 
     updateAnimation() {
-        
         if (this.isDead) {
             this.playAnimation(this.animations.dead, 8, false);
-            return
+        } else {
+            this.playAnimation(this.animations.walk, 8);
         }
-        else this.playAnimation(this.animations.walk, 8);;
     }
 }
 
 
-class SmallChicken extends MovableObject {
-    collisionCategory = "enemy";
 
-    constructor() {
-        super();
+class Chicken extends Enemies {
+    constructor(x, y, width = 90, height = 70) {
+        if (x == null) x = 400 + Math.random() * 2000;
 
-        this.animations = ASSETS.chicken_small;
-        this.feetOffset = -10;
+        super(x, y, width, height, ASSETS.chicken_normal);
 
-        this.speed = 0.2 + Math.random() * 0.4;
-
-        this.health = 1;
-        this.isDead = false;
-        this.deathFinished = false;
-
-        this.x = 200 + Math.random() * 500;
-        this.snapToGround();
-
-        this.preloadAnimations(this.animations);
-        this.loadImage(this.animations.walk[0]);
-        this.setHitbox(0, 0, 100, 100);
+        this.setHitbox(10, 20, 80, 50);
     }
+}
 
-    update() {
 
-        this.updateAnimation();
-        this.applyGravity();
+class SmallChicken extends Enemies {
+    constructor(x, y, width = 60, height = 45) {
+        if (x == null) x = 200 + Math.random() * 2000;
 
-        if (!this.isDead) {
-            this.moveLeft(this.speed);
-        }
-    }
+        super(x, y, width, height, ASSETS.chicken_small);
 
-    updateAnimation() {
-        
-        if (this.isDead) {
-            this.playAnimation(this.animations.dead, 8, false);
-            return
-        }
-        else this.playAnimation(this.animations.walk, 8);;
+        this.setHitbox(5, 5, 50, 40);
     }
 }

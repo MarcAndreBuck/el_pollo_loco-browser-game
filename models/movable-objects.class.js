@@ -1,22 +1,24 @@
 class MovableObject extends DrawableObject {
-    x = 120;
-    y = 335;
-    currentImage = 0;
-    currentAnimation = null;
     speed = 0.25;
-    otherDirection = false;
-    isDead = false;
-
     speedY = 0;
     acceleration = 0.2;
-    hasGravity = true;
+    otherDirection = false;
 
+    currentImage = 0;
+    currentAnimation = null;
+    lastFrameTime = 0;
+
+    isDead = false;
+    isHurt = false;
+    hurtUntil = 0;
+    health = 0;
+
+    hasGravity = true;
     groundY = 430;
     isGrounded = false;
     feetOffset = 0;
 
     collisionCategory = "other";
-    health = 0;
 
     hitbox = {
         offsetX: 0,
@@ -25,18 +27,19 @@ class MovableObject extends DrawableObject {
         height: null,
     };
 
-    constructor() {
-        super(); 
-        this.lastFrameTime = 0;
-    }
 
-    /* ---------- Assets (nutzt DrawableObject.loadImages) ---------- */
+    constructor(x = 0, y = 0, width = 100, height = 100) {
+        super();
+
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
 
     preloadAnimations(animations) {
         Object.values(animations).forEach(frames => this.loadImages(frames));
     }
-
-    /* ---------- Animation (universal) ---------- */
 
     playAnimation(images, fps = 10, loop = true, cb = null) {
         if (!this.updateAnimationFrame(images, fps)) return;
@@ -79,11 +82,8 @@ class MovableObject extends DrawableObject {
     }
 
     applyFrame(images) {
-        const path = images[this.currentImage];
-        this.img = this.imageCache[path];
+        this.img = this.imageCache[images[this.currentImage]];
     }
-
-    /* ---------- Geometrie / Hitbox ---------- */
 
 
     get bottom() {
@@ -98,18 +98,13 @@ class MovableObject extends DrawableObject {
     }
 
     getHitbox() {
-        const width = this.hitbox.width ?? this.width;
-        const height = this.hitbox.height ?? this.height;
-
         return {
             x: this.x + this.hitbox.offsetX,
             y: this.y + this.hitbox.offsetY,
-            width,
-            height,
+            width: this.hitbox.width ?? this.width,
+            height: this.hitbox.height ?? this.height,
         };
     }
-
-    /* ---------- Bewegung / Physik ---------- */
 
     snapToGround() {
         this.y = this.groundY - this.height + this.feetOffset;
@@ -142,8 +137,6 @@ class MovableObject extends DrawableObject {
         this.moveHorizontal(-speed);
     }
 
-    /* ---------- Leben / Schaden ---------- */
-
     die() {
         this.isDead = true;
         this.currentImage = 0;
@@ -155,7 +148,6 @@ class MovableObject extends DrawableObject {
         if (this.isDead) return;
 
         this.health = Math.max(0, this.health - amount);
-
         this.isHurt = true;
         this.hurtUntil = performance.now() + 300;
 

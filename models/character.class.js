@@ -1,23 +1,22 @@
 class Character extends MovableObject {
     collisionCategory = "player";
-    x = 50;
-    y = 0;
-    height = 250;
-    width = 112;
-    speed = 3;
 
     isMoving = false;
     lastActionTime = Date.now();
+    deathFinished = false;
 
-    constructor() {
-        super();
+    constructor(x = 50, y = 0, width = 112, height = 250) {
+        super(x, y, width, height);
+
+        this.speed = 3;
+        this.health = 100;
 
         this.animations = ASSETS.character;
         this.preloadAnimations(this.animations);
         this.loadImage(this.animations.idle[0]);
+
         this.setHitbox(20, 120, 60, 120);
-        this.health = 100;
-        this.snapToGround()
+        this.snapToGround();
     }
 
     /* ---------- Input / Movement ---------- */
@@ -26,7 +25,6 @@ class Character extends MovableObject {
         if (keyboard.RIGHT) {
             this.moveRight(this.speed);
             this.otherDirection = false;
-            this.isMoving = true;
             this.resetIdleTimer();
             return;
         }
@@ -34,13 +32,13 @@ class Character extends MovableObject {
         if (keyboard.LEFT) {
             this.moveLeft(this.speed);
             this.otherDirection = true;
-            this.isMoving = true;
             this.resetIdleTimer();
             return;
         }
 
         if (keyboard.THROW) {
             this.wantsToThrow = true;
+            this.resetIdleTimer();
         }
 
         this.isMoving = false;
@@ -61,6 +59,7 @@ class Character extends MovableObject {
 
     resetIdleTimer() {
         this.lastActionTime = Date.now();
+        this.isMoving = true;
     }
 
     idleTooLong() {
@@ -75,8 +74,13 @@ class Character extends MovableObject {
 
     updateAnimation() {
         if (this.isDead) {
-            this.playAnimation(this.animations.dead, 8, false, () => { this.deathFinished = true; },);
-            return
+            this.playAnimation(
+                this.animations.dead,
+                8,
+                false,
+                () => { this.deathFinished = true; },
+            );
+            return;
         }
 
         if (this.isHurtActive()) {
