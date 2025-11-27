@@ -21,22 +21,26 @@ class CollisionSystem {
     }
 
     keepEnemiesInBounds() {
-        const { enemies, worldWidth, endboss } = this.world;
+        const { enemies } = this.world;
 
-        enemies.forEach(enemy => {
-            if (enemy === endboss) return; 
-
-            const maxX = worldWidth - enemy.width;
-
-            if (enemy.x < 0) {
-                enemy.x = 0;
-                enemy.movingRight = true;   
-            } else if (enemy.x > maxX) {
-                enemy.x = maxX;
-                enemy.movingRight = false;  
-            }
-        });
+        enemies.forEach(enemy => this.keepSingleEnemyInBounds(enemy));
     }
+
+    keepSingleEnemyInBounds(enemy) {
+        const { worldWidth, endboss } = this.world;
+        if (enemy === endboss) return;
+
+        const maxX = worldWidth - enemy.width;
+
+        if (enemy.x < 0) {
+            enemy.x = 0;
+            enemy.movingRight = true;
+        } else if (enemy.x > maxX) {
+            enemy.x = maxX;
+            enemy.movingRight = false;
+        }
+    }
+
 
     /* ---------- Collision Helpers ---------- */
 
@@ -67,20 +71,25 @@ class CollisionSystem {
         const { character, enemies } = this.world;
 
         enemies.forEach(enemy => {
-            if (enemy.isDead) return;
-            if (!this.hitTest(character, enemy)) return;
-
-            if (this.isStompFromAbove(character, enemy)) {
-                if (!enemy.isDead) {
-                    enemy.die();
-                }
-                character.speedY = -6;
-                return;
-            }
-
-            character.takeDamage(1);
+            this.handleSingleEnemyCollision(character, enemy);
         });
     }
+
+    handleSingleEnemyCollision(character, enemy) {
+        if (enemy.isDead) return;
+        if (!this.hitTest(character, enemy)) return;
+
+        if (this.isStompFromAbove(character, enemy)) {
+            if (!enemy.isDead) {
+                enemy.die();
+            }
+            character.speedY = -6;
+            return;
+        }
+
+        character.takeDamage(1);
+    }
+
 
     handleCollectableCollisions() {
         const { character, collectables } = this.world;
@@ -93,23 +102,34 @@ class CollisionSystem {
     }
 
     handleProjectileCollisions() {
-        const { projectiles, enemies, endboss } = this.world;
+        const { projectiles } = this.world;
 
         projectiles.forEach(bottle => {
             if (bottle.hasHit) return;
-
-            enemies.forEach(enemy => {
-                if (enemy.isDead || enemy === endboss) return;
-                if (!this.hitTest(bottle, enemy)) return;
-
-                enemy.takeDamage(1);
-                bottle.break();
-            });
-
-            if (endboss && !endboss.isDead && this.hitTest(bottle, endboss)) {
-                endboss.takeDamage(20);
-                bottle.break();
-            }
+            this.handleProjectileEnemyHits(bottle);
+            this.handleProjectileBossHit(bottle);
         });
     }
+
+    handleProjectileEnemyHits(bottle) {
+        const { enemies, endboss } = this.world;
+
+        enemies.forEach(enemy => {
+            if (enemy.isDead || enemy === endboss) return;
+            if (!this.hitTest(bottle, enemy)) return;
+
+            enemy.takeDamage(1);
+            bottle.break();
+        });
+    }
+
+    handleProjectileBossHit(bottle) {
+        const { endboss } = this.world;
+        if (!endboss || endboss.isDead) return;
+        if (!this.hitTest(bottle, endboss)) return;
+
+        endboss.takeDamage(20);
+        bottle.break();
+    }
+
 }

@@ -2,8 +2,11 @@ class DebugSystem {
     constructor(world) {
         this.world = world;
         this.hitboxEnabled = true;
+        this.hitboxConfig = this.createDefaultHitboxConfig();
+    }
 
-        this.hitboxConfig = {
+    createDefaultHitboxConfig() {
+        return {
             visibility: {
                 player: true,
                 enemy: true,
@@ -24,6 +27,7 @@ class DebugSystem {
         };
     }
 
+
     getCategory(gameObject) {
         return gameObject.collisionCategory || "other";
     }
@@ -40,17 +44,25 @@ class DebugSystem {
     }
 
     drawHitbox(gameObject) {
-        const { ctx, camera } = this.world;
-        if (!gameObject.getHitbox) return;
-        if (!this.isHitboxVisibleFor(gameObject)) return;
+        if (!this.shouldDrawHitbox(gameObject)) return;
 
+        const { ctx, camera } = this.world;
         const hitbox = gameObject.getHitbox();
         const drawX = hitbox.x - camera.x;
         const color = this.getHitboxColorFor(gameObject);
 
+        this.strokeHitboxRect(ctx, drawX, hitbox, color);
+    }
+
+    shouldDrawHitbox(gameObject) {
+        if (!gameObject.getHitbox) return false;
+        return this.isHitboxVisibleFor(gameObject);
+    }
+
+    strokeHitboxRect(ctx, x, hitbox, color) {
         ctx.save();
         ctx.beginPath();
-        ctx.rect(drawX, hitbox.y, hitbox.width, hitbox.height);
+        ctx.rect(x, hitbox.y, hitbox.width, hitbox.height);
         ctx.lineWidth = this.hitboxConfig.lineWidth;
         ctx.strokeStyle = color;
         ctx.stroke();

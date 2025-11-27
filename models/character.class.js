@@ -24,25 +24,35 @@ class Character extends MovableObject {
     checkMovement() {
         this.isMoving = false;
 
+        if (this.handleHorizontalMovement()) return;
+        if (this.handleThrowInput()) return;
+    }
+
+    handleHorizontalMovement() {
         if (keyboard.RIGHT) {
             this.moveRight(this.speed);
             this.otherDirection = false;
             this.resetIdleTimer();
-            return;
+            return true;
         }
 
         if (keyboard.LEFT) {
             this.moveLeft(this.speed);
             this.otherDirection = true;
             this.resetIdleTimer();
-            return;
+            return true;
         }
 
-        if (keyboard.THROW) {
-            this.resetIdleTimer();
-            return;
-        }
+        return false;
     }
+
+    handleThrowInput() {
+        if (!keyboard.THROW) return false;
+
+        this.resetIdleTimer();
+        return true;
+    }
+
 
     handleJumpInput() {
         if (keyboard.SPACE) this.jump();
@@ -73,33 +83,47 @@ class Character extends MovableObject {
     /* ---------- Animation ---------- */
 
     updateAnimation() {
-        if (this.isDead) {
-            this.playAnimation(this.animations.dead, 8, false, () => { this.deathFinished = true; });
-            return;
-        }
-
-        if (this.isHurtActive()) {
-            this.playAnimation(this.animations.hurt, 10);
-            return;
-        }
-
-        if (!this.isGrounded) {
-            this.updateJumpFrame();
-            return;
-        }
-
-        if (this.isMoving) {
-            this.playAnimation(this.animations.walk, 12);
-            return;
-        }
-
-        if (this.idleTooLong()) {
-            this.playAnimation(this.animations.long_idle, 8);
-            return;
-        }
+        if (this.handleDeathAnimation()) return;
+        if (this.handleHurtAnimation()) return;
+        if (this.handleAirAnimation()) return;
+        if (this.handleWalkAnimation()) return;
+        if (this.handleLongIdleAnimation()) return;
 
         this.playAnimation(this.animations.idle, 8);
     }
+
+    handleDeathAnimation() {
+        if (!this.isDead) return false;
+        this.playAnimation(this.animations.dead, 8, false, () => {
+            this.deathFinished = true;
+        });
+        return true;
+    }
+
+    handleHurtAnimation() {
+        if (!this.isHurtActive()) return false;
+        this.playAnimation(this.animations.hurt, 10);
+        return true;
+    }
+
+    handleAirAnimation() {
+        if (this.isGrounded) return false;
+        this.updateJumpFrame();
+        return true;
+    }
+
+    handleWalkAnimation() {
+        if (!this.isMoving) return false;
+        this.playAnimation(this.animations.walk, 12);
+        return true;
+    }
+
+    handleLongIdleAnimation() {
+        if (!this.idleTooLong()) return false;
+        this.playAnimation(this.animations.long_idle, 8);
+        return true;
+    }
+
 
     update() {
         if (this.isDead) {

@@ -1,59 +1,61 @@
 class Endboss extends MovableObject {
     collisionCategory = "boss";
-    static TRIGGER_RATIO = 0.6; 
+    static TRIGGER_RATIO = 0.6;
     lastAttackTime = 0;
     attackCooldown = 250;
 
+
     constructor(world) {
         super();
-
         this.world = world;
 
+        this.initDimensions();
+        this.initMovement();
+        this.initPosition();
+        this.initStats();
+    }
+
+    initDimensions() {
         this.height = 400;
         this.width = 400;
-
-        this.animations = ASSETS.boss_chicken;
         this.feetOffset = 30;
-        this.speed = 0.4;
+    }
 
+    initMovement() {
+        this.speed = 0.4;
+    }
+
+    initPosition() {
         this.x = this.world.worldWidth - 300;
         this.snapToGround();
+    }
 
+    initStats() {
+        this.animations = ASSETS.boss_chicken;
         this.preloadAnimations(this.animations);
         this.loadImage(this.animations.walk[0]);
         this.setHitbox(80, 150, 300, 200);
-
         this.health = 100;
         this.maxHealth = 100;
     }
 
-
     static ensureSpawned(world) {
         if (world.bossFightStarted) return;
-
         const triggerX = world.worldWidth * Endboss.TRIGGER_RATIO;
         if (world.character.x < triggerX) return;
-
         const boss = new Endboss(world);
-        boss.x = world.worldWidth - 350; 
-
+        boss.x = world.worldWidth - 350;
         world.endboss = boss;
         world.level.enemies.push(boss);
-
-        world.bossHealthBar = new ChickenBossHealth(
-            world.canvas.width - 240,
-            10,
-            world
-        );
-
+        world.bossHealthBar = new ChickenBossHealth(world.canvas.width - 240, 10, world);
         world.bossFightStarted = true;
     }
+
 
     update() {
         this.applyGravity();
         this.updateBehaviour();
     }
-
 
 
     updateBehaviour() {
@@ -66,12 +68,12 @@ class Endboss extends MovableObject {
     }
 
 
-
     handleDeath() {
         if (!this.isDead) return false;
         this.playAnimation(this.animations.dead, 8, false);
         return true;
     }
+
 
     handleHurt() {
         const now = performance.now();
@@ -86,23 +88,28 @@ class Endboss extends MovableObject {
         return true;
     }
 
+
     handleAttack() {
         const ATTACK_RANGE = 100;
-
         if (!this.isCharacterInRange(ATTACK_RANGE)) return false;
 
         this.playAnimation(this.animations.attack, 8);
 
+        if (!this.canDealDamage()) return true;
+
+        this.dealAttackDamage();
+        return true;
+    }
+
+    canDealDamage() {
         const now = performance.now();
         const timeSinceLastAttack = now - this.lastAttackTime;
+        return timeSinceLastAttack >= this.attackCooldown;
+    }
 
-        if (timeSinceLastAttack < this.attackCooldown) {
-            return true; 
-        }
-
-        this.lastAttackTime = now;
+    dealAttackDamage() {
+        this.lastAttackTime = performance.now();
         this.world.character.takeDamage(5);
-        return true;
     }
 
 
