@@ -28,6 +28,7 @@ class World {
     hasWon = false;
 
     endscreen = null;
+    blocked = false;
 
     /* ---------- Constructor ---------- */
 
@@ -48,7 +49,7 @@ class World {
         this.endscreen = new Endscreen();
 
         this.gameLoop();
-        this.controls = new CanvasControls(canvas, keyboard);
+        this.controls = new MobileControls(canvas, keyboard);
     }
 
     /* ---------- Level Object Getters ---------- */
@@ -100,6 +101,7 @@ class World {
     }
 
     update() {
+        if (this.blocked) return;
         if (this.hasWon || this.gameOver) return;
 
         this.character.update();

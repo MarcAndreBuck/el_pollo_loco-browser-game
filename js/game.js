@@ -3,10 +3,10 @@ let world;
 let keyboard = new Keyboard();
 let level = level1;
 
-
-init()
+init();
 
 function init() {
-    canvas = document.getElementById("canvas")
+    canvas = document.getElementById("canvas");
     world = new World(canvas, keyboard, level);
+    window.orientationManager = new OrientationManager(world);
 }
