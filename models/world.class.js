@@ -49,7 +49,7 @@ class World {
         this.endscreen = new Endscreen();
 
         this.gameLoop();
-        this.controls = new MobileControls(canvas, keyboard);
+        this.controls = new CanvasControls(canvas, keyboard);
     }
 
     /* ---------- Level Object Getters ---------- */
