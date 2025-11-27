@@ -67,7 +67,7 @@ class BottleBar extends Statusbar {
 
     update() {
         const currentBottles = this.world.bottles ?? 0;
-        const maxBottles = this.world.maxBottles || 1; // Schutz vor 0
+        const maxBottles = this.world.maxBottles || 1; 
 
         this.setStatusbarGrowth(currentBottles, maxBottles);
     }

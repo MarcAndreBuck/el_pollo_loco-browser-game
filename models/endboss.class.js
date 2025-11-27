@@ -1,6 +1,8 @@
 class Endboss extends MovableObject {
     collisionCategory = "boss";
-    static TRIGGER_RATIO = 0.6; // ab 60% der Weltbreite spawnt der Boss
+    static TRIGGER_RATIO = 0.6; 
+    lastAttackTime = 0;
+    attackCooldown = 250;
 
     constructor(world) {
         super();
@@ -23,15 +25,9 @@ class Endboss extends MovableObject {
 
         this.health = 100;
         this.maxHealth = 100;
-
-        // hurtUntil kommt aus takeDamage (MovableObject)
-        // this.isHurt, this.hurtUntil werden dort gesetzt
     }
 
-    /**
-     * Wird von World.update() aufgerufen.
-     * Kümmert sich darum, den Bossfight zu starten, wenn der Trigger erreicht ist.
-     */
+
     static ensureSpawned(world) {
         if (world.bossFightStarted) return;
 
@@ -39,7 +35,7 @@ class Endboss extends MovableObject {
         if (world.character.x < triggerX) return;
 
         const boss = new Endboss(world);
-        boss.x = world.worldWidth - 350; // Feinposition, kannst du anpassen
+        boss.x = world.worldWidth - 350; 
 
         world.endboss = boss;
         world.level.enemies.push(boss);
@@ -58,7 +54,7 @@ class Endboss extends MovableObject {
         this.updateBehaviour();
     }
 
-    /* ---------- Verhaltens-Kaskade ---------- */
+
 
     updateBehaviour() {
         if (this.handleDeath()) return;
@@ -69,7 +65,7 @@ class Endboss extends MovableObject {
         this.handleWalk();
     }
 
-    /* ---------- Einzelne Verhalten ---------- */
+
 
     handleDeath() {
         if (!this.isDead) return false;
@@ -91,22 +87,29 @@ class Endboss extends MovableObject {
     }
 
     handleAttack() {
-        const character = this.world.character;
-        const distanceX = Math.abs(character.x - this.x);
-        const ATTACK_RANGE = 150;
+        const ATTACK_RANGE = 100;
 
-        if (distanceX > ATTACK_RANGE) return false;
+        if (!this.isCharacterInRange(ATTACK_RANGE)) return false;
 
         this.playAnimation(this.animations.attack, 8);
+
+        const now = performance.now();
+        const timeSinceLastAttack = now - this.lastAttackTime;
+
+        if (timeSinceLastAttack < this.attackCooldown) {
+            return true; 
+        }
+
+        this.lastAttackTime = now;
+        this.world.character.takeDamage(5);
         return true;
     }
 
-    handleAlert() {
-        const character = this.world.character;
-        const distanceX = Math.abs(character.x - this.x);
-        const ALERT_RANGE = 400;
 
-        if (distanceX > ALERT_RANGE) return false;
+    handleAlert() {
+        const ALERT_RANGE = 300;
+
+        if (!this.isCharacterInRange(ALERT_RANGE)) return false;
 
         this.playAnimation(this.animations.alert, 8);
         this.moveTowardsCharacter();
@@ -118,7 +121,6 @@ class Endboss extends MovableObject {
         this.playAnimation(this.animations.walk, 8);
     }
 
-    /* ---------- Helper ---------- */
 
     moveTowardsCharacter() {
         const character = this.world.character;
@@ -142,5 +144,11 @@ class Endboss extends MovableObject {
         if (this.health === 0) {
             this.die();
         }
+    }
+
+    isCharacterInRange(range) {
+        const character = this.world.character;
+        const distanceX = Math.abs(character.x - this.x);
+        return distanceX <= range;
     }
 }
