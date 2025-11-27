@@ -70,7 +70,9 @@ class Endboss extends MovableObject {
 
     handleDeath() {
         if (!this.isDead) return false;
-        this.playAnimation(this.animations.dead, 8, false);
+
+        this.playAnimation(this.animations.dead, 8, false, () => { this.world.hasWon = true; });
+
         return true;
     }
 
