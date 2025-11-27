@@ -22,6 +22,8 @@ class Character extends MovableObject {
     /* ---------- Input / Movement ---------- */
 
     checkMovement() {
+        this.isMoving = false;
+
         if (keyboard.RIGHT) {
             this.moveRight(this.speed);
             this.otherDirection = false;
@@ -37,11 +39,9 @@ class Character extends MovableObject {
         }
 
         if (keyboard.THROW) {
-            this.wantsToThrow = true;
             this.resetIdleTimer();
+            return;
         }
-
-        this.isMoving = false;
     }
 
     handleJumpInput() {
@@ -74,12 +74,7 @@ class Character extends MovableObject {
 
     updateAnimation() {
         if (this.isDead) {
-            this.playAnimation(
-                this.animations.dead,
-                8,
-                false,
-                () => { this.deathFinished = true; },
-            );
+            this.playAnimation(this.animations.dead, 8, false, () => { this.deathFinished = true; });
             return;
         }
 

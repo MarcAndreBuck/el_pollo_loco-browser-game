@@ -9,6 +9,7 @@ class World {
     character;
     collisionSystem;
     debug;
+    throwSystem;
 
     camera;
     worldWidth;
@@ -18,7 +19,6 @@ class World {
     maxBottles = 0;
 
     projectiles = [];
-    lastThrowTime = 0;
 
     bossFightStarted = false;
     endboss = null;
@@ -82,6 +82,7 @@ class World {
     initSystems() {
         this.collisionSystem = new CollisionSystem(this);
         this.debug = new DebugSystem(this);
+        this.throwSystem = new ThrowSystem(this);
     }
 
     initMaxBottles() {
@@ -113,8 +114,7 @@ class World {
         this.camera.update(this.character);
 
         this.updateLevelObjects();
-        this.handleThrow();
-        this.updateProjectiles();
+        this.throwSystem.update();
         this.collisionSystem.update();
         this.checkBossTrigger();
         this.updateUI();
@@ -202,34 +202,6 @@ class World {
         );
     }
 
-    /* ---------- Throw Logic ---------- */
-
-    handleThrow() {
-        const now = performance.now();
-        const COOLDOWN = 300;
-
-        if (!this.keyboard.THROW) return;
-        if (now - this.lastThrowTime < COOLDOWN) return;
-        if (this.bottles <= 0) return;
-
-        this.spawnThrowBottle();
-        this.bottles--;
-        this.lastThrowTime = now;
-    }
-
-    spawnThrowBottle() {
-        const dir = this.character.otherDirection ? -1 : 1;
-        const startX = this.character.x + (dir > 0 ? this.character.width * 0.6 : -10);
-        const startY = this.character.y + this.character.height * 0.5;
-
-        this.projectiles.push(new ThrowBottle(startX, startY, dir));
-    }
-
-    updateProjectiles() {
-        this.projectiles.forEach(p => p.update());
-        this.projectiles = this.projectiles.filter(p => !p.isDead);
-    }
-
     /* ---------- Rendering Helpers ---------- */
 
     addObjectToMap(objects) {
@@ -237,7 +209,7 @@ class World {
     }
 
     addToMap(mo) {
-        const drawX = mo.x - this.camera.x; // ✅ Kamera Offset
+        const drawX = mo.x - this.camera.x;
 
         this.ctx.save();
 
