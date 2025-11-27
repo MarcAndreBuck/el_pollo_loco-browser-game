@@ -26,8 +26,8 @@ class World {
 
     gameOver = false;
     hasWon = false;
-    endScreenImage = null;
-    endLoader = null;
+
+    endscreen = null;
 
     /* ---------- Constructor ---------- */
 
@@ -42,9 +42,10 @@ class World {
         this.initUI();
         this.initSystems();
         this.initMaxBottles();
-        this.initEndscreenLoader();
 
         this.camera = new Camera(this.worldWidth, this.canvas.width, 150, 300);
+
+        this.endscreen = new Endscreen();
 
         this.gameLoop();
     }
@@ -85,10 +86,7 @@ class World {
         this.throwSystem = new ThrowSystem(this);
     }
 
-    initMaxBottles() {
-        this.maxBottles = this.level.collectables.filter(
-            c => c instanceof Bottle
-        ).length;
+    initMaxBottles() { this.maxBottles = this.level.collectables.filter(c => c instanceof Bottle).length;
     }
 
     /* ---------- Game Loop ---------- */
@@ -110,13 +108,12 @@ class World {
             return;
         }
 
-        this.keepCharacterInBounds();
         this.camera.update(this.character);
 
         this.updateLevelObjects();
         this.throwSystem.update();
         this.collisionSystem.update();
-        this.checkBossTrigger();
+        Endboss.ensureSpawned(this);
         this.updateUI();
     }
 
@@ -130,7 +127,7 @@ class World {
     updateUI() {
         this.healthBar.update();
         this.bottleBar.update();
-        if (this.bossFightStarted) this.bossHealthBar?.update();
+        if (this.bossFightStarted) {this.bossHealthBar.update();}
     }
 
     /* ---------- Drawing ---------- */
@@ -168,38 +165,7 @@ class World {
 
     drawEndscreen() {
         if (!this.gameOver && !this.hasWon) return;
-
-        const screen = this.gameOver
-            ? ASSETS.start_and_end_screen.game_over
-            : ASSETS.start_and_end_screen.win;
-
-        this.drawEndScreen(screen);
-    }
-
-    /* ---------- Boss Trigger ---------- */
-
-    checkBossTrigger() {
-        if (this.bossFightStarted) return;
-
-        const TRIGGER = this.worldWidth * 0.6;
-        if (this.character.x >= TRIGGER) {
-            this.startBossFight();
-        }
-    }
-
-    startBossFight() {
-        this.bossFightStarted = true;
-
-        this.endboss = new Endboss(this);
-        this.endboss.world = this;
-        this.endboss.x = this.worldWidth - 350;
-        this.level.enemies.push(this.endboss);
-
-        this.bossHealthBar = new ChickenBossHealth(
-            this.canvas.width - 240,
-            10,
-            this
-        );
+        this.endscreen.draw(this.ctx, this.canvas, this.hasWon);
     }
 
     /* ---------- Rendering Helpers ---------- */
@@ -215,41 +181,23 @@ class World {
 
         if (mo.otherDirection) {
             this.ctx.scale(-1, 1);
-            this.ctx.drawImage(mo.img, -drawX - mo.width, mo.y, mo.width, mo.height);
+            this.ctx.drawImage(
+                mo.img,
+                -drawX - mo.width,
+                mo.y,
+                mo.width,
+                mo.height
+            );
         } else {
-            this.ctx.drawImage(mo.img, drawX, mo.y, mo.width, mo.height);
+            this.ctx.drawImage(
+                mo.img,
+                drawX,
+                mo.y,
+                mo.width,
+                mo.height
+            );
         }
 
         this.ctx.restore();
-    }
-
-    /* ---------- Character Bounds ---------- */
-
-    keepCharacterInBounds() {
-        const right = this.worldWidth - this.character.width;
-        this.character.x = Math.max(0, Math.min(this.character.x, right));
-    }
-
-    /* ---------- Endscreen ---------- */
-
-    initEndscreenLoader() {
-        this.endLoader = new MovableObject();
-        this.endLoader.loadImages([
-            ...ASSETS.start_and_end_screen.game_over,
-            ...ASSETS.start_and_end_screen.win,
-        ]);
-    }
-
-    drawEndScreen(imageList) {
-        this.endScreenImage ??= this.endLoader.imageCache[
-            imageList[Math.floor(Math.random() * imageList.length)]
-        ];
-
-        this.ctx.save();
-        this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.restore();
-
-        this.ctx.drawImage(this.endScreenImage, 0, 0, this.canvas.width, this.canvas.height);
     }
 }

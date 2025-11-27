@@ -1,5 +1,6 @@
 class Endboss extends MovableObject {
     collisionCategory = "boss";
+    static TRIGGER_RATIO = 0.6; // ab 60% der Weltbreite spawnt der Boss
 
     constructor(world) {
         super();
@@ -25,6 +26,31 @@ class Endboss extends MovableObject {
 
         // hurtUntil kommt aus takeDamage (MovableObject)
         // this.isHurt, this.hurtUntil werden dort gesetzt
+    }
+
+    /**
+     * Wird von World.update() aufgerufen.
+     * Kümmert sich darum, den Bossfight zu starten, wenn der Trigger erreicht ist.
+     */
+    static ensureSpawned(world) {
+        if (world.bossFightStarted) return;
+
+        const triggerX = world.worldWidth * Endboss.TRIGGER_RATIO;
+        if (world.character.x < triggerX) return;
+
+        const boss = new Endboss(world);
+        boss.x = world.worldWidth - 350; // Feinposition, kannst du anpassen
+
+        world.endboss = boss;
+        world.level.enemies.push(boss);
+
+        world.bossHealthBar = new ChickenBossHealth(
+            world.canvas.width - 240,
+            10,
+            world
+        );
+
+        world.bossFightStarted = true;
     }
 
     update() {
@@ -66,7 +92,6 @@ class Endboss extends MovableObject {
 
     handleAttack() {
         const character = this.world.character;
-
         const distanceX = Math.abs(character.x - this.x);
         const ATTACK_RANGE = 150;
 
@@ -78,7 +103,6 @@ class Endboss extends MovableObject {
 
     handleAlert() {
         const character = this.world.character;
-
         const distanceX = Math.abs(character.x - this.x);
         const ALERT_RANGE = 400;
 
