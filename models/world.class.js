@@ -48,6 +48,7 @@ class World {
         this.endscreen = new Endscreen();
 
         this.gameLoop();
+        this.controls = new CanvasControls(canvas, keyboard);
     }
 
     /* ---------- Level Object Getters ---------- */
@@ -86,7 +87,8 @@ class World {
         this.throwSystem = new ThrowSystem(this);
     }
 
-    initMaxBottles() { this.maxBottles = this.level.collectables.filter(c => c instanceof Bottle).length;
+    initMaxBottles() {
+        this.maxBottles = this.level.collectables.filter(c => c instanceof Bottle).length;
     }
 
     /* ---------- Game Loop ---------- */
@@ -127,7 +129,7 @@ class World {
     updateUI() {
         this.healthBar.update();
         this.bottleBar.update();
-        if (this.bossFightStarted) {this.bossHealthBar.update();}
+        if (this.bossFightStarted) { this.bossHealthBar.update(); }
     }
 
     /* ---------- Drawing ---------- */
@@ -138,6 +140,9 @@ class World {
         this.drawUI();
         this.debug.drawHitboxes();
         this.drawEndscreen();
+        if (this.controls) {
+            this.controls.draw(this.ctx);
+        }
     }
 
     clearCanvas() {

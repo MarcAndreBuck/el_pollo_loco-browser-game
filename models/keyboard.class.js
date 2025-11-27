@@ -1,6 +1,5 @@
 class Keyboard {
     constructor() {
-
         this.bindings = {
             LEFT: ["ArrowLeft"],
             RIGHT: ["ArrowRight"],
@@ -21,7 +20,6 @@ class Keyboard {
 
         window.addEventListener("keydown", (e) => this.updateState(e, true));
         window.addEventListener("keyup", (e) => this.updateState(e, false));
-
     }
 
     updateState(event, isDown) {
@@ -45,4 +43,11 @@ class Keyboard {
     get DOWN() { return this.state.DOWN; }
     get SPACE() { return this.state.SPACE; }
     get THROW() { return this.state.THROW; }
+
+    set LEFT(v) { this.state.LEFT = v; }
+    set RIGHT(v) { this.state.RIGHT = v; }
+    set UP(v) { this.state.UP = v; }
+    set DOWN(v) { this.state.DOWN = v; }
+    set SPACE(v) { this.state.SPACE = v; }
+    set THROW(v) { this.state.THROW = v; }
 }
