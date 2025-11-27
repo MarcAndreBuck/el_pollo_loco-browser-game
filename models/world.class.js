@@ -159,7 +159,7 @@ class World {
         this.coinCounter.draw(this.ctx, this);
 
         if (this.bossFightStarted) {
-            this.bossHealthBar?.draw(this.ctx);
+            this.bossHealthBar.draw(this.ctx);
         }
     }
 

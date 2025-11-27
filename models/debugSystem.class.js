@@ -41,7 +41,7 @@ class DebugSystem {
 
     drawHitbox(gameObject) {
         const { ctx, camera } = this.world;
-        if (!gameObject?.getHitbox) return;
+        if (!gameObject.getHitbox) return;
         if (!this.isHitboxVisibleFor(gameObject)) return;
 
         const hitbox = gameObject.getHitbox();

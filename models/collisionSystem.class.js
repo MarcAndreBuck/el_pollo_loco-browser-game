@@ -4,10 +4,41 @@ class CollisionSystem {
     }
 
     update() {
+        this.keepCharacterInBounds();
+        this.keepEnemiesInBounds();
         this.handleEnemyCollisions();
         this.handleCollectableCollisions();
         this.handleProjectileCollisions();
     }
+
+    /* ---------- Bounds ---------- */
+
+    keepCharacterInBounds() {
+        const { character, worldWidth } = this.world;
+        const maxX = worldWidth - character.width;
+
+        character.x = Math.max(0, Math.min(character.x, maxX));
+    }
+
+    keepEnemiesInBounds() {
+        const { enemies, worldWidth, endboss } = this.world;
+
+        enemies.forEach(enemy => {
+            if (enemy === endboss) return; 
+
+            const maxX = worldWidth - enemy.width;
+
+            if (enemy.x < 0) {
+                enemy.x = 0;
+                enemy.movingRight = true;   
+            } else if (enemy.x > maxX) {
+                enemy.x = maxX;
+                enemy.movingRight = false;  
+            }
+        });
+    }
+
+    /* ---------- Collision Helpers ---------- */
 
     hitTest(a, b) {
         const boxA = a.getHitbox();
@@ -46,6 +77,7 @@ class CollisionSystem {
                 character.speedY = -6;
                 return;
             }
+
             character.takeDamage(1);
         });
     }
@@ -56,7 +88,7 @@ class CollisionSystem {
         collectables.forEach(item => {
             if (!this.hitTest(character, item)) return;
 
-            item.onCollect(this.world)
+            item.onCollect(this.world);
         });
     }
 
@@ -70,7 +102,7 @@ class CollisionSystem {
                 if (enemy.isDead || enemy === endboss) return;
                 if (!this.hitTest(bottle, enemy)) return;
 
-                enemy.takeDamage?.(1);
+                enemy.takeDamage(1);
                 bottle.break();
             });
 
@@ -80,5 +112,4 @@ class CollisionSystem {
             }
         });
     }
-
 }

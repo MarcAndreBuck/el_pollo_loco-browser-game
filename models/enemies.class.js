@@ -9,6 +9,9 @@ class Enemies extends MovableObject {
         this.health = 1;
         this.feetOffset = -10;
 
+        this.movingRight = false; 
+        this.otherDirection = true; 
+
         this.preloadAnimations(this.animations);
         this.loadImage(this.animations.walk[0]);
     }
@@ -17,7 +20,13 @@ class Enemies extends MovableObject {
         this.applyGravity();
 
         if (!this.isDead) {
-            this.moveLeft(this.speed);
+            if (this.movingRight) {
+                this.moveRight(this.speed);
+                this.otherDirection = true; 
+            } else {
+                this.moveLeft(this.speed);
+                this.otherDirection = false; 
+            }
         }
 
         this.updateAnimation();
