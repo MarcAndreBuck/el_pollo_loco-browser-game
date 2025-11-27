@@ -1,12 +1,11 @@
 class CanvasControls {
     constructor(canvas, keyboard) {
-        this.enabled = CanvasControls.isMobilePlatform();
-        if (!this.enabled) {
-            return;
-        }
-
         this.canvas = canvas;
         this.keyboard = keyboard;
+        this.buttons = [];
+        this.enabled = CanvasControls.isMobilePlatform();
+        if (!this.enabled) return;
+
         this.buttons = this.createButtons();
         this.bindMouseEvents();
         this.bindTouchEvents();
@@ -14,8 +13,8 @@ class CanvasControls {
 
     static isMobilePlatform() {
         const isTouch = navigator.maxTouchPoints > 0;
-        const isSmall = window.innerWidth <= 900;
-        return isTouch || isSmall;
+        const isSmallScreen = window.innerWidth < 760;
+        return isTouch || isSmallScreen;
     }
 
     createButtons() {
@@ -24,43 +23,22 @@ class CanvasControls {
         const bottom = 0.80;
 
         return [
-            new CanvasButton(0.06, bottom, w, h, "◀", (state) => {
-                this.keyboard.LEFT = state;
-            }),
-            new CanvasButton(0.24, bottom, w, h, "▶", (state) => {
-                this.keyboard.RIGHT = state;
-            }),
-            new CanvasButton(0.70, bottom + 0.02, w, h, "JUMP", (state) => {
-                this.keyboard.SPACE = state;
-            }),
-            new CanvasButton(0.84, bottom - 0.06, w, h, "THROW", (state) => {
-                this.keyboard.THROW = state;
-            }),
+            new CanvasButton(0.06, bottom, w, h, "◀", (state) => this.keyboard.LEFT = state),
+            new CanvasButton(0.24, bottom, w, h, "▶", (state) => this.keyboard.RIGHT = state),
+            new CanvasButton(0.70, bottom + 0.02, w, h, "⭡", (state) => this.keyboard.SPACE = state),
+            new CanvasButton(0.84, bottom - 0.06, w, h, "⚗", (state) => this.keyboard.THROW = state),
         ];
     }
 
     bindMouseEvents() {
-        this.canvas.addEventListener("mousedown", (event) => {
-            this.onPointerDown(event);
-        });
-
-        this.canvas.addEventListener("mouseup", () => {
-            this.onPointerUp();
-        });
+        this.canvas.addEventListener("mousedown", (event) => this.onPointerDown(event));
+        this.canvas.addEventListener("mouseup", () => this.onPointerUp());
     }
 
     bindTouchEvents() {
-        this.canvas.addEventListener("touchstart", (event) => {
-            this.onTouchStart(event);
-        }, { passive: false });
-
-        this.canvas.addEventListener("touchend", () => {
-            this.onPointerUp();
-        });
-
-        this.canvas.addEventListener("touchcancel", () => {
-            this.onPointerUp();
-        });
+        this.canvas.addEventListener("touchstart", (event) => this.onTouchStart(event), { passive: false });
+        this.canvas.addEventListener("touchend", () => this.onPointerUp());
+        this.canvas.addEventListener("touchcancel", () => this.onPointerUp());
     }
 
     onPointerDown(event) {
@@ -76,23 +54,22 @@ class CanvasControls {
     }
 
     onPointerUp() {
-        this.buttons.forEach((btn) => {
-            if (btn.pressed) {
-                btn.onChange(false);
-            }
+        this.buttons.forEach(btn => {
+            if (btn.pressed) btn.onChange(false);
             btn.pressed = false;
         });
     }
 
     getCanvasPos(event) {
         const rect = this.canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        return { x, y };
+        return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top,
+        };
     }
 
     updatePressedState(x, y, isDown) {
-        this.buttons.forEach((btn) => {
+        this.buttons.forEach(btn => {
             const inside = btn.contains(this.canvas, x, y);
             btn.pressed = isDown && inside;
             btn.onChange(btn.pressed);
@@ -100,11 +77,9 @@ class CanvasControls {
     }
 
     draw(ctx) {
-        if (!this.enabled) {
-            return;
-        }
-        this.buttons.forEach((btn) => {
-            btn.draw(ctx, this.canvas);
-        });
+        if (!this.enabled) return;
+        if (!this.buttons.length) return;
+
+        this.buttons.forEach(btn => btn.draw(ctx, this.canvas));
     }
 }
