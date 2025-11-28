@@ -1,6 +1,6 @@
 class ScreenManager {
     /**
-     * Manages fullscreen and scaling for the game canvas.
+     * Handles resolution, responsive canvas sizing and fullscreen logic.
      * @param {HTMLCanvasElement} canvas
      * @param {number} baseWidth
      * @param {number} baseHeight
@@ -9,14 +9,22 @@ class ScreenManager {
         this.canvas = canvas;
         this.baseWidth = baseWidth;
         this.baseHeight = baseHeight;
-        this.isFullscreen = false;
+        this.isFullscreen = !!document.fullscreenElement;
 
-        // interne Auflösung der Spielwelt
         this.canvas.width = this.baseWidth;
         this.canvas.height = this.baseHeight;
 
-        this.applyNormalSize();
+
+        this.applyResponsiveSize();
+
         this.registerEvents();
+    }
+
+
+    static isMobileOrSmallScreen() {
+        const touch = navigator.maxTouchPoints > 0;
+        const small = window.innerWidth < 760;
+        return touch || small;
     }
 
     registerEvents() {
@@ -24,15 +32,26 @@ class ScreenManager {
         window.addEventListener("resize", () => this.handleResize());
     }
 
-    applyNormalSize() {
-        // Normale Ansicht z.B. 720×480
-        this.canvas.style.width = this.baseWidth + "px";
-        this.canvas.style.height = this.baseHeight + "px";
+
+    applyResponsiveSize() {
+        const title = document.getElementById("gameTitle");
+
+        if (ScreenManager.isMobileOrSmallScreen()) {
+            this.canvas.style.width = window.innerWidth + "px";
+            this.canvas.style.height = window.innerHeight + "px";
+
+            if (title) title.classList.add("hide-in-fullscreen");
+
+        } else {
+            this.canvas.style.width = this.baseWidth + "px";
+            this.canvas.style.height = this.baseHeight + "px";
+
+            if (title) title.classList.remove("hide-in-fullscreen");
+        }
     }
 
-    applyFullscreenSize() {
-        this.canvas.style.width = window.innerWidth + "px";
-        this.canvas.style.height = window.innerHeight + "px";
+    handleResize() {
+        this.applyResponsiveSize();
     }
 
     handleFullscreenChange() {
@@ -40,49 +59,46 @@ class ScreenManager {
 
         const title = document.getElementById("gameTitle");
         if (title) {
-            if (this.isFullscreen) {
-                title.classList.add("hide-in-fullscreen");
-            } else {
-                title.classList.remove("hide-in-fullscreen");
-            }
+            if (this.isFullscreen) title.classList.add("hide-in-fullscreen");
+            else title.classList.remove("hide-in-fullscreen");
         }
 
-        if (this.isFullscreen) {
-            this.applyFullscreenSize();
-        } else {
-            this.applyNormalSize();
+        if (window.world && window.world.controls && window.world.controls.fullscreenButton) {
+            const btn = window.world.controls.fullscreenButton;
+            btn.pressed = false;
+            btn.onChange(false);
         }
-    }
 
-    handleResize() {
-        if (this.isFullscreen) {
-            this.applyFullscreenSize();
-        }
+        this.applyResponsiveSize();
     }
 
     async enterFullscreen() {
         const elem = document.documentElement;
-        if (elem.requestFullscreen) {
-            await elem.requestFullscreen();
-        } else if (elem.webkitRequestFullscreen) {
-            await elem.webkitRequestFullscreen();
+        try {
+            if (elem.requestFullscreen) {
+                await elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                await elem.webkitRequestFullscreen();
+            }
+        } catch (e) {
+            console.warn("Fullscreen konnte nicht aktiviert werden:", e);
         }
     }
 
     async exitFullscreen() {
         if (!document.fullscreenElement) return;
-        if (document.exitFullscreen) {
-            await document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-            await document.webkitExitFullscreen();
+        try {
+            if (document.exitFullscreen) {
+                await document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                await document.webkitExitFullscreen();
+            }
+        } catch (e) {
+            console.warn("Fullscreen konnte nicht beendet werden:", e);
         }
     }
 
-    /**
-     * Convert mouse/touch event coordinates into game (base) coordinates.
-     * @param {MouseEvent | TouchEvent} event
-     * @returns {{x: number, y: number}}
-     */
+
     getCanvasCoords(event) {
         const rect = this.canvas.getBoundingClientRect();
 
@@ -90,14 +106,12 @@ class ScreenManager {
         const clientX = touch ? touch.clientX : event.clientX;
         const clientY = touch ? touch.clientY : event.clientY;
 
-        const scaleX = this.canvas.width / rect.width;   
-        const scaleY = this.canvas.height / rect.height; 
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
 
         return {
             x: (clientX - rect.left) * scaleX,
             y: (clientY - rect.top) * scaleY,
         };
     }
-
-
 }

@@ -1,6 +1,7 @@
 class OrientationManager {
-    constructor(world) {
+    constructor(world, screenManager) {
         this.world = world;
+        this.screenManager = screenManager;
         this.overlay = document.getElementById("rotateOverlay");
 
         this.updateState();
@@ -8,12 +9,13 @@ class OrientationManager {
         window.addEventListener("orientationchange", () => this.updateState());
     }
 
+
     isLandscape() {
         return window.innerWidth > window.innerHeight;
     }
 
     isMobileDevice() {
-        return navigator.maxTouchPoints > 0;
+        return ScreenManager.isMobileOrSmallScreen();
     }
 
     updateState() {

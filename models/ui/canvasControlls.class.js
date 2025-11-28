@@ -47,9 +47,9 @@ class CanvasControls {
         const h = 0.08;
         const top = 0.05;
 
-        const menu = new CanvasButton(0.55, top, w, h, "☰", state => { if (!state) return; this.handleMenu(); }, "wood");
+        const menu = new CanvasButton(0.85, top, w, h, "☰", state => { if (!state) return; this.handleMenu(); }, "wood");
         const fullscreen = new CanvasButton(0.70, top, w, h, "⛶", state => { if (!state) return; this.toggleFullscreen(); }, "wood");
-        const mute = new CanvasButton(0.85, top, w, h, this.isMuted ? "🔇" : "🔊", state => { if (!state) return; this.toggleMute(); }, "wood");
+        const mute = new CanvasButton(0.55, top, w, h, this.isMuted ? "🔇" : "🔊", state => { if (!state) return; this.toggleMute(); }, "wood");
 
         this.menuButton = menu;
         this.fullscreenButton = fullscreen;
