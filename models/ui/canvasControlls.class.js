@@ -1,7 +1,13 @@
 class CanvasControls {
-    constructor(canvas, keyboard) {
+    /**
+     * @param {HTMLCanvasElement} canvas
+     * @param {Keyboard} keyboard
+     * @param {ScreenManager} screenManager
+     */
+    constructor(canvas, keyboard, screenManager) {
         this.canvas = canvas;
         this.keyboard = keyboard;
+        this.screenManager = screenManager;
 
         this.enabled = CanvasControls.isMobilePlatform();
 
@@ -41,68 +47,48 @@ class CanvasControls {
         const h = 0.08;
         const top = 0.05;
 
-        const menu = new CanvasButton(0.7,top, w, h, "☰", state => { if (!state) return; this.handleMenu(); }, "wood");
-        const mute = new CanvasButton(0.85, top, w, h, "🔊", state => { if (!state) return; this.toggleMute(); }, "wood");
+        const menu = new CanvasButton(0.55, top, w, h, "☰", state => { if (!state) return; this.handleMenu(); }, "wood");
+        const fullscreen = new CanvasButton(0.70, top, w, h, "⛶", state => { if (!state) return; this.toggleFullscreen(); }, "wood");
+        const mute = new CanvasButton(0.85, top, w, h, this.isMuted ? "🔇" : "🔊", state => { if (!state) return; this.toggleMute(); }, "wood");
 
         this.menuButton = menu;
+        this.fullscreenButton = fullscreen;
         this.muteButton = mute;
 
-        return [menu, mute];
+        return [menu, fullscreen, mute];
     }
 
     bindMouseEvents() {
-        this.canvas.addEventListener("mousedown", event => this.onPointerDown(event));
-        this.canvas.addEventListener("mouseup", () => this.onPointerUp());
-        this.canvas.addEventListener("mousemove", e => this.onMouseMove(e));
+        this.canvas.addEventListener("mousedown", event => { const { x, y } = this.screenManager.getCanvasCoords(event); this.onPointerDown(x, y, event); });
+        this.canvas.addEventListener("mouseup", event => { this.onPointerUp(event); });
+        this.canvas.addEventListener("mousemove", event => { const { x, y } = this.screenManager.getCanvasCoords(event); this.onMouseMove(x, y, event); });
     }
 
     bindTouchEvents() {
-        this.canvas.addEventListener("touchstart", event => this.onTouchStart(event), { passive: false });
-        this.canvas.addEventListener("touchend", () => this.onPointerUp());
-        this.canvas.addEventListener("touchcancel", () => this.onPointerUp());
+        this.canvas.addEventListener("touchstart", event => { event.preventDefault(); const { x, y } = this.screenManager.getCanvasCoords(event); this.onPointerDown(x, y, event); }, { passive: false });
+        this.canvas.addEventListener("touchmove", event => { event.preventDefault(); const { x, y } = this.screenManager.getCanvasCoords(event); this.onMouseMove(x, y, event); }, { passive: false });
+        this.canvas.addEventListener("touchend", event => { event.preventDefault(); this.onPointerUp(event); }, { passive: false }); this.canvas.addEventListener("touchcancel", event => { event.preventDefault(); this.onPointerUp(event); }, { passive: false });
     }
 
-    onPointerDown(event) {
-        const pos = this.getCanvasPos(event);
-        this.updatePressedState(pos.x, pos.y, true);
+    onPointerDown(x, y, event) { this.updatePressedState(x, y, true); }
+
+    onPointerUp(event) {
+        this.buttons.forEach(btn => { if (btn.pressed) { btn.onChange(false); } btn.pressed = false; });
     }
 
-    onTouchStart(event) {
-        const touch = event.touches[0];
-        const pos = this.getCanvasPos(touch);
-        this.updatePressedState(pos.x, pos.y, true);
-        event.preventDefault();
-    }
-
-    onPointerUp() {
-        this.buttons.forEach(btn => {
-            if (btn.pressed) btn.onChange(false);
-            btn.pressed = false;
-        });
-    }
-
-    getCanvasPos(event) {
-        const rect = this.canvas.getBoundingClientRect();
-        return {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top,
-        };
+    onMouseMove(x, y, event) {
+        this.buttons.forEach(btn => { const inside = btn.contains(this.canvas, x, y); btn.setHover(inside); });
     }
 
     updatePressedState(x, y, isDown) {
         this.buttons.forEach(btn => {
             const inside = btn.contains(this.canvas, x, y);
-            btn.pressed = isDown && inside;
-            btn.onChange(btn.pressed);
-        });
-    }
+            const pressedNow = isDown && inside;
 
-    onMouseMove(event) {
-        const pos = this.getCanvasPos(event);
-
-        this.buttons.forEach(btn => {
-            const inside = btn.contains(this.canvas, pos.x, pos.y);
-            btn.setHover(inside);
+            if (btn.pressed !== pressedNow) {
+                btn.pressed = pressedNow;
+                btn.onChange(btn.pressed);
+            }
         });
     }
 
@@ -121,14 +107,29 @@ class CanvasControls {
             this.muteButton.text = this.isMuted ? "🔇" : "🔊";
         }
 
-        // TODO AudioManager einbinden.
-        // AudioManager.setMuted(this.isMuted);
-
+        // TODO: AudioManager einbinden
         console.log("Muted:", this.isMuted);
     }
 
     handleMenu() {
         // TODO: Overlay einbinden
         console.log("Menu öffnen!");
+    }
+
+    toggleFullscreen() {
+        if (this.screenManager.isFullscreen) {
+            this.screenManager.exitFullscreen();
+            if (this.fullscreenButton) {
+                this.fullscreenButton.pressed = false;
+                this.fullscreenButton.onChange(false);
+            }
+        } else {
+            this.screenManager.enterFullscreen();
+
+            if (this.fullscreenButton) {
+                this.fullscreenButton.pressed = false;
+                this.fullscreenButton.onChange(false);
+            }
+        }
     }
 }

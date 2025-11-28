@@ -1,15 +1,20 @@
-
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    background-color: rgb(124, 126, 49);
-    
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  background-color: rgb(124, 126, 49);
+
 }
 
 canvas {
-    background-color: black;
+  display: block;
+  background-color: black;
 }
 
 .rotateOverlay {
@@ -26,4 +31,8 @@ canvas {
 
 .rotateOverlay.hidden {
   display: none;
+}
+
+.hide-in-fullscreen {
+  display: none !important;
 }

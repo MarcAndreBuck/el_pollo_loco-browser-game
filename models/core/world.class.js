@@ -32,13 +32,14 @@ class World {
 
     /* ---------- Constructor ---------- */
 
-    constructor(canvas, keyboard, level) {
+    constructor(canvas, keyboard, level, screenManager) {
         this.ctx = canvas.getContext("2d");
         this.canvas = canvas;
         this.keyboard = keyboard;
         this.level = level;
         this.worldWidth = level.worldWidth;
         this.ui = new UIManager(this);
+        this.screenManager = screenManager;
 
         this.initCharacter();
         this.initUI();
@@ -50,7 +51,7 @@ class World {
         this.endscreen = new Endscreen();
 
         this.gameLoop();
-        this.controls = new CanvasControls(canvas, keyboard);
+        this.controls = new CanvasControls(canvas, keyboard, this.screenManager);
     }
 
     /* ---------- Level Object Getters ---------- */
