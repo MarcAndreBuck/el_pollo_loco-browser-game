@@ -38,6 +38,7 @@ class World {
         this.keyboard = keyboard;
         this.level = level;
         this.worldWidth = level.worldWidth;
+        this.ui = new UIManager(this);
 
         this.initCharacter();
         this.initUI();
@@ -141,10 +142,12 @@ class World {
         this.drawWorldObjects();
         this.drawUI();
         this.debug.drawHitboxes();
-        this.drawEndscreen();
         if (this.controls) {
             this.controls.draw(this.ctx);
         }
+        this.drawEndscreen();
+        this.ui.draw(this.ctx);
+
     }
 
     clearCanvas() {

@@ -1,63 +1,41 @@
 class CanvasButton {
-    constructor(relX, relY, relW, relH, text, onChange) {
-        this.relX = relX;
-        this.relY = relY;
-        this.relW = relW;
-        this.relH = relH;
-        this.text = text;
-        this.onChange = onChange;
+    constructor(relX, relY, relW, relH, text, onChange, style = "green") {
+        Object.assign(this, { relX, relY, relW, relH, text, onChange, style });
         this.pressed = false;
+        this.hover = false;
     }
 
     getRect(canvas) {
-        const width = canvas.width;
-        const height = canvas.height;
-        const x = width * this.relX;
-        const y = height * this.relY;
-        const w = width * this.relW;
-        const h = height * this.relH;
-        return { x, y, w, h };
+        const { width, height } = canvas;
+        return {
+            x: width * this.relX,
+            y: height * this.relY,
+            w: width * this.relW,
+            h: height * this.relH,
+        };
     }
 
     draw(ctx, canvas) {
-        const rect = this.getRect(canvas);
-        const x = rect.x;
-        const y = rect.y;
-        const w = rect.w;
-        const h = rect.h;
-        this.drawBackground(ctx, x, y, w, h);
-        this.drawLabel(ctx, x, y, w, h);
-    }
-
-    drawBackground(ctx, x, y, w, h) {
-        ctx.save();
-        ctx.fillStyle = this.pressed ? "#ffffff33" : "#ffffff22";
-        ctx.fillRect(x, y, w, h);
-        ctx.strokeStyle = "#ffffffcc";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x, y, w, h);
-        ctx.restore();
-    }
-
-    drawLabel(ctx, x, y, w, h) {
-        ctx.save();
-        ctx.fillStyle = "#ffffff";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.font = (h * 0.45) + "px Boogaloo";
-        ctx.fillText(this.text, x + w / 2, y + h / 2);
-        ctx.restore();
+        const { x, y, w, h } = this.getRect(canvas);
+        ButtonRenderer.draw(
+            ctx,
+            x,
+            y,
+            w,
+            h,
+            this.text,
+            this.pressed,
+            this.hover,
+            this.style
+        );
     }
 
     contains(canvas, px, py) {
-        const rect = this.getRect(canvas);
-        const x = rect.x;
-        const y = rect.y;
-        const w = rect.w;
-        const h = rect.h;
-        const insideX = px >= x && px <= x + w;
-        const insideY = py >= y && py <= y + h;
-        return insideX && insideY;
+        const { x, y, w, h } = this.getRect(canvas);
+        return px >= x && px <= x + w && py >= y && py <= y + h;
+    }
+
+    setHover(state) {
+        this.hover = state;
     }
 }
-
