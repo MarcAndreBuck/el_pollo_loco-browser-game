@@ -5,6 +5,8 @@ class World {
     canvas;
     keyboard;
     level;
+    startScreen;
+    activeOverlay;
 
     character;
     collisionSystem;
@@ -27,8 +29,10 @@ class World {
     gameOver = false;
     hasWon = false;
 
-    endscreen = null;
     blocked = false;
+
+    pauseOverlay = null;
+    endscreen = null;
 
     /* ---------- Constructor ---------- */
 
@@ -38,8 +42,8 @@ class World {
         this.keyboard = keyboard;
         this.level = level;
         this.worldWidth = level.worldWidth;
-        this.ui = new UIManager(this);
         this.screenManager = screenManager;
+        this.ui = new UIManager(this);
 
         this.initCharacter();
         this.initUI();
@@ -48,10 +52,23 @@ class World {
 
         this.camera = new Camera(this.worldWidth, this.canvas.width, 150, 300);
 
-        this.endscreen = new Endscreen();
+        // Endscreen jetzt mit world
+        this.endscreen = new Endscreen(this);
+
+        // Overlay-System vorbereiten
+        this.activeOverlay = null;
+
+        // Canvas-Controls (Header + Mobile-Controls)
+        this.controls = new CanvasControls(canvas, keyboard, this.screenManager, this);
+
+        // StartScreen als aktives Overlay
+        this.startScreen = new StartScreen(this, canvas, screenManager);
+        this.activeOverlay = this.startScreen;
+
+        // PauseOverlay
+        this.pauseOverlay = new PauseOverlay(this);
 
         this.gameLoop();
-        this.controls = new CanvasControls(canvas, keyboard, this.screenManager);
     }
 
     /* ---------- Level Object Getters ---------- */
@@ -104,10 +121,16 @@ class World {
 
     update() {
         if (this.blocked) return;
-        if (this.hasWon || this.gameOver) return;
+
+        // Win/Lose → öffne Endscreen
+        if ((this.hasWon || this.gameOver) && !this.activeOverlay) {
+            this.endscreen.open(this.hasWon);
+            return;
+        }
 
         this.character.update();
 
+        // Tod-Animation läuft
         if (this.character.isDead) {
             this.camera.update(this.character);
             if (this.character.deathFinished) this.gameOver = true;
@@ -133,22 +156,46 @@ class World {
     updateUI() {
         this.healthBar.update();
         this.bottleBar.update();
-        if (this.bossFightStarted) { this.bossHealthBar.update(); }
+        if (this.bossFightStarted) {
+            this.bossHealthBar.update();
+        }
     }
 
     /* ---------- Drawing ---------- */
 
     draw() {
         this.clearCanvas();
+
+        // 1. Nur der StartScreen soll alles überdecken
+        if (this.activeOverlay === this.startScreen) {
+            this.startScreen.draw(this.ctx);
+
+            if (this.controls) {
+                this.controls.drawHeaderOnly(this.ctx);
+            }
+            return;
+        }
+
+        // 2. Normale Welt (läuft auch, wenn PauseOverlay oder Endscreen aktiv sind)
         this.drawWorldObjects();
         this.drawUI();
         this.debug.drawHitboxes();
-        if (this.controls) {
+
+        // 3. Controls nur, wenn KEIN Overlay aktiv ist
+        if (!this.activeOverlay && this.controls) {
             this.controls.draw(this.ctx);
         }
-        this.drawEndscreen();
+
         this.ui.draw(this.ctx);
 
+        // 4. Overlays über der Welt: Pause + Endscreen
+        if (this.activeOverlay === this.pauseOverlay || this.activeOverlay === this.endscreen) {
+            this.activeOverlay.draw(this.ctx);
+
+            if (this.controls) {
+                this.controls.drawHeaderOnly(this.ctx);
+            }
+        }
     }
 
     clearCanvas() {
@@ -172,11 +219,6 @@ class World {
         if (this.bossFightStarted) {
             this.bossHealthBar.draw(this.ctx);
         }
-    }
-
-    drawEndscreen() {
-        if (!this.gameOver && !this.hasWon) return;
-        this.endscreen.draw(this.ctx, this.canvas, this.hasWon);
     }
 
     /* ---------- Rendering Helpers ---------- */
@@ -210,5 +252,28 @@ class World {
         }
 
         this.ctx.restore();
+    }
+
+    /* ---------- Game Reset ---------- */
+
+    resetGame() {
+        this.gameOver = false;
+        this.hasWon = false;
+        this.blocked = false;
+
+        this.coins = 0;
+        this.bottles = 0;
+        this.projectiles = [];
+
+        this.bossFightStarted = false;
+        this.endboss = null;
+        this.bossHealthBar = null;
+
+        this.initCharacter();
+        this.camera = new Camera(this.worldWidth, this.canvas.width, 150, 300);
+
+        this.initUI();
+
+        console.log("Game wurde zurückgesetzt.");
     }
 }
