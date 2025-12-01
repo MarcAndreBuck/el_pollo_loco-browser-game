@@ -1,3 +1,11 @@
+const GAME_STATE = {
+    START: "start",
+    RUNNING: "running",
+    PAUSED: "paused",
+    WON: "won",
+    LOST: "lost",
+};
+
 class World {
     /* ---------- Properties ---------- */
 
@@ -5,8 +13,10 @@ class World {
     canvas;
     keyboard;
     level;
+
     startScreen;
-    activeOverlay;
+    pauseOverlay;
+    endscreen;
 
     character;
     collisionSystem;
@@ -26,13 +36,10 @@ class World {
     endboss = null;
     bossHealthBar = null;
 
-    gameOver = false;
-    hasWon = false;
+    state = GAME_STATE.START;
 
-    blocked = false;
-
-    pauseOverlay = null;
-    endscreen = null;
+    ui;
+    controls;
 
     /* ---------- Constructor ---------- */
 
@@ -43,6 +50,7 @@ class World {
         this.level = level;
         this.worldWidth = level.worldWidth;
         this.screenManager = screenManager;
+
         this.ui = new UIManager(this);
 
         this.initCharacter();
@@ -52,23 +60,40 @@ class World {
 
         this.camera = new Camera(this.worldWidth, this.canvas.width, 150, 300);
 
-        // Endscreen jetzt mit world
+        // Screens
+        this.startScreen = new StartScreen(this, canvas, screenManager);
+        this.pauseOverlay = new PauseOverlay(this);
         this.endscreen = new Endscreen(this);
 
-        // Overlay-System vorbereiten
-        this.activeOverlay = null;
-
-        // Canvas-Controls (Header + Mobile-Controls)
         this.controls = new CanvasControls(canvas, keyboard, this.screenManager, this);
 
-        // StartScreen als aktives Overlay
-        this.startScreen = new StartScreen(this, canvas, screenManager);
-        this.activeOverlay = this.startScreen;
-
-        // PauseOverlay
-        this.pauseOverlay = new PauseOverlay(this);
+        this.setState(GAME_STATE.START);
 
         this.gameLoop();
+    }
+
+    /* ---------- State Helpers ---------- */
+
+    setState(newState) {
+        this.state = newState;
+
+        if (newState === GAME_STATE.WON) {
+            this.endscreen.open(true);
+        }
+
+        if (newState === GAME_STATE.LOST) {
+            this.endscreen.open(false);
+        }
+    }
+
+    isRunning() {
+        return this.state === GAME_STATE.RUNNING;
+    }
+
+    triggerWin() {
+        if (this.state === GAME_STATE.RUNNING) {
+            this.setState(GAME_STATE.WON);
+        }
     }
 
     /* ---------- Level Object Getters ---------- */
@@ -120,31 +145,49 @@ class World {
     }
 
     update() {
-        if (this.blocked) return;
+        switch (this.state) {
+            case GAME_STATE.START:
+                return;
 
-        // Win/Lose → öffne Endscreen
-        if ((this.hasWon || this.gameOver) && !this.activeOverlay) {
-            this.endscreen.open(this.hasWon);
-            return;
+            case GAME_STATE.PAUSED:
+                return;
+
+            case GAME_STATE.WON:
+            case GAME_STATE.LOST:
+                return;
+
+            case GAME_STATE.RUNNING:
+            default:
+                this.updateRunning();
+                return;
         }
+    }
 
-        this.character.update();
+updateRunning() {
+    this.character.update();
 
-        // Tod-Animation läuft
-        if (this.character.isDead) {
-            this.camera.update(this.character);
-            if (this.character.deathFinished) this.gameOver = true;
-            return;
-        }
-
+    if (this.character.isDead) {
         this.camera.update(this.character);
 
-        this.updateLevelObjects();
-        this.throwSystem.update();
-        this.collisionSystem.update();
-        Endboss.ensureSpawned(this);
-        this.updateUI();
+        if (this.character.deathFinished && this.state === GAME_STATE.RUNNING) {
+            this.setState(GAME_STATE.LOST);
+        }
+        return;
     }
+
+    this.camera.update(this.character);
+
+    this.updateLevelObjects();
+    this.throwSystem.update();
+    this.collisionSystem.update();
+    Endboss.ensureSpawned(this);
+    this.updateUI();
+
+    if (this.endboss && this.endboss.isDead && this.state === GAME_STATE.RUNNING) {
+        this.setState(GAME_STATE.WON);
+    }
+}
+
 
     updateLevelObjects() {
         this.enemies.forEach(e => e.update());
@@ -164,37 +207,47 @@ class World {
     /* ---------- Drawing ---------- */
 
     draw() {
+        switch (this.state) {
+            case GAME_STATE.START:
+                this.drawStartScreen();
+                return;
+
+            case GAME_STATE.PAUSED:
+                this.drawGameplay();
+                this.pauseOverlay.draw(this.ctx);
+                this.controls.drawHeaderOnly(this.ctx);
+                return;
+
+            case GAME_STATE.WON:
+            case GAME_STATE.LOST:
+                this.drawGameplay();
+                this.endscreen.draw(this.ctx);
+                this.controls.drawHeaderOnly(this.ctx);
+                return;
+
+            case GAME_STATE.RUNNING:
+            default:
+                this.drawGameplay();
+                return;
+        }
+    }
+
+    drawStartScreen() {
+        this.clearCanvas();
+        this.startScreen.draw(this.ctx);
+        this.controls.drawHeaderOnly(this.ctx);
+    }
+
+    drawGameplay() {
         this.clearCanvas();
 
-        // 1. Nur der StartScreen soll alles überdecken
-        if (this.activeOverlay === this.startScreen) {
-            this.startScreen.draw(this.ctx);
-
-            if (this.controls) {
-                this.controls.drawHeaderOnly(this.ctx);
-            }
-            return;
-        }
-
-        // 2. Normale Welt (läuft auch, wenn PauseOverlay oder Endscreen aktiv sind)
         this.drawWorldObjects();
         this.drawUI();
         this.debug.drawHitboxes();
-
-        // 3. Controls nur, wenn KEIN Overlay aktiv ist
-        if (!this.activeOverlay && this.controls) {
-            this.controls.draw(this.ctx);
-        }
-
         this.ui.draw(this.ctx);
 
-        // 4. Overlays über der Welt: Pause + Endscreen
-        if (this.activeOverlay === this.pauseOverlay || this.activeOverlay === this.endscreen) {
-            this.activeOverlay.draw(this.ctx);
-
-            if (this.controls) {
-                this.controls.drawHeaderOnly(this.ctx);
-            }
+        if (this.controls) {
+            this.controls.draw(this.ctx);
         }
     }
 
@@ -220,8 +273,6 @@ class World {
             this.bossHealthBar.draw(this.ctx);
         }
     }
-
-    /* ---------- Rendering Helpers ---------- */
 
     addObjectToMap(objects) {
         objects.forEach(o => this.addToMap(o));
@@ -257,10 +308,6 @@ class World {
     /* ---------- Game Reset ---------- */
 
     resetGame() {
-        this.gameOver = false;
-        this.hasWon = false;
-        this.blocked = false;
-
         this.coins = 0;
         this.bottles = 0;
         this.projectiles = [];
@@ -273,6 +320,7 @@ class World {
         this.camera = new Camera(this.worldWidth, this.canvas.width, 150, 300);
 
         this.initUI();
+        this.initSystems();
 
         console.log("Game wurde zurückgesetzt.");
     }

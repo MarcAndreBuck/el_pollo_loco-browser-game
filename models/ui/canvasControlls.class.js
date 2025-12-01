@@ -30,11 +30,28 @@ class CanvasControls {
         return isTouch || isSmallScreen;
     }
 
-    /**
-     * Menu-Button nur im laufenden Spiel (kein Overlay).
-     */
+
     isMenuAvailable() {
-        return !this.world.activeOverlay;
+        return this.world.state === GAME_STATE.RUNNING;
+    }
+
+
+    getActiveScreen() {
+        const state = this.world.state;
+
+        if (state === GAME_STATE.START) {
+            return this.world.startScreen;
+        }
+
+        if (state === GAME_STATE.PAUSED) {
+            return this.world.pauseOverlay;
+        }
+
+        if (state === GAME_STATE.WON || state === GAME_STATE.LOST) {
+            return this.world.endscreen;
+        }
+
+        return null; 
     }
 
     /* ---------- Events ---------- */
@@ -43,14 +60,13 @@ class CanvasControls {
         this.canvas.addEventListener("mousedown", event => {
             const { x, y } = this.screenManager.getCanvasCoords(event);
 
-            // Header-Buttons (Mute immer, Menu nur wenn erlaubt)
+
             this.onPointerDownHeader(x, y);
 
-            // Overlay aktiv? → zusätzlich Input an Overlay
-            if (this.world.activeOverlay) {
-                this.world.activeOverlay.handlePointerDown(x, y);
+            const activeScreen = this.getActiveScreen();
+            if (activeScreen) {
+                activeScreen.handlePointerDown(x, y);
             } else {
-                // Sonst Gameplay-Buttons
                 this.onPointerDownControls(x, y);
             }
         });
@@ -60,8 +76,9 @@ class CanvasControls {
 
             this.updateHover(this.headerButtons, x, y);
 
-            if (this.world.activeOverlay) {
-                this.world.activeOverlay.handlePointerMove(x, y);
+            const activeScreen = this.getActiveScreen();
+            if (activeScreen) {
+                activeScreen.handlePointerMove(x, y);
             } else {
                 this.updateHover(this.controlButtons, x, y);
             }
@@ -71,8 +88,9 @@ class CanvasControls {
             this.resetButtons(this.headerButtons);
             this.resetButtons(this.controlButtons);
 
-            if (this.world.activeOverlay) {
-                this.world.activeOverlay.handlePointerUp();
+            const activeScreen = this.getActiveScreen();
+            if (activeScreen) {
+                activeScreen.handlePointerUp();
             }
         });
     }
@@ -84,8 +102,9 @@ class CanvasControls {
 
             this.onPointerDownHeader(x, y);
 
-            if (this.world.activeOverlay) {
-                this.world.activeOverlay.handlePointerDown(x, y);
+            const activeScreen = this.getActiveScreen();
+            if (activeScreen) {
+                activeScreen.handlePointerDown(x, y);
             } else {
                 this.onPointerDownControls(x, y);
             }
@@ -97,8 +116,9 @@ class CanvasControls {
 
             this.updateHover(this.headerButtons, x, y);
 
-            if (this.world.activeOverlay) {
-                this.world.activeOverlay.handlePointerMove(x, y);
+            const activeScreen = this.getActiveScreen();
+            if (activeScreen) {
+                activeScreen.handlePointerMove(x, y);
             } else {
                 this.updateHover(this.controlButtons, x, y);
             }
@@ -109,8 +129,9 @@ class CanvasControls {
             this.resetButtons(this.headerButtons);
             this.resetButtons(this.controlButtons);
 
-            if (this.world.activeOverlay) {
-                this.world.activeOverlay.handlePointerUp();
+            const activeScreen = this.getActiveScreen();
+            if (activeScreen) {
+                activeScreen.handlePointerUp();
             }
         }, { passive: false });
 
@@ -119,8 +140,9 @@ class CanvasControls {
             this.resetButtons(this.headerButtons);
             this.resetButtons(this.controlButtons);
 
-            if (this.world.activeOverlay) {
-                this.world.activeOverlay.handlePointerUp();
+            const activeScreen = this.getActiveScreen();
+            if (activeScreen) {
+                activeScreen.handlePointerUp();
             }
         }, { passive: false });
     }
@@ -137,7 +159,6 @@ class CanvasControls {
 
     triggerButtons(buttons, x, y) {
         buttons.forEach(btn => {
-            // Menü ignorieren, wenn nicht verfügbar
             if (btn === this.menuButton && !this.isMenuAvailable()) {
                 return;
             }
@@ -151,7 +172,6 @@ class CanvasControls {
 
     updateHover(buttons, x, y) {
         buttons.forEach(btn => {
-            // Kein Hover für Menü, wenn nicht verfügbar
             if (btn === this.menuButton && !this.isMenuAvailable()) {
                 btn.setHover(false);
                 return;
@@ -167,35 +187,69 @@ class CanvasControls {
                 btn.onChange(false);
             }
             btn.pressed = false;
-            btn.setHover(false); 
+            btn.setHover(false);
         });
     }
 
     /* ---------- Buttons erzeugen ---------- */
 
     createControlButtons() {
-        const w = 0.10;
-        const h = 0.08;
-        const bottom = 0.83;
+        const controlButtonWidth = 0.10;
+        const controlButtonHeight = 0.08;
+        const controlAreaY = 0.83;
+        const controlOffsetY = 0.08;
+
+        const y = controlAreaY + controlOffsetY;
 
         return [
-            new CanvasButton(0.05, bottom + 0.08, w, h, "◀", state => this.keyboard.LEFT = state),
-            new CanvasButton(0.20, bottom + 0.08, w, h, "▶", state => this.keyboard.RIGHT = state),
-            new CanvasButton(0.85, bottom + 0.08, w, h, "⭡", state => this.keyboard.SPACE = state),
-            new CanvasButton(0.70, bottom + 0.08, w, h, "🤾", state => this.keyboard.THROW = state),
+            new CanvasButton(
+                0.05,
+                y,
+                controlButtonWidth,
+                controlButtonHeight,
+                "◀",
+                state => this.keyboard.LEFT = state
+            ),
+            new CanvasButton(
+                0.20,
+                y,
+                controlButtonWidth,
+                controlButtonHeight,
+                "▶",
+                state => this.keyboard.RIGHT = state
+            ),
+            new CanvasButton(
+                0.85,
+                y,
+                controlButtonWidth,
+                controlButtonHeight,
+                "⭡",
+                state => this.keyboard.SPACE = state
+            ),
+            new CanvasButton(
+                0.70,
+                y,
+                controlButtonWidth,
+                controlButtonHeight,
+                "🤾",
+                state => this.keyboard.THROW = state
+            ),
         ];
     }
 
     createHeaderButtons() {
-        const w = 0.10;
-        const h = 0.08;
-        const top = 0.05;
+        const headerButtonWidth = 0.10;
+        const headerButtonHeight = 0.08;
+        const headerY = 0.05;
+
+        const menuX = 0.70;
+        const muteX = 0.85;
 
         const menu = new CanvasButton(
-            0.70,
-            top,
-            w,
-            h,
+            menuX,
+            headerY,
+            headerButtonWidth,
+            headerButtonHeight,
             "☰",
             state => {
                 if (!state) return;
@@ -205,10 +259,10 @@ class CanvasControls {
         );
 
         const mute = new CanvasButton(
-            0.85,
-            top,
-            w,
-            h,
+            muteX,
+            headerY,
+            headerButtonWidth,
+            headerButtonHeight,
             "🔊",
             state => {
                 if (!state) return;
@@ -216,8 +270,6 @@ class CanvasControls {
             },
             "wood"
         );
-
-    const fullscreen = new CanvasButton(0.70, top, w, h, "⛶", state => { if (!state) return; this.toggleFullscreen(); }, "wood");
 
         this.menuButton = menu;
         this.muteButton = mute;
@@ -230,17 +282,17 @@ class CanvasControls {
     draw(ctx) {
         this.drawHeaderOnly(ctx);
 
-        if (!this.world.activeOverlay && this.enabled) {
+        if (this.enabled && this.world.state === GAME_STATE.RUNNING) {
             this.controlButtons.forEach(btn => btn.draw(ctx, this.canvas));
         }
     }
 
     drawHeaderOnly(ctx) {
         this.headerButtons.forEach(btn => {
-            // Menü nicht zeichnen, wenn nicht verfügbar
-            if (btn === this.menuButton && !this.isMenuAvailable()) {
+            if (btn === this.menuButton && this.world.state !== GAME_STATE.RUNNING) {
                 return;
             }
+
             btn.draw(ctx, this.canvas);
         });
     }
@@ -259,7 +311,15 @@ class CanvasControls {
     }
 
     handleMenu() {
-        console.log("Menü öffnen (Pause-Screen)");
-        this.world.pauseOverlay.toggle();
+        const state = this.world.state;
+
+        if (state === GAME_STATE.RUNNING) {
+            this.world.setState(GAME_STATE.PAUSED);
+            return;
+        }
+
+        if (state === GAME_STATE.PAUSED) {
+            this.world.setState(GAME_STATE.RUNNING);
+        }
     }
 }

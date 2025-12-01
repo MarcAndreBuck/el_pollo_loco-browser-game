@@ -3,18 +3,18 @@ class ScreenManager {
      * Handles resolution, responsive canvas sizing and fullscreen logic.
      * @param {HTMLCanvasElement} canvas
      * @param {number} baseWidth
-     * @param {number} baseHeight
+     * @param {number} baseHeight}
      */
     constructor(canvas, baseWidth = 720, baseHeight = 480) {
         this.canvas = canvas;
         this.baseWidth = baseWidth;
         this.baseHeight = baseHeight;
         this.isFullscreen = !!document.fullscreenElement;
+
         this.canvas.width = this.baseWidth;
         this.canvas.height = this.baseHeight;
 
         this.applyResponsiveSize();
-
         this.registerEvents();
     }
 
@@ -22,9 +22,9 @@ class ScreenManager {
      * Touch-Gerät ODER kleiner Screen (< 760px)?
      */
     static isMobileOrSmallScreen() {
-        const touch = navigator.maxTouchPoints > 0;
-        const small = window.innerWidth < 760;
-        return touch || small;
+        const isTouchDevice = navigator.maxTouchPoints > 0;
+        const isSmallScreen = window.innerWidth < 760;
+        return isTouchDevice || isSmallScreen;
     }
 
     registerEvents() {
@@ -48,9 +48,7 @@ class ScreenManager {
             this.canvas.style.width = window.innerWidth + "px";
             this.canvas.style.height = window.innerHeight + "px";
 
-            if (title) {
-                title.classList.add("hide-in-fullscreen");
-            }
+            title.classList.add("hide-in-fullscreen");
             return;
         }
 
@@ -58,17 +56,12 @@ class ScreenManager {
             this.canvas.style.width = window.innerWidth + "px";
             this.canvas.style.height = window.innerHeight + "px";
 
-            if (title) {
-                title.classList.add("hide-in-fullscreen");
-            }
+            title.classList.add("hide-in-fullscreen");
         } else {
-
             this.canvas.style.width = this.baseWidth + "px";
             this.canvas.style.height = this.baseHeight + "px";
 
-            if (title) {
-                title.classList.remove("hide-in-fullscreen");
-            }
+            title.classList.remove("hide-in-fullscreen");
         }
     }
 
@@ -85,12 +78,12 @@ class ScreenManager {
             btn.onChange(false);
         }
 
-        // Größe & Titel-Anzeige neu berechnen
         this.applyResponsiveSize();
     }
 
     async enterFullscreen() {
         const elem = document.documentElement;
+
         try {
             if (elem.requestFullscreen) {
                 await elem.requestFullscreen();
@@ -104,6 +97,7 @@ class ScreenManager {
 
     async exitFullscreen() {
         if (!document.fullscreenElement) return;
+
         try {
             if (document.exitFullscreen) {
                 await document.exitFullscreen();

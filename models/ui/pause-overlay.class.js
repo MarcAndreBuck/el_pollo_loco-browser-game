@@ -7,55 +7,69 @@ class PauseOverlay {
     /* ---------- Buttons ---------- */
 
     createButtons() {
-        const bw = 0.35;
-        const bh = 0.08;
-        const gap = 0.015;
+        const buttonWidth = 0.35;
+        const buttonHeight = 0.08;
+        const buttonGap = 0.015;
 
-        let y = 0.5 - bh - gap;
+        const centerX = 0.5;
+        let buttonY = 0.5 - buttonHeight - buttonGap;
+
+        const halfWidth = buttonWidth * 0.5;
+        const smallButtonWidth = buttonWidth * 0.5 - 0.01;
 
         return [
-            new CanvasButton(0.5, y, bw, bh, "Back to Game",
+            new CanvasButton(
+                centerX,
+                buttonY,
+                buttonWidth,
+                buttonHeight,
+                "Back to Game",
                 () => this.onResume(),
                 "wood"
             ),
-            new CanvasButton(0.5, y += bh + gap, bw, bh, "Restart",
+
+            new CanvasButton(
+                centerX,
+                buttonY += buttonHeight + buttonGap,
+                buttonWidth,
+                buttonHeight,
+                "Restart",
                 () => this.onRestart(),
                 "wood"
             ),
-            new CanvasButton(0.5, y += bh + gap, bw, bh, "Back to Start",
+
+            new CanvasButton(
+                centerX,
+                buttonY += buttonHeight + buttonGap,
+                buttonWidth,
+                buttonHeight,
+                "Back to Start",
                 () => this.onBackToStart(),
                 "wood"
             ),
-            new CanvasButton(0.5 - bw * 0.25, y += bh + gap * 2, bw * 0.5 - 0.01, bh,
+
+
+            new CanvasButton(
+                centerX - halfWidth * 0.5,
+                buttonY += buttonHeight + buttonGap * 2,
+                smallButtonWidth,
+                buttonHeight,
                 "Datenschutz",
                 () => this.onPrivacy(),
                 "wood"
             ),
-            new CanvasButton(0.5 + bw * 0.25, y, bw * 0.5 - 0.01, bh,
+
+
+            new CanvasButton(
+                centerX + halfWidth * 0.5,
+                buttonY,
+                smallButtonWidth,
+                buttonHeight,
                 "Impressum",
                 () => this.onImprint(),
                 "wood"
             ),
         ];
-    }
-
-    /* ---------- Overlay Control ---------- */
-
-    open() {
-        this.world.activeOverlay = this;
-        this.world.blocked = true;
-    }
-
-    close() {
-        if (this.world.activeOverlay === this) {
-            this.world.activeOverlay = null;
-        }
-        this.world.blocked = false;
-    }
-
-    toggle() {
-        if (this.world.activeOverlay === this) this.close();
-        else this.open();
     }
 
     /* ---------- Zeichnen ---------- */
@@ -77,7 +91,7 @@ class PauseOverlay {
         ctx.restore();
     }
 
-    /* ---------- Pointer Events (von CanvasControls) ---------- */
+    /* ---------- Pointer Events ---------- */
 
     handlePointerMove(x, y) {
         this.buttons.forEach(btn =>
@@ -105,17 +119,16 @@ class PauseOverlay {
     /* ---------- Button Actions ---------- */
 
     onResume() {
-        this.close();
+        this.world.setState(GAME_STATE.RUNNING);
     }
 
     onRestart() {
-        this.close();
         this.world.resetGame();
+        this.world.setState(GAME_STATE.RUNNING);
     }
 
     onBackToStart() {
-        this.close();
-        this.world.activeOverlay = this.world.startScreen;
+        this.world.setState(GAME_STATE.START);
     }
 
     onPrivacy() {

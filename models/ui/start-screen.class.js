@@ -3,7 +3,7 @@ class StartScreen extends BaseScreen {
         super(world, canvas, screenManager);
 
         this.backgroundImage = new Image();
-        this.backgroundImage.src = 'assets/9_intro_outro_screens/start/startscreen_1.png'; // Anpassen falls nötig
+        this.backgroundImage.src = "assets/9_intro_outro_screens/start/startscreen_1.png";
 
         this.buttons = this.createButtons();
     }
@@ -13,25 +13,38 @@ class StartScreen extends BaseScreen {
     }
 
     createButtons() {
-        const w = 0.24;
-        const h = 0.12;
-        const y = 0.75;
+        const buttonWidth = 0.24;
+        const buttonHeight = 0.12;
+        const buttonY = 0.75;
+
+        const centerX = 0.5;
+        const leftX = 0.18;
+        const rightX = 0.82 - buttonWidth;
 
         return [
             new CanvasButton(
-                0.5 - w / 2, y, w, h,
+                centerX - buttonWidth / 2,
+                buttonY,
+                buttonWidth,
+                buttonHeight,
                 "▶ Start",
                 () => this.startGame(),
                 "green"
             ),
             new CanvasButton(
-                0.18, y, w, h,
+                leftX,
+                buttonY,
+                buttonWidth,
+                buttonHeight,
                 "📖 Story",
                 () => this.openStory(),
                 "wood"
             ),
             new CanvasButton(
-                0.82 - w, y, w, h,
+                rightX,
+                buttonY,
+                buttonWidth,
+                buttonHeight,
                 "🎮 Steuerung",
                 () => this.openControls(),
                 "wood"
@@ -40,8 +53,9 @@ class StartScreen extends BaseScreen {
     }
 
     startGame() {
-        this.close();              // Overlay zu + activeOverlay = null
-        this.world.resetGame();    // Spielzustand zurücksetzen
+        this.world.resetGame();
+        this.world.setState(GAME_STATE.RUNNING);
+        this.close();
     }
 
     openStory() {
