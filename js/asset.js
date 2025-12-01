@@ -143,13 +143,10 @@ const ASSETS = {
     start_and_end_screen: {
 
         game_over: [
-            "assets/9_intro_outro_screens/game_over/game over!.png",
-            "assets/9_intro_outro_screens/game_over/game over.png",
-            "assets/9_intro_outro_screens/game_over/oh no you lost!.png",
-            "assets/9_intro_outro_screens/game_over/you lost.png",
             "assets/You won, you lost/Game Over.png",
             "assets/You won, you lost/You lost.png",
-
+            "assets/You won, you lost/Game over A.png",
+            "assets/You won, you lost/You lost b.png",
         ],
 
         start: [

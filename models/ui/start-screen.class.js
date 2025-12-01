@@ -13,49 +13,39 @@ class StartScreen extends BaseScreen {
     }
 
     createButtons() {
-        const buttonWidth = 0.24;
-        const buttonHeight = 0.12;
-        const buttonY = 0.75;
+        return [
+            ...this.createCenterButtons(),
+            ...this.createBottomButtons(),
+        ];
+    }
 
-        const centerX = 0.5;
-        const leftX = 0.18;
-        const rightX = 0.82 - buttonWidth;
+
+    createCenterButtons() {
+        const buttonWidth = 0.2;
+        const buttonHeight = 0.08;
+        const buttonY = 0.15;
 
         return [
-            new CanvasButton(
-                centerX - buttonWidth / 2,
-                buttonY,
-                buttonWidth,
-                buttonHeight,
-                "▶ Start",
-                () => this.startGame(),
-                "green"
-            ),
-            new CanvasButton(
-                leftX,
-                buttonY,
-                buttonWidth,
-                buttonHeight,
-                "📖 Story",
-                () => this.openStory(),
-                "wood"
-            ),
-            new CanvasButton(
-                rightX,
-                buttonY,
-                buttonWidth,
-                buttonHeight,
-                "🎮 Steuerung",
-                () => this.openControls(),
-                "wood"
-            ),
+            new CanvasButton(0.5 - buttonWidth - 0.05, buttonY, buttonWidth, buttonHeight, "Steuerung", state => state && this.startGame(), "wood"),
+            new CanvasButton(0.5 + 0.05, buttonY, buttonWidth, buttonHeight, "Story", state => state && this.openStory(), "wood"),
+        ];
+    }
+
+    createBottomButtons() {
+        const buttonWidth = 0.2;
+        const buttonHeight = 0.10;
+        const buttonY = 0.88;
+
+        return [
+            new CanvasButton(0.5 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight, "▶ Start", state => state && this.startGame(), "green"),
+            new CanvasButton(0.18, buttonY, buttonWidth, buttonHeight, "Impressum", state => state && this.openStory(), "wood"),
+            new CanvasButton(0.82 - buttonWidth, buttonY, buttonWidth, buttonHeight, "Datenschutz", state => state && this.openControls(), "wood"),
         ];
     }
 
     startGame() {
         this.world.resetGame();
         this.world.setState(GAME_STATE.RUNNING);
-        this.close();
     }
 
     openStory() {

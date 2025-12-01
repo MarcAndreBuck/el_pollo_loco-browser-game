@@ -14,8 +14,11 @@ class CanvasControls {
         this.enabled = CanvasControls.isMobilePlatform();
 
         this.isMuted = false;
+        this.isFullscreen = false;
+
         this.muteButton = null;
         this.menuButton = null;
+        this.fullscreenButton = null;
 
         this.headerButtons = this.createHeaderButtons();
         this.controlButtons = this.enabled ? this.createControlButtons() : [];
@@ -30,11 +33,9 @@ class CanvasControls {
         return isTouch || isSmallScreen;
     }
 
-
     isMenuAvailable() {
         return this.world.state === GAME_STATE.RUNNING;
     }
-
 
     getActiveScreen() {
         const state = this.world.state;
@@ -51,7 +52,7 @@ class CanvasControls {
             return this.world.endscreen;
         }
 
-        return null; 
+        return null;
     }
 
     /* ---------- Events ---------- */
@@ -59,7 +60,6 @@ class CanvasControls {
     bindMouseEvents() {
         this.canvas.addEventListener("mousedown", event => {
             const { x, y } = this.screenManager.getCanvasCoords(event);
-
 
             this.onPointerDownHeader(x, y);
 
@@ -202,79 +202,31 @@ class CanvasControls {
         const y = controlAreaY + controlOffsetY;
 
         return [
-            new CanvasButton(
-                0.05,
-                y,
-                controlButtonWidth,
-                controlButtonHeight,
-                "◀",
-                state => this.keyboard.LEFT = state
-            ),
-            new CanvasButton(
-                0.20,
-                y,
-                controlButtonWidth,
-                controlButtonHeight,
-                "▶",
-                state => this.keyboard.RIGHT = state
-            ),
-            new CanvasButton(
-                0.85,
-                y,
-                controlButtonWidth,
-                controlButtonHeight,
-                "⭡",
-                state => this.keyboard.SPACE = state
-            ),
-            new CanvasButton(
-                0.70,
-                y,
-                controlButtonWidth,
-                controlButtonHeight,
-                "🤾",
-                state => this.keyboard.THROW = state
-            ),
+            new CanvasButton(0.05, y, controlButtonWidth, controlButtonHeight, "◀", state => this.keyboard.LEFT = state),
+            new CanvasButton(0.20, y, controlButtonWidth, controlButtonHeight, "▶", state => this.keyboard.RIGHT = state),
+            new CanvasButton(0.85, y, controlButtonWidth, controlButtonHeight, "⭡", state => this.keyboard.SPACE = state),
+            new CanvasButton(0.70, y, controlButtonWidth, controlButtonHeight, "🤾", state => this.keyboard.THROW = state),
         ];
     }
 
     createHeaderButtons() {
-        const headerButtonWidth = 0.10;
+        const headerButtonWidth = 0.06;
         const headerButtonHeight = 0.08;
         const headerY = 0.05;
 
-        const menuX = 0.70;
-        const muteX = 0.85;
+        const fullscreenX = 0.82;
+        const menuX = 0.74;
+        const muteX = 0.90;
 
-        const menu = new CanvasButton(
-            menuX,
-            headerY,
-            headerButtonWidth,
-            headerButtonHeight,
-            "☰",
-            state => {
-                if (!state) return;
-                this.handleMenu();
-            },
-            "wood"
-        );
+        const fullscreen = new CanvasButton(fullscreenX, headerY, headerButtonWidth, headerButtonHeight, "⛶", state => { if (!state) return; this.toggleFullscreen(); }, "wood");
+        const menu = new CanvasButton(menuX, headerY, headerButtonWidth, headerButtonHeight, "☰", state => { if (!state) return; this.handleMenu(); }, "wood");
+        const mute = new CanvasButton(muteX, headerY, headerButtonWidth, headerButtonHeight, "🔊", state => { if (!state) return; this.toggleMute(); }, "wood");
 
-        const mute = new CanvasButton(
-            muteX,
-            headerY,
-            headerButtonWidth,
-            headerButtonHeight,
-            "🔊",
-            state => {
-                if (!state) return;
-                this.toggleMute();
-            },
-            "wood"
-        );
-
+        this.fullscreenButton = fullscreen;
         this.menuButton = menu;
         this.muteButton = mute;
 
-        return [menu, mute];
+        return [fullscreen, menu, mute];
     }
 
     /* ---------- Rendering ---------- */
@@ -308,6 +260,14 @@ class CanvasControls {
 
         console.log("Muted:", this.isMuted);
         // TODO: AudioManager anbinden
+    }
+
+    toggleFullscreen() {
+        if (!this.screenManager.isFullscreen) {
+            this.screenManager.enterFullscreen();
+        } else {
+            this.screenManager.exitFullscreen();
+        }
     }
 
     handleMenu() {

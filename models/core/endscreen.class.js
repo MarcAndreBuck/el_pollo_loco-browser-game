@@ -23,7 +23,7 @@ class Endscreen extends BaseScreen {
     open(isWin) {
         this.isWin = isWin;
 
-        this.winImage  = this.getRandomImage(ASSETS.start_and_end_screen.win);
+        this.winImage = this.getRandomImage(ASSETS.start_and_end_screen.win);
         this.loseImage = this.getRandomImage(ASSETS.start_and_end_screen.game_over);
     }
 
@@ -34,14 +34,11 @@ class Endscreen extends BaseScreen {
 
         ctx.save();
 
-        // Abdunkeln über kompletter Canvas
         ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
         ctx.fillRect(0, 0, width, height);
 
-        // Bild-Inhalt
         this.drawContent(ctx, width, height);
 
-        // Buttons
         this.drawButtons(ctx);
 
         ctx.restore();
@@ -50,16 +47,16 @@ class Endscreen extends BaseScreen {
     /* ---------- Buttons ---------- */
 
     createButtons() {
-        const buttonWidth  = 0.30;
+        const buttonWidth = 0.30;
         const buttonHeight = 0.08;
-        const gap          = 0.05;
-        const buttonY      = 0.85;
+        const gap = 0.05;
+        const buttonY = 0.85;
 
-        const leftX  = 0.5 - (buttonWidth + gap) / 2;
-        const rightX = 0.5 + (buttonWidth + gap) / 2;
+        const leftX = 0.5 - buttonWidth - gap;
+        const rightX = 0.5 + gap;
 
         return [
-            new CanvasButton(leftX,  buttonY, buttonWidth, buttonHeight, "Restart",       state => state && this.onRestart(),      "wood"),
+            new CanvasButton(leftX, buttonY, buttonWidth, buttonHeight, "Restart", state => state && this.onRestart(), "wood"),
             new CanvasButton(rightX, buttonY, buttonWidth, buttonHeight, "Back to Start", state => state && this.onBackToStart(), "wood"),
         ];
     }
@@ -68,22 +65,20 @@ class Endscreen extends BaseScreen {
 
     drawContent(ctx, width, height) {
         const img = this.isWin ? this.winImage : this.loseImage;
-        if (!img || !img.complete || img.naturalWidth === 0) {
-            return; // Bild noch nicht geladen → nächster Frame
-        }
 
-        const maxWidth  = width * 0.9;
-        const maxHeight = height * 0.6;
+
+        const maxWidth = width * 0.9;
+        const maxHeight = height * 0.7;
 
         const scale = Math.min(
-            maxWidth  / img.width,
+            maxWidth / img.width,
             maxHeight / img.height
         );
 
-        const drawW = img.width  * scale;
+        const drawW = img.width * scale;
         const drawH = img.height * scale;
-        const drawX = (width  - drawW) / 2;
-        const drawY = height * 0.10;
+        const drawX = (width - drawW) / 2;
+        const drawY = height * 0.15;
 
         ctx.drawImage(img, drawX, drawY, drawW, drawH);
     }
