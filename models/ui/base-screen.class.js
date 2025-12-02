@@ -4,15 +4,17 @@ class BaseScreen {
         this.canvas = canvas;
         this.screenManager = screenManager;
 
+
+        this.baseWidth = screenManager.baseWidth ;
+        this.baseHeight = screenManager.baseHeight; 
+
         this.buttons = [];
     }
-
 
     draw(ctx) {
         this.drawBackground(ctx);
         this.drawButtons(ctx);
     }
-
 
     drawBackground(ctx) { }
 
@@ -46,7 +48,5 @@ class BaseScreen {
         });
     }
 
- 
-    close() {
-    }
+    close() {}
 }

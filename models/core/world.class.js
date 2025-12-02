@@ -58,9 +58,9 @@ class World {
         this.initSystems();
         this.initMaxBottles();
 
-        this.camera = new Camera(this.worldWidth, this.canvas.width, 150, 300);
+        const viewportWidth = this.screenManager?.baseWidth || this.canvas.width;
+        this.camera = new Camera(this.worldWidth, viewportWidth, 150, 300);
 
-        // Screens
         this.startScreen = new StartScreen(this, canvas, screenManager);
         this.pauseOverlay = new PauseOverlay(this);
         this.endscreen = new Endscreen(this);
@@ -163,31 +163,30 @@ class World {
         }
     }
 
-updateRunning() {
-    this.character.update();
+    updateRunning() {
+        this.character.update();
 
-    if (this.character.isDead) {
+        if (this.character.isDead) {
+            this.camera.update(this.character);
+
+            if (this.character.deathFinished && this.state === GAME_STATE.RUNNING) {
+                this.setState(GAME_STATE.LOST);
+            }
+            return;
+        }
+
         this.camera.update(this.character);
 
-        if (this.character.deathFinished && this.state === GAME_STATE.RUNNING) {
-            this.setState(GAME_STATE.LOST);
+        this.updateLevelObjects();
+        this.throwSystem.update();
+        this.collisionSystem.update();
+        Endboss.ensureSpawned(this);
+        this.updateUI();
+
+        if (this.endboss && this.endboss.isDead && this.state === GAME_STATE.RUNNING) {
+            this.setState(GAME_STATE.WON);
         }
-        return;
     }
-
-    this.camera.update(this.character);
-
-    this.updateLevelObjects();
-    this.throwSystem.update();
-    this.collisionSystem.update();
-    Endboss.ensureSpawned(this);
-    this.updateUI();
-
-    if (this.endboss && this.endboss.isDead && this.state === GAME_STATE.RUNNING) {
-        this.setState(GAME_STATE.WON);
-    }
-}
-
 
     updateLevelObjects() {
         this.enemies.forEach(e => e.update());
@@ -214,15 +213,33 @@ updateRunning() {
 
             case GAME_STATE.PAUSED:
                 this.drawGameplay();
+
+                this.ctx.save();
+                if (this.screenManager) {
+                    this.ctx.scale(
+                        this.screenManager.scaleX,
+                        this.screenManager.scaleY
+                    );
+                }
                 this.pauseOverlay.draw(this.ctx);
                 this.controls.drawHeaderOnly(this.ctx);
+                this.ctx.restore();
                 return;
 
             case GAME_STATE.WON:
             case GAME_STATE.LOST:
                 this.drawGameplay();
+
+                this.ctx.save();
+                if (this.screenManager) {
+                    this.ctx.scale(
+                        this.screenManager.scaleX,
+                        this.screenManager.scaleY
+                    );
+                }
                 this.endscreen.draw(this.ctx);
                 this.controls.drawHeaderOnly(this.ctx);
+                this.ctx.restore();
                 return;
 
             case GAME_STATE.RUNNING:
@@ -234,12 +251,33 @@ updateRunning() {
 
     drawStartScreen() {
         this.clearCanvas();
+
+        this.ctx.save();
+
+        if (this.screenManager) {
+            this.ctx.scale(
+                this.screenManager.scaleX,
+                this.screenManager.scaleY
+            );
+        }
+
         this.startScreen.draw(this.ctx);
         this.controls.drawHeaderOnly(this.ctx);
+
+        this.ctx.restore();
     }
 
     drawGameplay() {
         this.clearCanvas();
+
+        this.ctx.save();
+
+        if (this.screenManager) {
+            this.ctx.scale(
+                this.screenManager.scaleX,
+                this.screenManager.scaleY
+            );
+        }
 
         this.drawWorldObjects();
         this.drawUI();
@@ -249,9 +287,12 @@ updateRunning() {
         if (this.controls) {
             this.controls.draw(this.ctx);
         }
+
+        this.ctx.restore();
     }
 
     clearCanvas() {
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
@@ -317,7 +358,8 @@ updateRunning() {
         this.bossHealthBar = null;
 
         this.initCharacter();
-        this.camera = new Camera(this.worldWidth, this.canvas.width, 150, 300);
+        const viewportWidth = this.screenManager?.baseWidth || this.canvas.width;
+        this.camera = new Camera(this.worldWidth, viewportWidth, 150, 300);
 
         this.initUI();
         this.initSystems();

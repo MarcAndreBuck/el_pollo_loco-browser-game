@@ -21,10 +21,9 @@ class PauseOverlay extends BaseScreen {
 
         return [
             new CanvasButton(centerX, buttonY, buttonWidth, buttonHeight, "Back to Game", state => state && this.onResume(), "wood"),
-
             new CanvasButton(centerX, buttonY += buttonHeight + buttonGap, buttonWidth, buttonHeight, "Restart", state => state && this.onRestart(), "wood"),
-
             new CanvasButton(centerX, buttonY += buttonHeight + buttonGap, buttonWidth, buttonHeight, "Back to Start", state => state && this.onBackToStart(), "wood"),
+            new CanvasButton(centerX, buttonY += buttonHeight + buttonGap, buttonWidth, buttonHeight, "Controls", state => state && this.onControls(), "wood"),
             new CanvasButton(centerXBottom - halfWidth, buttonY += buttonHeight + buttonGap * 2, smallButtonWidth, buttonHeight, "Datenschutz", state => state && this.onPrivacy(), "wood"),
             new CanvasButton(centerXBottom + 0.01, buttonY, smallButtonWidth, buttonHeight, "Impressum", state => state && this.onImprint(), "wood"),
         ];
@@ -33,16 +32,19 @@ class PauseOverlay extends BaseScreen {
     /* ---------- Hintergrund ---------- */
 
     drawBackground(ctx) {
-        const { width, height } = this.canvas;
+
+        const w = this.baseWidth;
+        const h = this.baseHeight;
 
         ctx.save();
+
         ctx.fillStyle = "rgba(0,0,0,0.5)";
-        ctx.fillRect(0, 0, width, height);
+        ctx.fillRect(0, 0, w, h);
 
         ctx.fillStyle = "#fff";
         ctx.font = "32px Boogaloo, sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("Game paused", width / 2, height * 0.3);
+        ctx.fillText("Game paused", w / 2, h * 0.3);
 
         ctx.restore();
     }
@@ -68,5 +70,9 @@ class PauseOverlay extends BaseScreen {
 
     onImprint() {
         window.location.href = "impressum.html";
+    }
+
+    onControls() {
+        this.world.setState(GAME_STATE.START);
     }
 }

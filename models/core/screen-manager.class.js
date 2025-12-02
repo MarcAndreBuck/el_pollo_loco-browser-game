@@ -1,23 +1,21 @@
 class ScreenManager {
-    /**
-     * Handles resolution, responsive canvas sizing and fullscreen logic.
-     * @param {HTMLCanvasElement} canvas
-     * @param {number} baseWidth
-     * @param {number} baseHeight
-     */
+
     constructor(canvas, baseWidth = 720, baseHeight = 480) {
         this.canvas = canvas;
         this.baseWidth = baseWidth;
         this.baseHeight = baseHeight;
         this.isFullscreen = !!document.fullscreenElement;
 
+        this.scaleX = 1;
+        this.scaleY = 1;
+
+        this.canvas.width = this.baseWidth;
+        this.canvas.height = this.baseHeight;
+
         this.applyResponsiveSize();
         this.registerEvents();
     }
 
-    /**
-     * Touch-Gerät ODER kleiner Screen (< 760px)?
-     */
     static isMobileOrSmallScreen() {
         const touch = navigator.maxTouchPoints > 0;
         const small = window.innerWidth < 760;
@@ -27,40 +25,42 @@ class ScreenManager {
     registerEvents() {
         document.addEventListener("fullscreenchange", () => this.handleFullscreenChange());
         window.addEventListener("resize", () => this.handleResize());
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener("resize", () => this.handleResize());
+        }
     }
 
-    /**
-     * Desktop: Spielauflösung = baseWidth/baseHeight
-     * Mobile ODER Fullscreen: Spielauflösung = window.innerWidth/innerHeight
-     * → Canvas UND Spiel werden gestreckt.
-     */
+
     applyResponsiveSize() {
         const title = document.getElementById("gameTitle");
         const isMobile = ScreenManager.isMobileOrSmallScreen();
 
+        const vw = window.visualViewport?.width || window.innerWidth;
+        const vh = window.visualViewport?.height || window.innerHeight;
+
         if (this.isFullscreen || isMobile) {
-            // 🔥 Handy + Fullscreen → Spielauflösung = Fenstergröße
-            const w = window.innerWidth;
-            const h = window.innerHeight;
+            this.canvas.width = vw;
+            this.canvas.height = vh;
 
-            // Zeichenauflösung
-            this.canvas.width = w;
-            this.canvas.height = h;
+            this.canvas.style.width = vw + "px";
+            this.canvas.style.height = vh + "px";
 
-            // Darstellung
-            this.canvas.style.width = w + "px";
-            this.canvas.style.height = h + "px";
+            this.scaleX = vw / this.baseWidth;
+            this.scaleY = vh / this.baseHeight;
 
             if (title) {
                 title.classList.add("hide-in-fullscreen");
             }
         } else {
-            // 💻 Desktop normal → feste Basisgröße
             this.canvas.width = this.baseWidth;
             this.canvas.height = this.baseHeight;
 
             this.canvas.style.width = this.baseWidth + "px";
             this.canvas.style.height = this.baseHeight + "px";
+
+            this.scaleX = 1;
+            this.scaleY = 1;
 
             if (title) {
                 title.classList.remove("hide-in-fullscreen");
@@ -112,11 +112,7 @@ class ScreenManager {
         }
     }
 
-    /**
-     * Konvertiert Maus-/Touch-Koordinaten in Spielwelt-Koordinaten.
-     * Jetzt: canvas.width == sichtbare Breite → scale ist meist 1,
-     * aber der Code bleibt korrekt.
-     */
+
     getCanvasCoords(event) {
         const rect = this.canvas.getBoundingClientRect();
 
@@ -124,8 +120,8 @@ class ScreenManager {
         const clientX = touch ? touch.clientX : event.clientX;
         const clientY = touch ? touch.clientY : event.clientY;
 
-        const scaleX = this.canvas.width / rect.width;
-        const scaleY = this.canvas.height / rect.height;
+        const scaleX = this.baseWidth / rect.width;
+        const scaleY = this.baseHeight / rect.height;
 
         return {
             x: (clientX - rect.left) * scaleX,

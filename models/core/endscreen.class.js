@@ -30,7 +30,8 @@ class Endscreen extends BaseScreen {
     /* ---------- Eigener Draw für Overlay ---------- */
 
     draw(ctx) {
-        const { width, height } = this.canvas;
+        const width = this.baseWidth;
+        const height = this.baseHeight;
 
         ctx.save();
 
@@ -65,7 +66,7 @@ class Endscreen extends BaseScreen {
 
     drawContent(ctx, width, height) {
         const img = this.isWin ? this.winImage : this.loseImage;
-
+        if (!img) return;
 
         const maxWidth = width * 0.9;
         const maxHeight = height * 0.7;
