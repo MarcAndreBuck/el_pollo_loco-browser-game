@@ -25,6 +25,13 @@ class Endscreen extends BaseScreen {
 
         this.winImage = this.getRandomImage(ASSETS.start_and_end_screen.win);
         this.loseImage = this.getRandomImage(ASSETS.start_and_end_screen.game_over);
+
+        soundManager.stopAllAudio();
+        if (isWin) {
+            soundManager.play("game_win");
+        } else {
+            soundManager.play("game_lose");
+        }
     }
 
     /* ---------- Eigener Draw für Overlay ---------- */

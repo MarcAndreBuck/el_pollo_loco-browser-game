@@ -1,5 +1,6 @@
 class Enemies extends MovableObject {
     collisionCategory = "enemy";
+    deathSoundPlayed = false;
 
     constructor(x, y, width, height, animations) {
         super(x, y, width, height);
@@ -9,8 +10,8 @@ class Enemies extends MovableObject {
         this.health = 1;
         this.feetOffset = -10;
 
-        this.movingRight = false; 
-        this.otherDirection = true; 
+        this.movingRight = false;
+        this.otherDirection = true;
 
         this.preloadAnimations(this.animations);
         this.loadImage(this.animations.walk[0]);
@@ -22,10 +23,10 @@ class Enemies extends MovableObject {
         if (!this.isDead) {
             if (this.movingRight) {
                 this.moveRight(this.speed);
-                this.otherDirection = true; 
+                this.otherDirection = true;
             } else {
                 this.moveLeft(this.speed);
-                this.otherDirection = false; 
+                this.otherDirection = false;
             }
         }
 
@@ -38,6 +39,17 @@ class Enemies extends MovableObject {
         } else {
             this.playAnimation(this.animations.walk, 8);
         }
+    }
+
+    die() {
+        super.die()
+        this.playDeathSound()
+    }
+
+    playDeathSound() {
+        if (this.deathSoundPlayed) return;
+        this.deathSoundPlayed = true;
+        soundManager.play("chicken_death", true);
     }
 }
 

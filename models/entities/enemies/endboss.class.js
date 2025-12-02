@@ -3,6 +3,7 @@ class Endboss extends MovableObject {
     static TRIGGER_RATIO = 0.6;
     lastAttackTime = 0;
     attackCooldown = 250;
+    deathSoundPlayed = false;
 
 
     constructor(world) {
@@ -41,13 +42,23 @@ class Endboss extends MovableObject {
 
     static ensureSpawned(world) {
         if (world.bossFightStarted) return;
+
         const triggerX = world.worldWidth * Endboss.TRIGGER_RATIO;
         if (world.character.x < triggerX) return;
+
+        soundManager.playMusic("music_boss");
+
         const boss = new Endboss(world);
         boss.x = world.worldWidth - 350;
         world.endboss = boss;
+
         world.level.enemies.push(boss);
-        world.bossHealthBar = new ChickenBossHealth(world.canvas.width - 240, 10, world);
+        world.bossHealthBar = new ChickenBossHealth(
+            world.canvas.width - 240,
+            10,
+            world
+        );
+
         world.bossFightStarted = true;
     }
 
@@ -72,8 +83,15 @@ class Endboss extends MovableObject {
         if (!this.isDead) return false;
 
         this.playAnimation(this.animations.dead, 8, false, () => { this.world.hasWon = true; });
+        this.playDeathSound()
 
         return true;
+    }
+
+    playDeathSound() {
+        if (this.deathSoundPlayed) return;
+        this.deathSoundPlayed = true;
+        soundManager.play("boss_death", true);
     }
 
 
@@ -86,6 +104,7 @@ class Endboss extends MovableObject {
             return false;
         }
 
+        soundManager.play("boss_hurt", true);
         this.playAnimation(this.animations.hurt, 8);
         return true;
     }
@@ -96,6 +115,7 @@ class Endboss extends MovableObject {
         if (!this.isCharacterInRange(ATTACK_RANGE)) return false;
 
         this.playAnimation(this.animations.attack, 8);
+        soundManager.play("boss_attack");
 
         if (!this.canDealDamage()) return true;
 
@@ -121,6 +141,7 @@ class Endboss extends MovableObject {
         if (!this.isCharacterInRange(ALERT_RANGE)) return false;
 
         this.playAnimation(this.animations.alert, 8);
+        soundManager.play("boss_alert");
         this.moveTowardsCharacter();
         return true;
     }
@@ -128,6 +149,7 @@ class Endboss extends MovableObject {
     handleWalk() {
         this.moveLeft(this.speed);
         this.playAnimation(this.animations.walk, 8);
+        // soundManager.play("boss_idle"); 
     }
 
 

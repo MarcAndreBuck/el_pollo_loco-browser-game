@@ -349,6 +349,7 @@ class World {
     /* ---------- Game Reset ---------- */
 
     resetGame() {
+        soundManager.playMusic("music_level");
         this.coins = 0;
         this.bottles = 0;
         this.projectiles = [];
@@ -358,7 +359,7 @@ class World {
         this.bossHealthBar = null;
 
         this.initCharacter();
-        const viewportWidth = this.screenManager?.baseWidth || this.canvas.width;
+        const viewportWidth = this.screenManager.baseWidth;
         this.camera = new Camera(this.worldWidth, viewportWidth, 150, 300);
 
         this.initUI();

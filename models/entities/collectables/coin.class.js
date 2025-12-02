@@ -26,5 +26,6 @@ class Coin extends Collectable {
     onCollect(world) {
         world.coins = (world.coins) + this.value;
         super.onCollect(world);
+        soundManager.play("player_collect_coin", true);
     }
 }

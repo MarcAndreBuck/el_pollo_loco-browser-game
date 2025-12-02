@@ -13,12 +13,13 @@ class Bottle extends Collectable {
         this.setHitbox(20, 10, 30, 40);
     }
 
-     update() {
+    update() {
     }
 
     onCollect(world) {
         world.bottles = (world.bottles) + this.value;
         super.onCollect(world);
+        soundManager.play("player_collect_bottle", true);
     }
 }
 

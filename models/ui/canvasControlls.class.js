@@ -23,6 +23,9 @@ class CanvasControls {
         this.headerButtons = this.createHeaderButtons();
         this.controlButtons = this.enabled ? this.createControlButtons() : [];
 
+        this.isMuted = soundManager.muted;
+        this.muteButton.text = this.isMuted ? "🔇" : "🔊";
+
         this.bindMouseEvents();
         this.bindTouchEvents();
     }
@@ -252,14 +255,9 @@ class CanvasControls {
     /* ---------- Actions ---------- */
 
     toggleMute() {
-        this.isMuted = !this.isMuted;
-
-        if (this.muteButton) {
-            this.muteButton.text = this.isMuted ? "🔇" : "🔊";
-        }
-
-        console.log("Muted:", this.isMuted);
-        // TODO: AudioManager anbinden
+        soundManager.toggleMute();
+        this.isMuted = soundManager.muted;
+        this.muteButton.text = this.isMuted ? "🔇" : "🔊";
     }
 
     toggleFullscreen() {

@@ -4,6 +4,7 @@ class Character extends MovableObject {
     isMoving = false;
     lastActionTime = Date.now();
     deathFinished = false;
+    playerSnorr = false;
 
     constructor(x = 50, y = 0, width = 112, height = 250) {
         super(x, y, width, height);
@@ -33,6 +34,7 @@ class Character extends MovableObject {
             this.moveRight(this.speed);
             this.otherDirection = false;
             this.resetIdleTimer();
+            this.isMoving = true;
             return true;
         }
 
@@ -40,6 +42,7 @@ class Character extends MovableObject {
             this.moveLeft(this.speed);
             this.otherDirection = true;
             this.resetIdleTimer();
+            this.isMoving = true;
             return true;
         }
 
@@ -48,7 +51,6 @@ class Character extends MovableObject {
 
     handleThrowInput() {
         if (!keyboard.THROW) return false;
-
         this.resetIdleTimer();
         return true;
     }
@@ -63,13 +65,13 @@ class Character extends MovableObject {
         this.speedY = -8;
         this.isGrounded = false;
         this.resetIdleTimer();
+        soundManager.play("player_jump");
     }
 
     /* ---------- Idle / Timer ---------- */
 
     resetIdleTimer() {
         this.lastActionTime = Date.now();
-        this.isMoving = true;
     }
 
     idleTooLong() {
@@ -103,6 +105,7 @@ class Character extends MovableObject {
     handleHurtAnimation() {
         if (!this.isHurtActive()) return false;
         this.playAnimation(this.animations.hurt, 10);
+        soundManager.play("player_hurt");
         return true;
     }
 
@@ -115,12 +118,24 @@ class Character extends MovableObject {
     handleWalkAnimation() {
         if (!this.isMoving) return false;
         this.playAnimation(this.animations.walk, 12);
+        soundManager.play("player_step");
         return true;
     }
 
+
     handleLongIdleAnimation() {
-        if (!this.idleTooLong()) return false;
+        if (!this.idleTooLong() || !this.isGrounded) {
+            if (this.playerSnorr) {
+                soundManager.stop("player_snore");
+                this.playerSnorr = false;
+            }
+            return false;
+        }
         this.playAnimation(this.animations.long_idle, 8);
+        if (!this.playerSnorr) {
+            soundManager.play("player_snore");
+            this.playerSnorr = true;
+        }
         return true;
     }
 

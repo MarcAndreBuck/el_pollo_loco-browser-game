@@ -81,6 +81,7 @@ class ThrowBottle extends MovableObject {
 
     break() {
         if (this.isBreaking) return;
+        soundManager.play("bottle_break", true)
 
         this.isBreaking = true;
         this.speedX = 0;
