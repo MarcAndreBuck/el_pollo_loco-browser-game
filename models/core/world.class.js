@@ -348,8 +348,14 @@ class World {
 
     /* ---------- Game Reset ---------- */
 
-    resetGame() {
+    resetGame(newLevel) {
+        soundManager.stopAllAudio()
         soundManager.playMusic("music_level");
+        if (newLevel) {
+            this.level = newLevel;
+            this.worldWidth = newLevel.worldWidth;
+        }
+
         this.coins = 0;
         this.bottles = 0;
         this.projectiles = [];
@@ -358,13 +364,15 @@ class World {
         this.endboss = null;
         this.bossHealthBar = null;
 
+        this.initMaxBottles();
         this.initCharacter();
+
         const viewportWidth = this.screenManager.baseWidth;
         this.camera = new Camera(this.worldWidth, viewportWidth, 150, 300);
 
         this.initUI();
         this.initSystems();
 
-        console.log("Game wurde zurückgesetzt.");
+        this.setState(GAME_STATE.RUNNING);
     }
 }

@@ -161,5 +161,8 @@ const ASSETS = {
             "assets/You won, you lost/You Won B.png",
         ]
     },
+    controls: [
+        "assets/5_background/second_half_background.png",
+    ]
 
 };

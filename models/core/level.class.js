@@ -15,3 +15,13 @@ class Level {
     }
 
 }
+
+function createLevel1() {
+    return new Level(
+        enemiesArray,
+        backgroundArray,
+        cloudsArray,
+        collectablesArray,
+        LEVEL1_WIDTH
+    );
+}

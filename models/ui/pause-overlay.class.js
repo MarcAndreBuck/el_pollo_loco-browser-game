@@ -56,12 +56,12 @@ class PauseOverlay extends BaseScreen {
     }
 
     onRestart() {
-        this.world.resetGame();
-        this.world.setState(GAME_STATE.RUNNING);
+        restartGame()
     }
 
     onBackToStart() {
         this.world.setState(GAME_STATE.START);
+        stopAllAudio()
     }
 
     onPrivacy() {
