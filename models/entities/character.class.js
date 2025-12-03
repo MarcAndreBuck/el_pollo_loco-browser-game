@@ -31,22 +31,30 @@ class Character extends MovableObject {
 
     handleHorizontalMovement() {
         if (keyboard.RIGHT) {
-            this.moveRight(this.speed);
-            this.otherDirection = false;
-            this.resetIdleTimer();
-            this.isMoving = true;
-            return true;
+            characterMoveRight()
         }
 
         if (keyboard.LEFT) {
-            this.moveLeft(this.speed);
-            this.otherDirection = true;
-            this.resetIdleTimer();
-            this.isMoving = true;
-            return true;
+            characterMoveLeft()
         }
 
         return false;
+    }
+
+    characterMoveRight() {
+        this.moveRight(this.speed);
+        this.otherDirection = false;
+        this.resetIdleTimer();
+        this.isMoving = true;
+        return true;
+    }
+
+    characterMoveLeft() {
+        this.moveLeft(this.speed);
+        this.otherDirection = true;
+        this.resetIdleTimer();
+        this.isMoving = true;
+        return true;
     }
 
     handleThrowInput() {
@@ -54,7 +62,6 @@ class Character extends MovableObject {
         this.resetIdleTimer();
         return true;
     }
-
 
     handleJumpInput() {
         if (keyboard.SPACE) this.jump();
@@ -96,14 +103,17 @@ class Character extends MovableObject {
 
     handleDeathAnimation() {
         if (!this.isDead) return false;
+
         this.playAnimation(this.animations.dead, 8, false, () => {
             this.deathFinished = true;
         });
+
         return true;
     }
 
     handleHurtAnimation() {
         if (!this.isHurtActive()) return false;
+
         this.playAnimation(this.animations.hurt, 10);
         soundManager.play("player_hurt");
         return true;
@@ -117,36 +127,51 @@ class Character extends MovableObject {
 
     handleWalkAnimation() {
         if (!this.isMoving) return false;
+
         this.playAnimation(this.animations.walk, 12);
         soundManager.play("player_step");
         return true;
     }
 
-
     handleLongIdleAnimation() {
         if (!this.idleTooLong() || !this.isGrounded) {
-            if (this.playerSnorr) {
-                soundManager.stop("player_snore");
-                this.playerSnorr = false;
-            }
+            this.stopSnoreIfNeeded();
             return false;
         }
+
         this.playAnimation(this.animations.long_idle, 8);
-        if (!this.playerSnorr) {
-            soundManager.play("player_snore");
-            this.playerSnorr = true;
-        }
+        this.startSnoreIfNeeded();
         return true;
     }
 
+    startSnoreIfNeeded() {
+        if (this.playerSnorr) return;
+        soundManager.play("player_snore");
+        this.playerSnorr = true;
+    }
+
+    stopSnoreIfNeeded() {
+        if (!this.playerSnorr) return;
+        soundManager.stop("player_snore");
+        this.playerSnorr = false;
+    }
+
+    /* ---------- Update ---------- */
 
     update() {
         if (this.isDead) {
-            this.applyGravity();
-            this.updateAnimation();
+            this.updateDead();
             return;
         }
+        this.updateAlive();
+    }
 
+    updateDead() {
+        this.applyGravity();
+        this.updateAnimation();
+    }
+
+    updateAlive() {
         this.checkMovement();
         this.handleJumpInput();
         this.wasGrounded = this.isGrounded;
@@ -158,7 +183,6 @@ class Character extends MovableObject {
 
     updateJumpFrame() {
         const frames = this.animations.jump;
-
         const d = this.distanceToGround;
         const v = this.speedY;
         const margin = 10;
