@@ -42,23 +42,14 @@ class Endboss extends MovableObject {
 
     static ensureSpawned(world) {
         if (world.bossFightStarted) return;
-
         const triggerX = world.worldWidth * Endboss.TRIGGER_RATIO;
         if (world.character.x < triggerX) return;
-
         soundManager.playMusic("music_boss");
-
         const boss = new Endboss(world);
         boss.x = world.worldWidth - 350;
         world.endboss = boss;
-
         world.level.enemies.push(boss);
-        world.bossHealthBar = new ChickenBossHealth(
-            world.canvas.width - 240,
-            10,
-            world
-        );
-
+        world.bossHealthBar = new ChickenBossHealth(world.canvas.width - 240, 60, world);
         world.bossFightStarted = true;
     }
 
@@ -82,7 +73,7 @@ class Endboss extends MovableObject {
     handleDeath() {
         if (!this.isDead) return false;
 
-        this.playAnimation(this.animations.dead, 8, false, () => { this.world.hasWon = true; });
+        this.playAnimation(this.animations.dead, 8, false, () => { this.world.setState(GAME_STATE.WON) });
         this.playDeathSound()
 
         return true;

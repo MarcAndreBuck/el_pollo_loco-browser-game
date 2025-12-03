@@ -183,9 +183,9 @@ class World {
         Endboss.ensureSpawned(this);
         this.updateUI();
 
-        if (this.endboss && this.endboss.isDead && this.state === GAME_STATE.RUNNING) {
-            this.setState(GAME_STATE.WON);
-        }
+        // if (this.endboss && this.endboss.isDead && this.state === GAME_STATE.RUNNING) {
+        //     this.setState(GAME_STATE.WON);
+        // }
     }
 
     updateLevelObjects() {
