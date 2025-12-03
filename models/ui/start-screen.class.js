@@ -37,13 +37,13 @@ class StartScreen extends BaseScreen {
 
         return [
             new CanvasButton(0.5 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight, "▶ Start", state => state && this.startGame(), "green"),
-            new CanvasButton(0.13, buttonY, buttonWidth, buttonHeight, "Legal Notice", state => state && this.openStory(), "wood"),
+            new CanvasButton(0.13, buttonY, buttonWidth, buttonHeight, "Legal Notice", state => state && this.openLegalNoctice(), "wood"),
             new CanvasButton(0.87 - buttonWidth, buttonY, buttonWidth, buttonHeight, "Privacy Policy", state => state && this.openPrivacyPolicy(), "wood"),
         ];
     }
 
     startGame() {
-        this.world.resetGame();
+        restartGame()
         this.world.setState(GAME_STATE.RUNNING);
     }
 
