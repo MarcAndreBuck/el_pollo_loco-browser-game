@@ -83,55 +83,25 @@ const ASSETS = {
     statusbar: {
 
         coin: {
-            blue: Array.from({ length: 6 }, (_, i) =>
-                `assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/${i * 20}.png`
-            ),
-            green: Array.from({ length: 6 }, (_, i) =>
-                `assets/7_statusbars/1_statusbar/1_statusbar_coin/green/${i * 20}.png`
-            ),
-            orange: Array.from({ length: 6 }, (_, i) =>
-                `assets/7_statusbars/1_statusbar/1_statusbar_coin/orange/${i * 20}.png`
-            ),
             icon: ["assets/7_statusbars/3_icons/icon_coin.png"],
         },
 
         health: {
-            blue: Array.from({ length: 6 }, (_, i) =>
-                `assets/7_statusbars/1_statusbar/2_statusbar_health/blue/${i * 20}.png`
-            ),
             green: Array.from({ length: 6 }, (_, i) =>
                 `assets/7_statusbars/1_statusbar/2_statusbar_health/green/${i * 20}.png`
             ),
-            orange: Array.from({ length: 6 }, (_, i) =>
-                `assets/7_statusbars/1_statusbar/2_statusbar_health/orange/${i * 20}.png`
-            ),
-            icon: ["assets/7_statusbars/3_icons/icon_health.png"],
         },
 
         bottle: {
             blue: Array.from({ length: 6 }, (_, i) =>
                 `assets/7_statusbars/1_statusbar/3_statusbar_bottle/blue/${i * 20}.png`
             ),
-            green: Array.from({ length: 6 }, (_, i) =>
-                `assets/7_statusbars/1_statusbar/3_statusbar_bottle/green/${i * 20}.png`
-            ),
-            orange: Array.from({ length: 6 }, (_, i) =>
-                `assets/7_statusbars/1_statusbar/3_statusbar_bottle/orange/${i * 20}.png`
-            ),
-            icon: ["assets/7_statusbars/3_icons/icon_salsa_bottle.png"],
         },
 
         endboss: {
-            blue: Array.from({ length: 6 }, (_, i) =>
-                `assets/7_statusbars/2_statusbar_endboss/blue/blue${i * 20}.png`
-            ),
-            green: Array.from({ length: 6 }, (_, i) =>
-                `assets/7_statusbars/2_statusbar_endboss/green/green${i * 20}.png`
-            ),
             orange: Array.from({ length: 6 }, (_, i) =>
                 `assets/7_statusbars/2_statusbar_endboss/orange/orange${i * 20}.png`
             ),
-            icon: ["assets/7_statusbars/3_icons/icon_health_endboss.png"],
         },
     },
 
@@ -163,6 +133,6 @@ const ASSETS = {
     },
     controls: [
         "assets/5_background/second_half_background.png",
-    ]
+    ],
 
 };
