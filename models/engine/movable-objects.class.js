@@ -43,9 +43,7 @@ class MovableObject extends DrawableObject {
 
     playAnimation(images, fps = 10, loop = true, cb = null) {
         if (!this.updateAnimationFrame(images, fps)) return;
-
         this.applyFrame(images);
-
         if (this.isLastFrame(images)) {
             if (!loop) {
                 cb && cb();

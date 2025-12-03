@@ -27,7 +27,7 @@ class UIManager {
         };
     }
 
-    /* ---------- Pointer / Mouse ---------- */
+
 
     handlePointerDown(e) {
         if (!this.activeOverlay) return;                  
@@ -41,7 +41,7 @@ class UIManager {
         this.activeOverlay.handlePointerUp(pos.x, pos.y);
     }
 
-    /* ---------- Touch ---------- */
+
 
     handleTouchStart(e) {
         if (!this.activeOverlay) return;
@@ -58,7 +58,6 @@ class UIManager {
         this.activeOverlay.handlePointerUp();
     }
 
-    /* ---------- Drawing ---------- */
 
     draw(ctx) {
         if (!this.activeOverlay) return;

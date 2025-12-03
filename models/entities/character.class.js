@@ -31,11 +31,11 @@ class Character extends MovableObject {
 
     handleHorizontalMovement() {
         if (keyboard.RIGHT) {
-            characterMoveRight()
+            this.characterMoveRight()
         }
 
         if (keyboard.LEFT) {
-            characterMoveLeft()
+            this.characterMoveLeft()
         }
 
         return false;

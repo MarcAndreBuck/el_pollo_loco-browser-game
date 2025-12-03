@@ -1,7 +1,7 @@
 class DebugSystem {
     constructor(world) {
         this.world = world;
-        this.hitboxEnabled = true;
+        this.hitboxEnabled = false;
         this.hitboxConfig = this.createDefaultHitboxConfig();
     }
 
