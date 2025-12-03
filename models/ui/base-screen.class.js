@@ -12,25 +12,14 @@ class BaseScreen {
         this.baseWidth = screenManager?.baseWidth ?? canvas.width;
         this.baseHeight = screenManager?.baseHeight ?? canvas.height;
 
-        /** @type {CanvasButton[]} */
         this.buttons = [];
     }
 
-    /**
-     * Default draw: background + buttons.
-     * Child classes können draw() überschreiben, wenn nötig.
-     * @param {CanvasRenderingContext2D} ctx
-     */
     draw(ctx) {
         this.drawBackground(ctx);
         this.drawButtons(ctx);
     }
 
-    /**
-     * Standard-Hintergrund: leicht abgedunkelt.
-     * Spezifische Screens (Pause, Controls etc.) können das überschreiben.
-     * @param {CanvasRenderingContext2D} ctx
-     */
     drawBackground(ctx) {
         const w = this.baseWidth;
         const h = this.baseHeight;
@@ -45,7 +34,7 @@ class BaseScreen {
         this.buttons.forEach(btn => btn.draw(ctx, this.canvas));
     }
 
-    /* ---------- Shared Button-Helpers ---------- */
+    /* ---------- Buttons ---------- */
 
     triggerButtons(buttons, x, y) {
         buttons.forEach(btn => {
@@ -58,10 +47,20 @@ class BaseScreen {
     }
 
     updateHover(buttons, x, y) {
+        let hovering = false;
+
         buttons.forEach(btn => {
             if (!btn) return;
-            btn.setHover(btn.contains(this.canvas, x, y));
+
+            const inside = btn.contains(this.canvas, x, y);
+            btn.setHover(inside);
+
+            if (inside) {
+                hovering = true;
+            }
         });
+
+        return hovering;
     }
 
     resetButtons(buttons) {
@@ -71,26 +70,29 @@ class BaseScreen {
             if (btn.pressed) {
                 btn.onChange(false);
             }
+
             btn.pressed = false;
             btn.setHover(false);
         });
     }
 
-    /* ---------- Pointer-Events (Standard-API für Screens) ---------- */
+    /* ---------- Pointer-API ---------- */
 
     handlePointerDown(x, y) {
         this.triggerButtons(this.buttons, x, y);
     }
 
     handlePointerMove(x, y) {
-        this.updateHover(this.buttons, x, y);
+        return this.updateHover(this.buttons, x, y);
     }
 
     handlePointerUp() {
         this.resetButtons(this.buttons);
     }
 
-    close() { }
+    /* ---------- Gemeinsame Actions ---------- */
+
+    close() {}
 
     openControls() {
         this.world.controlsOverlay.show();
@@ -99,6 +101,7 @@ class BaseScreen {
     openLegalNoctice() {
         window.location.href = "impressum.html";
     }
+
     openPrivacyPolicy() {
         window.location.href = "datenschutz.html";
     }

@@ -27,19 +27,27 @@ class PauseOverlay extends BaseScreen {
         ];
     }
 
-    /* ---------- Hintergrund ---------- */
+    drawBackground(ctx) {
+        const w = this.baseWidth;
+        const h = this.baseHeight;
 
-   drawBackground(ctx) {
-    super.drawBackground(ctx)
+        ctx.save();
+
         ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        ctx.font = "60px Rye";
+        ctx.fillRect(0, 0, w, h);
+        this.drawPause(ctx, h, w)
+
+        ctx.restore();
+    }
+
+    drawPause(ctx, h, w) {
+        ctx.font = `${h * 0.125}px Rye`;
         ctx.fillStyle = "#eec223";
         ctx.textAlign = "center";
         ctx.textBaseline = "top";
         ctx.shadowColor = "#FF9300";
         ctx.shadowBlur = 20;
-        ctx.fillText("GAME PAUSE", this.canvas.width / 2, 50);
+        ctx.fillText("GAME PAUSE", w / 2, h * 0.1);
         ctx.shadowBlur = 0;
     }
 
@@ -48,7 +56,7 @@ class PauseOverlay extends BaseScreen {
     }
 
     onRestart() {
-        restartGame()
+        restartGame();
     }
 
     onBackToStart() {
@@ -56,15 +64,16 @@ class PauseOverlay extends BaseScreen {
         soundManager.stopAllAudio();
     }
 
+    onControls() {
+        this.world.controlsOverlay.show();
+    }
+
+    // onPrivacy / onImprint bleiben optional, falls du sie später brauchst
     onPrivacy() {
         window.location.href = "datenschutz.html";
     }
 
     onImprint() {
         window.location.href = "impressum.html";
-    }
-
-    onControls() {
-        this.world.controlsOverlay.show();
     }
 }

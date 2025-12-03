@@ -5,7 +5,6 @@ class OrientationManager {
     constructor(world) {
         this.world = world;
         this.overlay = document.getElementById("rotateOverlay");
-
         this.wasRunningBeforeLock = false;
 
         this.updateState();
@@ -14,16 +13,13 @@ class OrientationManager {
         window.addEventListener("orientationchange", () => this.updateState());
     }
 
-
     isLandscape() {
         return window.innerWidth > window.innerHeight;
     }
 
-
     isMobileDevice() {
         return navigator.maxTouchPoints > 0;
     }
-
 
     updateState() {
         const isMobile = this.isMobileDevice();
@@ -36,7 +32,6 @@ class OrientationManager {
         }
     }
 
-
     lockForOrientation() {
         if (this.world.state === GAME_STATE.RUNNING) {
             this.wasRunningBeforeLock = true;
@@ -45,25 +40,31 @@ class OrientationManager {
             this.wasRunningBeforeLock = false;
         }
 
-        this.world.controls.enabled = false;
+        if (this.world.mobileControls) {
+            this.world.mobileControls.enabled = false;
+        }
 
         this.toggleOverlay(true);
     }
 
-
     unlockForOrientation() {
-        this.world.controls.enabled = true;
+        if (this.world.mobileControls) {
+            // Buttons nur auf echten Touch-Geräten aktivieren
+            this.world.mobileControls.enabled = this.isMobileDevice();
+        }
 
         this.toggleOverlay(false);
 
-
-        if (this.wasRunningBeforeLock && this.world.state === GAME_STATE.PAUSED) {
+        if (
+            this.wasRunningBeforeLock &&
+            this.world.state === GAME_STATE.PAUSED
+        ) {
             this.world.setState(GAME_STATE.RUNNING);
         }
     }
 
-    
     toggleOverlay(show) {
+        if (!this.overlay) return;
         this.overlay.classList.toggle("hidden", !show);
     }
 }

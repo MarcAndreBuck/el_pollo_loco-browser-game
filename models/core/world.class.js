@@ -38,27 +38,34 @@ class World {
 
     state = GAME_STATE.START;
 
-    ui;
-    controls;
+    headerBar;
+    mobileControls;
+    controlsOverlay;
+    uiInput;
     renderer;
 
     /* ---------- Constructor ---------- */
 
     constructor(canvas, keyboard, level, screenManager) {
+        this.initBase(canvas, keyboard, level, screenManager);
+
+        this.initCore();
+        this.initCamera();
+        this.initScreens();
+        this.initUIComponents();
+        this.initRenderer();
+
+        this.setState(GAME_STATE.START);
+        this.gameLoop();
+    }
+
+    initBase(canvas, keyboard, level, screenManager) {
         this.ctx = canvas.getContext("2d");
         this.canvas = canvas;
         this.keyboard = keyboard;
         this.level = level;
         this.worldWidth = level.worldWidth;
         this.screenManager = screenManager;
-        this.ui = new UIManager(this);
-        this.initCore();
-        this.initCamera();
-        this.initScreens();
-        this.initControls();
-        this.renderer = new WorldRenderer(this);
-        this.setState(GAME_STATE.START);
-        this.gameLoop();
     }
 
     initCore() {
@@ -79,12 +86,13 @@ class World {
         this.endscreen = new Endscreen(this);
     }
 
-    initControls() {
-        this.controls = new CanvasControls(
+    initUIComponents() {
+        this.headerBar = new HeaderBar(this, this.canvas, this.screenManager);
+        this.mobileControls = new MobileControls(
+            this,
             this.canvas,
-            this.keyboard,
             this.screenManager,
-            this
+            this.keyboard
         );
         this.controlsOverlay = new ControlsOverlay(
             this,
@@ -93,10 +101,20 @@ class World {
         );
     }
 
+    initRenderer() {
+        this.renderer = new WorldRenderer(this);
+        this.uiInput = new UIInputManager(this, this.screenManager);
+    }
+
+
     /* ---------- State Helpers ---------- */
 
     setState(newState) {
         this.state = newState;
+
+        if (this.headerBar) {
+            this.headerBar.rebuildButtons();
+        }
 
         if (newState === GAME_STATE.WON) {
             this.endscreen.open(true);
@@ -106,6 +124,7 @@ class World {
             this.endscreen.open(false);
         }
     }
+
 
     isRunning() {
         return this.state === GAME_STATE.RUNNING;
@@ -154,9 +173,9 @@ class World {
     }
 
     initMaxBottles() {
-        this.maxBottles = this.level.collectables.filter(
-            c => c instanceof Bottle
-        ).length;
+        this.maxBottles = this.level.collectables
+            .filter(c => c instanceof Bottle)
+            .length;
     }
 
     /* ---------- Game Loop ---------- */
@@ -242,14 +261,17 @@ class World {
     resetGame(newLevel) {
         soundManager.stopAllAudio();
         soundManager.playMusic("music_level");
+
         this.resetLevel(newLevel);
         this.resetCounters();
         this.resetBossState();
+
         this.initMaxBottles();
         this.initCharacter();
         this.resetCamera();
         this.initUI();
         this.initSystems();
+
         this.setState(GAME_STATE.RUNNING);
     }
 

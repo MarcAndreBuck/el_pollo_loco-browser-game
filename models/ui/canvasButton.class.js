@@ -8,7 +8,6 @@ class CanvasButton {
         this.baseHeight = 480;
     }
 
- 
     getRect() {
         const width = this.baseWidth;
         const height = this.baseHeight;
@@ -21,8 +20,7 @@ class CanvasButton {
         };
     }
 
-
-    draw(ctx, canvas ) {
+    draw(ctx, canvas) {
         const { x, y, w, h } = this.getRect();
         ButtonRenderer.draw(
             ctx,
@@ -36,7 +34,6 @@ class CanvasButton {
             this.style
         );
     }
-
 
     contains(canvas, px, py) {
         const { x, y, w, h } = this.getRect();
