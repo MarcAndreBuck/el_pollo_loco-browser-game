@@ -24,12 +24,46 @@ class ButtonRenderer {
 
     static drawGreen(ctx, x, y, w, h, label, pressed, hover) {
         const radius = h / 2;
-        const offsetY = pressed ? 2 : 0;
+        this.applyPressedOffset(ctx, pressed);
+        const grad = this.createGreenGradient(ctx, x, y, h, hover);
 
+        this.roundRect(ctx, x, y, w, h, radius);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        ctx.lineWidth = hover ? 3 : 2;
+        ctx.strokeStyle = hover ? "#225f1b" : "#1f4f15";
+        ctx.stroke();
+
+        this.drawLabel(ctx, x, y, w, h, label, 0.5, "#fff");
+        ctx.restore();
+    }
+
+    static drawWood(ctx, x, y, w, h, label, pressed, hover) {
+        this.applyPressedOffset(ctx, pressed);
+        const grad = this.createWoodGradient(ctx, x, y, h, hover);
+
+        this.roundRect(ctx, x, y, w, h, 18);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        ctx.lineWidth = hover ? 4 : 3;
+        ctx.strokeStyle = "#5a3515";
+        ctx.stroke();
+
+        this.drawLabel(ctx, x, y, w, h, label, 0.45, "#fff7df");
+        ctx.restore();
+    }
+
+    static applyPressedOffset(ctx, pressed) {
+        const offsetY = pressed ? 2 : 0;
         ctx.save();
         ctx.translate(0, offsetY);
+    }
 
+    static createGreenGradient(ctx, x, y, h, hover) {
         const grad = ctx.createLinearGradient(x, y, x, y + h);
+
         if (hover) {
             grad.addColorStop(0, "#c3ffb4");
             grad.addColorStop(0.5, "#6ed45b");
@@ -40,29 +74,12 @@ class ButtonRenderer {
             grad.addColorStop(1, "#2c7b22");
         }
 
-        this.roundRect(ctx, x, y, w, h, radius);
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        ctx.lineWidth = hover ? 3 : 2;
-        ctx.strokeStyle = hover ? "#225f1b" : "#1f4f15";
-        ctx.stroke();
-
-        ctx.fillStyle = "#fff";
-        ctx.font = `${h * 0.5}px rye, sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(label, x + w / 2, y + h / 2);
-        ctx.restore();
+        return grad;
     }
 
-    static drawWood(ctx, x, y, w, h, label, pressed, hover) {
-        const offsetY = pressed ? 2 : 0;
-
-        ctx.save();
-        ctx.translate(0, offsetY);
-
+    static createWoodGradient(ctx, x, y, h, hover) {
         const grad = ctx.createLinearGradient(x, y, x, y + h);
+
         if (hover) {
             grad.addColorStop(0, "#fbe1a7");
             grad.addColorStop(0.5, "#d39545");
@@ -73,20 +90,14 @@ class ButtonRenderer {
             grad.addColorStop(1, "#8b5a23");
         }
 
-        this.roundRect(ctx, x, y, w, h, 18);
-        ctx.fillStyle = grad;
-        ctx.fill();
+        return grad;
+    }
 
-        ctx.lineWidth = hover ? 4 : 3;
-        ctx.strokeStyle = "#5a3515";
-        ctx.stroke();
-
-        ctx.fillStyle = "#fff7df";
-        ctx.font = `${h * 0.45}px rye, sans-serif`;
+    static drawLabel(ctx, x, y, w, h, text, factor, color) {
+        ctx.fillStyle = color;
+        ctx.font = `${h * factor}px rye, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(label, x + w / 2, y + h / 2);
-        ctx.restore();
-
+        ctx.fillText(text, x + w / 2, y + h / 2);
     }
 }

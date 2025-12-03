@@ -9,78 +9,97 @@ class SoundManager {
 
     preload(list) {
         Object.entries(list).forEach(([key, cfg]) => {
-            const audio = new Audio(cfg.src);
-            audio.loop = !!cfg.loop;
-            audio.volume = cfg.volume ?? 1;
-            audio.muted = this.muted;
-
-            this.sounds[key] = {
-                audio,
-                category: cfg.category || "sfx",
-                loop: !!cfg.loop,
-                volume: cfg.volume ?? 1,
-            };
+            const audio = this.createAudio(cfg);
+            this.sounds[key] = this.createSoundEntry(audio, cfg);
         });
     }
 
+    createAudio(cfg) {
+        const audio = new Audio(cfg.src);
+        audio.loop = !!cfg.loop;
+        audio.volume = cfg.volume ?? 1;
+        audio.muted = this.muted;
+        return audio;
+    }
+
+    createSoundEntry(audio, cfg) {
+        return {
+            audio,
+            category: cfg.category || "sfx",
+            loop: !!cfg.loop,
+            volume: cfg.volume ?? 1,
+        };
+    }
+
+    getEntry(key) {
+        return this.sounds[key] || null;
+    }
+
     play(key, force = false) {
-        const entry = this.sounds[key];
+        const entry = this.getEntry(key);
         if (!entry) return;
 
         const audio = entry.audio;
         if (!audio.paused && !force) return;
 
         audio.currentTime = 0;
-        audio.play().catch(() => { });
+        audio.play().catch(() => {});
     }
 
     stop(key) {
-        const entry = this.sounds[key];
+        const entry = this.getEntry(key);
         if (!entry) return;
+        this.stopAudio(entry.audio);
+    }
 
-        const audio = entry.audio;
+    stopAudio(audio) {
         audio.pause();
         audio.currentTime = 0;
     }
 
+    forEachSound(callback) {
+        Object.values(this.sounds).forEach(callback);
+    }
+
     stopCategory(category) {
-        Object.values(this.sounds).forEach(entry => {
+        this.forEachSound(entry => {
             if (entry.category !== category) return;
-            const audio = entry.audio;
-            audio.pause();
-            audio.currentTime = 0;
+            this.stopAudio(entry.audio);
         });
     }
 
     stopAllAudio() {
-        Object.values(this.sounds).forEach(entry => {
-            const audio = entry.audio;
-            audio.pause();
-            audio.currentTime = 0;
-        });
+        this.forEachSound(entry => this.stopAudio(entry.audio));
         this.currentMusicKey = null;
     }
 
-    /** ---------- Musik ---------- */
+    /* ---------- Musik ---------- */
 
     playMusic(key) {
-        const entry = this.sounds[key];
+        const entry = this.getEntry(key);
         if (!entry) return;
 
-        const audio = entry.audio;
-
-        if (this.currentMusicKey === key && !audio.paused) {
-            return;
-        }
+        if (this.shouldSkipMusic(entry, key)) return;
 
         if (this.currentMusicKey && this.currentMusicKey !== key) {
-            this.stop(this.currentMusicKey);
+            this.stopMusic();
         }
 
-        audio.loop = entry.loop;
+        this.startMusic(entry, key);
+    }
+
+    shouldSkipMusic(entry, key) {
+        const audio = entry.audio;
+        return this.currentMusicKey === key && !audio.paused;
+    }
+
+    startMusic(entry, key) {
+        const audio = entry.audio;
+
+        audio.loop = !!entry.loop;
         audio.volume = entry.volume;
         audio.currentTime = 0;
-        audio.play().catch(() => { });
+        audio.play().catch(() => {});
 
         this.currentMusicKey = key;
     }
@@ -91,11 +110,11 @@ class SoundManager {
         this.currentMusicKey = null;
     }
 
-    /** ---------- Mute ---------- */
+    /* ---------- Mute ---------- */
 
     setMuted(muted) {
         this.muted = muted;
-        Object.values(this.sounds).forEach(entry => {
+        this.forEachSound(entry => {
             entry.audio.muted = muted;
         });
         this.saveMuted();
@@ -115,4 +134,3 @@ class SoundManager {
 }
 
 const soundManager = new SoundManager(SOUNDS);
-
