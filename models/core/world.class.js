@@ -66,6 +66,7 @@ class World {
         this.endscreen = new Endscreen(this);
 
         this.controls = new CanvasControls(canvas, keyboard, this.screenManager, this);
+        this.controlsOverlay = new ControlsOverlay(this, canvas, screenManager);
 
         this.setState(GAME_STATE.START);
 
@@ -182,10 +183,6 @@ class World {
         this.collisionSystem.update();
         Endboss.ensureSpawned(this);
         this.updateUI();
-
-        // if (this.endboss && this.endboss.isDead && this.state === GAME_STATE.RUNNING) {
-        //     this.setState(GAME_STATE.WON);
-        // }
     }
 
     updateLevelObjects() {
@@ -223,6 +220,7 @@ class World {
                 }
                 this.pauseOverlay.draw(this.ctx);
                 this.controls.drawHeaderOnly(this.ctx);
+                this.controlsOverlay.draw(this.ctx);
                 this.ctx.restore();
                 return;
 
@@ -263,6 +261,7 @@ class World {
 
         this.startScreen.draw(this.ctx);
         this.controls.drawHeaderOnly(this.ctx);
+        this.controlsOverlay.draw(this.ctx);
 
         this.ctx.restore();
     }

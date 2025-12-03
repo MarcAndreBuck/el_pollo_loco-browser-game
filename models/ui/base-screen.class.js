@@ -1,52 +1,105 @@
 class BaseScreen {
+    /**
+     * @param {World} world
+     * @param {HTMLCanvasElement} canvas
+     * @param {ScreenManager} screenManager
+     */
     constructor(world, canvas, screenManager) {
         this.world = world;
         this.canvas = canvas;
         this.screenManager = screenManager;
 
+        this.baseWidth = screenManager?.baseWidth ?? canvas.width;
+        this.baseHeight = screenManager?.baseHeight ?? canvas.height;
 
-        this.baseWidth = screenManager.baseWidth ;
-        this.baseHeight = screenManager.baseHeight; 
-
+        /** @type {CanvasButton[]} */
         this.buttons = [];
     }
 
+    /**
+     * Default draw: background + buttons.
+     * Child classes können draw() überschreiben, wenn nötig.
+     * @param {CanvasRenderingContext2D} ctx
+     */
     draw(ctx) {
         this.drawBackground(ctx);
         this.drawButtons(ctx);
     }
 
-    drawBackground(ctx) { }
+    /**
+     * Standard-Hintergrund: leicht abgedunkelt.
+     * Spezifische Screens (Pause, Controls etc.) können das überschreiben.
+     * @param {CanvasRenderingContext2D} ctx
+     */
+    drawBackground(ctx) {
+        const w = this.baseWidth;
+        const h = this.baseHeight;
+
+        ctx.save();
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+    }
 
     drawButtons(ctx) {
         this.buttons.forEach(btn => btn.draw(ctx, this.canvas));
     }
 
-    /* ---------- Pointer-Events ---------- */
+    /* ---------- Shared Button-Helpers ---------- */
 
-    handlePointerDown(x, y) {
-        this.buttons.forEach(btn => {
-            if (btn.contains(this.canvas, x, y)) {
-                btn.pressed = true;
-                btn.onChange(true);
-            }
+    triggerButtons(buttons, x, y) {
+        buttons.forEach(btn => {
+            if (!btn) return;
+            if (!btn.contains(this.canvas, x, y)) return;
+
+            btn.pressed = true;
+            btn.onChange(true);
         });
     }
 
-    handlePointerMove(x, y) {
-        this.buttons.forEach(btn => {
+    updateHover(buttons, x, y) {
+        buttons.forEach(btn => {
+            if (!btn) return;
             btn.setHover(btn.contains(this.canvas, x, y));
         });
     }
 
-    handlePointerUp() {
-        this.buttons.forEach(btn => {
+    resetButtons(buttons) {
+        buttons.forEach(btn => {
+            if (!btn) return;
+
             if (btn.pressed) {
                 btn.onChange(false);
             }
             btn.pressed = false;
+            btn.setHover(false);
         });
     }
 
-    close() {}
+    /* ---------- Pointer-Events (Standard-API für Screens) ---------- */
+
+    handlePointerDown(x, y) {
+        this.triggerButtons(this.buttons, x, y);
+    }
+
+    handlePointerMove(x, y) {
+        this.updateHover(this.buttons, x, y);
+    }
+
+    handlePointerUp() {
+        this.resetButtons(this.buttons);
+    }
+
+    close() { }
+
+    openControls() {
+        this.world.controlsOverlay.show();
+    }
+
+    openLegalNoctice() {
+        window.location.href = "impressum.html";
+    }
+    openPrivacyPolicy() {
+        window.location.href = "datenschutz.html";
+    }
 }
