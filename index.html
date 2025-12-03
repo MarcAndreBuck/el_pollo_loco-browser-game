@@ -5,25 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>El pollo loco</title>
+    <link rel="icon" href="assets/favicon/favicon.png">
+    <link rel="preload" as="image" href="assets/9_intro_outro_screens/start/startscreen_1.png">
 
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="fonts.css">
 </head>
 
 <body>
 
-    <h1 id="gameTitle">El pollo loco</h1>
+    <h1 id="gameTitle" class="gameTitle">El pollo loco</h1>
 
     <canvas id="canvas" width="720" height="480"></canvas>
 
     <div id="rotateOverlay" class="rotateOverlay hidden">
-        Bitte Gerät drehen (Querformat)
+        <img src="./assets/mobile/mobile_rotate.jpg" alt="please rotate to landscape">
     </div>
+
+
 
     <script src="./js/asset.js"></script>
     <script src="./js/sound.js"></script>
 
-
-    <!-- UI / Buttons / Manager -->
     <script src="./models/engine/sound-manager.class.js"></script>
     <script src="./models/engine/level-manager.class.js"></script>
     <script src="./models/engine/ui-manager.class.js"></script>
@@ -31,18 +34,16 @@
     <script src="./models/engine/drawableObject.class.js"></script>
     <script src="./models/ui/canvasButton.class.js"></script>
 
-    <!-- Screens & UI-Layer -->
     <script src="./models/ui/base-screen.class.js"></script>
     <script src="./models/ui/start-screen.class.js"></script>
     <script src="./models/ui/pause-overlay.class.js"></script>
     <script src="./models/core/endscreen.class.js"></script>
     <script src="./models/ui/canvasControlls.class.js"></script>
+    <script src="./models/ui/controls.class.js"></script>
 
-    <!-- Core Helpers -->
     <script src="./models/core/orientation-manager.class.js"></script>
     <script src="./models/core/screen-manager.class.js"></script>
 
-    <!-- Game Core / Engine -->
     <script src="./models/engine/movable-objects.class.js"></script>
     <script src="./models/ui/statusbars.class.js"></script>
     <script src="./models/entities/projectiles/throwSystem.class.js"></script>
@@ -62,10 +63,8 @@
     <script src="./models/entities/collectables/coin.class.js"></script>
     <script src="./models/entities/collectables/bottle.class.js"></script>
 
-    <!-- Levels -->
     <script src="./levels/level1.js"></script>
 
-    <!-- Entry Point -->
     <script src="./js/game.js"></script>
 
 

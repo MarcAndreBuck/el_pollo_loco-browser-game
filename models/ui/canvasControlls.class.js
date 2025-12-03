@@ -64,6 +64,11 @@ class CanvasControls {
         this.canvas.addEventListener("mousedown", event => {
             const { x, y } = this.screenManager.getCanvasCoords(event);
 
+            if (this.world.controlsOverlay?.visible) {
+                this.world.controlsOverlay.handleClick(x, y);
+                return;
+            }
+
             this.onPointerDownHeader(x, y);
 
             const activeScreen = this.getActiveScreen();
@@ -77,6 +82,11 @@ class CanvasControls {
         this.canvas.addEventListener("mousemove", event => {
             const { x, y } = this.screenManager.getCanvasCoords(event);
 
+            // Bei offenem Steuerungs-Overlay keine anderen Hover-Effekte
+            if (this.world.controlsOverlay?.visible) {
+                return;
+            }
+
             this.updateHover(this.headerButtons, x, y);
 
             const activeScreen = this.getActiveScreen();
@@ -88,6 +98,11 @@ class CanvasControls {
         });
 
         this.canvas.addEventListener("mouseup", () => {
+            if (this.world.controlsOverlay?.visible) {
+                this.world.controlsOverlay.handlePointerUp();
+                return;
+            }
+
             this.resetButtons(this.headerButtons);
             this.resetButtons(this.controlButtons);
 
@@ -103,6 +118,11 @@ class CanvasControls {
             event.preventDefault();
             const { x, y } = this.screenManager.getCanvasCoords(event);
 
+            if (this.world.controlsOverlay?.visible) {
+                this.world.controlsOverlay.handleClick(x, y);
+                return;
+            }
+
             this.onPointerDownHeader(x, y);
 
             const activeScreen = this.getActiveScreen();
@@ -113,9 +133,14 @@ class CanvasControls {
             }
         }, { passive: false });
 
-        this.canvas.addEventListener("touchmove", event => {
-            event.preventDefault();
+        this.canvas.addEventListener("mousemove", event => {
             const { x, y } = this.screenManager.getCanvasCoords(event);
+
+    
+            if (this.world.controlsOverlay.visible) {
+                this.world.controlsOverlay.handlePointerMove(x, y); 
+                return;
+            }
 
             this.updateHover(this.headerButtons, x, y);
 
@@ -125,10 +150,16 @@ class CanvasControls {
             } else {
                 this.updateHover(this.controlButtons, x, y);
             }
-        }, { passive: false });
+        });
 
         this.canvas.addEventListener("touchend", event => {
             event.preventDefault();
+
+            if (this.world.controlsOverlay?.visible) {
+                this.world.controlsOverlay.handlePointerUp();
+                return;
+            }
+
             this.resetButtons(this.headerButtons);
             this.resetButtons(this.controlButtons);
 
@@ -140,6 +171,12 @@ class CanvasControls {
 
         this.canvas.addEventListener("touchcancel", event => {
             event.preventDefault();
+
+            if (this.world.controlsOverlay?.visible) {
+                this.world.controlsOverlay.handlePointerUp();
+                return;
+            }
+
             this.resetButtons(this.headerButtons);
             this.resetButtons(this.controlButtons);
 
@@ -221,9 +258,35 @@ class CanvasControls {
         const menuX = 0.74;
         const muteX = 0.90;
 
-        const fullscreen = new CanvasButton(fullscreenX, headerY, headerButtonWidth, headerButtonHeight, "⛶", state => { if (!state) return; this.toggleFullscreen(); }, "wood");
-        const menu = new CanvasButton(menuX, headerY, headerButtonWidth, headerButtonHeight, "☰", state => { if (!state) return; this.handleMenu(); }, "wood");
-        const mute = new CanvasButton(muteX, headerY, headerButtonWidth, headerButtonHeight, "🔊", state => { if (!state) return; this.toggleMute(); }, "wood");
+        const fullscreen = new CanvasButton(
+            fullscreenX,
+            headerY,
+            headerButtonWidth,
+            headerButtonHeight,
+            "⛶",
+            state => { if (!state) return; this.toggleFullscreen(); },
+            "wood"
+        );
+
+        const menu = new CanvasButton(
+            menuX,
+            headerY,
+            headerButtonWidth,
+            headerButtonHeight,
+            "☰",
+            state => { if (!state) return; this.handleMenu(); },
+            "wood"
+        );
+
+        const mute = new CanvasButton(
+            muteX,
+            headerY,
+            headerButtonWidth,
+            headerButtonHeight,
+            "🔊",
+            state => { if (!state) return; this.toggleMute(); },
+            "wood"
+        );
 
         this.fullscreenButton = fullscreen;
         this.menuButton = menu;

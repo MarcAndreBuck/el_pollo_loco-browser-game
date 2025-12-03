@@ -14,13 +14,16 @@ class OrientationManager {
         window.addEventListener("orientationchange", () => this.updateState());
     }
 
+
     isLandscape() {
         return window.innerWidth > window.innerHeight;
     }
 
+
     isMobileDevice() {
         return navigator.maxTouchPoints > 0;
     }
+
 
     updateState() {
         const isMobile = this.isMobileDevice();
@@ -32,6 +35,7 @@ class OrientationManager {
             this.unlockForOrientation();
         }
     }
+
 
     lockForOrientation() {
         if (this.world.state === GAME_STATE.RUNNING) {
@@ -46,6 +50,7 @@ class OrientationManager {
         this.toggleOverlay(true);
     }
 
+
     unlockForOrientation() {
         this.world.controls.enabled = true;
 
@@ -57,6 +62,7 @@ class OrientationManager {
         }
     }
 
+    
     toggleOverlay(show) {
         this.overlay.classList.toggle("hidden", !show);
     }

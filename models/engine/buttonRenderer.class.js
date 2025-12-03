@@ -49,7 +49,7 @@ class ButtonRenderer {
         ctx.stroke();
 
         ctx.fillStyle = "#fff";
-        ctx.font = `${h * 0.5}px Boogaloo, sans-serif`;
+        ctx.font = `${h * 0.5}px rye, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(label, x + w / 2, y + h / 2);
@@ -82,7 +82,7 @@ class ButtonRenderer {
         ctx.stroke();
 
         ctx.fillStyle = "#fff7df";
-        ctx.font = `${h * 0.45}px Boogaloo, sans-serif`;
+        ctx.font = `${h * 0.45}px rye, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(label, x + w / 2, y + h / 2);
