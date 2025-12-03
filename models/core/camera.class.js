@@ -1,4 +1,9 @@
 class Camera {
+    /**
+     * 
+     * @param {*} worldWidth 
+     * @param {*} viewportWidth 
+     */
     constructor(worldWidth, viewportWidth) {
         this.worldWidth = worldWidth;
         this.viewportWidth = viewportWidth;
@@ -13,6 +18,11 @@ class Camera {
         this.x = 0;
     }
 
+
+    /**
+     * 
+     * @param {*} character 
+     */
     update(character) {
         const targetLookAhead = character.otherDirection
             ? this.lookAheadLeft

@@ -9,7 +9,6 @@ class StartScreen extends BaseScreen {
     }
 
     drawBackground(ctx) {
-
         ctx.drawImage(this.backgroundImage, 0, 0, this.baseWidth, this.baseHeight);
     }
 
@@ -26,20 +25,20 @@ class StartScreen extends BaseScreen {
         const buttonY = 0.15;
 
         return [
-            new CanvasButton(0.5 - buttonWidth - 0.05, buttonY, buttonWidth, buttonHeight, "controls", state => state && this.startGame(), "wood"),
+            new CanvasButton(0.5 - buttonWidth - 0.05, buttonY, buttonWidth, buttonHeight, "controls", state => state && this.openControls(), "wood"),
             new CanvasButton(0.5 + 0.05, buttonY, buttonWidth, buttonHeight, "Story", state => state && this.openStory(), "wood"),
         ];
     }
 
     createBottomButtons() {
-        const buttonWidth = 0.2;
+        const buttonWidth = 0.23;
         const buttonHeight = 0.10;
         const buttonY = 0.88;
 
         return [
             new CanvasButton(0.5 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight, "▶ Start", state => state && this.startGame(), "green"),
-            new CanvasButton(0.18, buttonY, buttonWidth, buttonHeight, "Legal Notice", state => state && this.openStory(), "wood"),
-            new CanvasButton(0.82 - buttonWidth, buttonY, buttonWidth, buttonHeight, "Privacy Policy", state => state && this.openControls(), "wood"),
+            new CanvasButton(0.13, buttonY, buttonWidth, buttonHeight, "Legal Notice", state => state && this.openStory(), "wood"),
+            new CanvasButton(0.87 - buttonWidth, buttonY, buttonWidth, buttonHeight, "Privacy Policy", state => state && this.openPrivacyPolicy(), "wood"),
         ];
     }
 
@@ -49,10 +48,6 @@ class StartScreen extends BaseScreen {
     }
 
     openStory() {
-        console.log("Story öffnen (Screen später)");
-    }
-
-    openControls() {
-        console.log("Steuerung öffnen (Screen später)");
+        window.location.href = "story.html";
     }
 }
