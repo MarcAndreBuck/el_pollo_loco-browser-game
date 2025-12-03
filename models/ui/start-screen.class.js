@@ -10,13 +10,7 @@ class StartScreen extends BaseScreen {
 
     drawBackground(ctx) {
 
-        ctx.drawImage(
-            this.backgroundImage,
-            0,
-            0,
-            this.baseWidth,
-            this.baseHeight
-        );
+        ctx.drawImage(this.backgroundImage, 0, 0, this.baseWidth, this.baseHeight);
     }
 
     createButtons() {
@@ -32,7 +26,7 @@ class StartScreen extends BaseScreen {
         const buttonY = 0.15;
 
         return [
-            new CanvasButton(0.5 - buttonWidth - 0.05, buttonY, buttonWidth, buttonHeight, "Steuerung", state => state && this.startGame(), "wood"),
+            new CanvasButton(0.5 - buttonWidth - 0.05, buttonY, buttonWidth, buttonHeight, "controls", state => state && this.startGame(), "wood"),
             new CanvasButton(0.5 + 0.05, buttonY, buttonWidth, buttonHeight, "Story", state => state && this.openStory(), "wood"),
         ];
     }
@@ -44,8 +38,8 @@ class StartScreen extends BaseScreen {
 
         return [
             new CanvasButton(0.5 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight, "▶ Start", state => state && this.startGame(), "green"),
-            new CanvasButton(0.18, buttonY, buttonWidth, buttonHeight, "Impressum", state => state && this.openStory(), "wood"),
-            new CanvasButton(0.82 - buttonWidth, buttonY, buttonWidth, buttonHeight, "Datenschutz", state => state && this.openControls(), "wood"),
+            new CanvasButton(0.18, buttonY, buttonWidth, buttonHeight, "Legal Notice", state => state && this.openStory(), "wood"),
+            new CanvasButton(0.82 - buttonWidth, buttonY, buttonWidth, buttonHeight, "Privacy Policy", state => state && this.openControls(), "wood"),
         ];
     }
 

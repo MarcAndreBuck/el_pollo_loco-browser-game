@@ -4,8 +4,6 @@ class PauseOverlay extends BaseScreen {
         this.buttons = this.createButtons();
     }
 
-    /* ---------- Buttons ---------- */
-
     createButtons() {
         const buttonWidth = 0.35;
         const smallButtonWidth = buttonWidth * 0.5 - 0.01;
@@ -24,8 +22,8 @@ class PauseOverlay extends BaseScreen {
             new CanvasButton(centerX, buttonY += buttonHeight + buttonGap, buttonWidth, buttonHeight, "Restart", state => state && this.onRestart(), "wood"),
             new CanvasButton(centerX, buttonY += buttonHeight + buttonGap, buttonWidth, buttonHeight, "Back to Start", state => state && this.onBackToStart(), "wood"),
             new CanvasButton(centerX, buttonY += buttonHeight + buttonGap, buttonWidth, buttonHeight, "Controls", state => state && this.onControls(), "wood"),
-            new CanvasButton(centerXBottom - halfWidth, buttonY += buttonHeight + buttonGap * 2, smallButtonWidth, buttonHeight, "Datenschutz", state => state && this.onPrivacy(), "wood"),
-            new CanvasButton(centerXBottom + 0.01, buttonY, smallButtonWidth, buttonHeight, "Impressum", state => state && this.onImprint(), "wood"),
+            new CanvasButton(centerXBottom - halfWidth, buttonY += buttonHeight + buttonGap * 2, smallButtonWidth, buttonHeight, "Privacy Policy", state => state && this.onPrivacy(), "wood"),
+            new CanvasButton(centerXBottom + 0.01, buttonY, smallButtonWidth, buttonHeight, "Legal Notice", state => state && this.onImprint(), "wood"),
         ];
     }
 
@@ -48,8 +46,6 @@ class PauseOverlay extends BaseScreen {
 
         ctx.restore();
     }
-
-    /* ---------- Button Actions ---------- */
 
     onResume() {
         this.world.setState(GAME_STATE.RUNNING);
