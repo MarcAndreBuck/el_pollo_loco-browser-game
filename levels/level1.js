@@ -60,7 +60,14 @@ function createLevel1() {
             new BackgroundObject("assets/5_background/layers/1_first_layer/2.png", 719 * 7, 0),
         ],
         [
-            new Cloud(),
+            new Cloud(0),
+            new Cloud(719 * 1),
+            new Cloud(719 * 2),
+            new Cloud(719 * 3),
+            new Cloud(719 * 4),
+            new Cloud(719 * 5),
+            new Cloud(719 * 6),
+            new Cloud(719 * 7),
         ],
         [
             new Coin(620, 280),
