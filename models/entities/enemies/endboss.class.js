@@ -49,7 +49,7 @@ class Endboss extends MovableObject {
         boss.x = world.worldWidth - 350;
         world.endboss = boss;
         world.level.enemies.push(boss);
-        world.bossHealthBar = new ChickenBossHealth(world.canvas.width - 240, 60, world);
+        world.bossHealthBar = new ChickenBossHealth(world);
         world.bossFightStarted = true;
     }
 

@@ -3,6 +3,11 @@
  * Handles preload, playback, categories and mute state persistence.
  */
 class SoundManager {
+    /** @type {string|null} Music key waiting for user gesture */
+    pendingMusicKey = null;
+    /** @type {(() => void)|null} Pending user gesture handler */
+    _userGestureHandler = null;
+
     /**
      * @param {Object<string, {src:string,loop?:boolean,volume?:number,category?:string}>} soundList
      * @param {string} [storageKey="game_muted"] - LocalStorage key for mute state.
@@ -56,7 +61,7 @@ class SoundManager {
 
     /**
      * Returns the sound entry for a given key or throws if unknown.
-     * Runtime errors are intentional here to expose wrong keys.
+     * Runtime errors are intentional to expose wrong keys.
      * @param {string} key
      * @returns {{audio:HTMLAudioElement,category:string,loop:boolean,volume:number}}
      */
@@ -155,6 +160,7 @@ class SoundManager {
 
     /**
      * Starts music playback and updates the current music key.
+     * Handles autoplay block by deferring to next user gesture.
      * @param {{audio:HTMLAudioElement,loop:boolean,volume:number}} entry
      * @param {string} key
      */
@@ -164,9 +170,44 @@ class SoundManager {
         audio.loop = !!entry.loop;
         audio.volume = entry.volume;
         audio.currentTime = 0;
-        audio.play().catch(() => {});
 
+        this.tryPlayAudio(audio, key);
         this.currentMusicKey = key;
+    }
+
+    /**
+     * Tries to play an audio clip and defers on autoplay block.
+     * @param {HTMLAudioElement} audio
+     * @param {string} key
+     */
+    tryPlayAudio(audio, key) {
+        audio.play().catch(err => {
+            if (err.name === "NotAllowedError") {
+                this.queueMusicForUserGesture(key);
+                return;
+            }
+            throw err;
+        });
+    }
+
+    /**
+     * Queues music to be started on the next user gesture.
+     * @param {string} key
+     */
+    queueMusicForUserGesture(key) {
+        this.pendingMusicKey = key;
+        if (this._userGestureHandler) return;
+        this._userGestureHandler = () => {
+            const pending = this.pendingMusicKey;
+            this.pendingMusicKey = null;
+            window.removeEventListener("pointerdown", this._userGestureHandler);
+            window.removeEventListener("keydown", this._userGestureHandler);
+            this._userGestureHandler = null;
+            if (!pending) return;
+            this.playMusic(pending);
+        };
+        window.addEventListener("pointerdown", this._userGestureHandler, { once: true });
+        window.addEventListener("keydown", this._userGestureHandler, { once: true });
     }
 
     /**

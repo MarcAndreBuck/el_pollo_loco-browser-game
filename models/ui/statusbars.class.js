@@ -113,21 +113,23 @@ class CoinCounter extends DrawableObject {
 
 
 class ChickenBossHealth extends Statusbar {
-    constructor(x, y, world) {
-        super(x, y, ASSETS.statusbar.endboss.orange, 200, 50);
+    constructor(world) {
+        const width = 200;
+        const height = 50;
+        const margin = 60;
+        const baseWidth = world.screenManager.baseWidth;
+        const x = baseWidth - width - margin;
+        const y = margin;
+
+        super(x, y, ASSETS.statusbar.endboss.orange, width, height);
         this.world = world;
     }
 
     update() {
         const boss = this.world.endboss;
-
         const currentHealth = boss.health ?? 0;
         const maxHealth = boss.maxHealth ?? 100;
-
         this.setStatusbarGrowth(currentHealth, maxHealth);
     }
-
-    draw(ctx) {
-        super.draw(ctx);
-    }
 }
+
