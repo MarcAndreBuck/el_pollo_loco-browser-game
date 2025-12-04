@@ -1,4 +1,17 @@
+/**
+ * Utility class for rendering styled canvas buttons.
+ * Supports wood and green styles with hover and pressed states.
+ */
 class ButtonRenderer {
+    /**
+     * Draws a rounded rectangle path.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number} r - Corner radius.
+     */
     static roundRect(ctx, x, y, w, h, r) {
         const radius = Math.min(r, h / 2, w / 2);
         ctx.beginPath();
@@ -14,6 +27,18 @@ class ButtonRenderer {
         ctx.closePath();
     }
 
+    /**
+     * Draws a styled button based on the given style name.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {string} text - Button label.
+     * @param {boolean} pressed
+     * @param {boolean} hover
+     * @param {"wood"|"green"} style
+     */
     static draw(ctx, x, y, w, h, text, pressed, hover, style) {
         if (style === "wood") {
             this.drawWood(ctx, x, y, w, h, text, pressed, hover);
@@ -22,6 +47,9 @@ class ButtonRenderer {
         }
     }
 
+    /**
+     * Draws a green button variant.
+     */
     static drawGreen(ctx, x, y, w, h, label, pressed, hover) {
         const radius = h / 2;
         this.applyPressedOffset(ctx, pressed);
@@ -39,6 +67,9 @@ class ButtonRenderer {
         ctx.restore();
     }
 
+    /**
+     * Draws a wood-style button variant.
+     */
     static drawWood(ctx, x, y, w, h, label, pressed, hover) {
         this.applyPressedOffset(ctx, pressed);
         const grad = this.createWoodGradient(ctx, x, y, h, hover);
@@ -55,12 +86,21 @@ class ButtonRenderer {
         ctx.restore();
     }
 
+    /**
+     * Applies a vertical offset when button is pressed.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {boolean} pressed
+     */
     static applyPressedOffset(ctx, pressed) {
         const offsetY = pressed ? 2 : 0;
         ctx.save();
         ctx.translate(0, offsetY);
     }
 
+    /**
+     * Creates the gradient for green-style buttons.
+     * @returns {CanvasGradient}
+     */
     static createGreenGradient(ctx, x, y, h, hover) {
         const grad = ctx.createLinearGradient(x, y, x, y + h);
 
@@ -77,6 +117,10 @@ class ButtonRenderer {
         return grad;
     }
 
+    /**
+     * Creates the gradient for wood-style buttons.
+     * @returns {CanvasGradient}
+     */
     static createWoodGradient(ctx, x, y, h, hover) {
         const grad = ctx.createLinearGradient(x, y, x, y + h);
 
@@ -93,6 +137,10 @@ class ButtonRenderer {
         return grad;
     }
 
+    /**
+     * Draws the button label centered inside the button.
+     * @param {CanvasRenderingContext2D} ctx
+     */
     static drawLabel(ctx, x, y, w, h, text, factor, color) {
         ctx.fillStyle = color;
         ctx.font = `${h * factor}px rye, sans-serif`;

@@ -1,8 +1,19 @@
+/**
+ * Handles all collision logic for the world.
+ * Keeps objects within bounds and resolves hits between player, enemies,
+ * collectables and projectiles.
+ */
 class CollisionSystem {
+    /**
+     * @param {World} world - Active game world instance.
+     */
     constructor(world) {
         this.world = world;
     }
 
+    /**
+     * Updates all collision-related checks for the current frame.
+     */
     update() {
         this.keepCharacterInBounds();
         this.keepEnemiesInBounds();
@@ -11,8 +22,9 @@ class CollisionSystem {
         this.handleProjectileCollisions();
     }
 
-    /* ---------- Bounds ---------- */
-
+    /**
+     * Prevents the character from leaving the horizontal level bounds.
+     */
     keepCharacterInBounds() {
         const { character, worldWidth } = this.world;
         const maxX = worldWidth - character.width;
@@ -20,12 +32,19 @@ class CollisionSystem {
         character.x = Math.max(0, Math.min(character.x, maxX));
     }
 
+    /**
+     * Prevents all enemies from leaving the level bounds.
+     */
     keepEnemiesInBounds() {
         const { enemies } = this.world;
-
         enemies.forEach(enemy => this.keepSingleEnemyInBounds(enemy));
     }
 
+    /**
+     * Keeps a single enemy within bounds and flips direction at edges.
+     * The endboss is excluded from this logic.
+     * @param {Enemies} enemy
+     */
     keepSingleEnemyInBounds(enemy) {
         const { worldWidth, endboss } = this.world;
         if (enemy === endboss) return;
@@ -41,9 +60,12 @@ class CollisionSystem {
         }
     }
 
-
-    /* ---------- Collision Helpers ---------- */
-
+    /**
+     * Axis-aligned bounding box collision test between two objects.
+     * @param {MovableObject} a
+     * @param {MovableObject} b
+     * @returns {boolean} True if hitboxes overlap.
+     */
     hitTest(a, b) {
         const boxA = a.getHitbox();
         const boxB = b.getHitbox();
@@ -56,6 +78,12 @@ class CollisionSystem {
         );
     }
 
+    /**
+     * Checks if the player hits an enemy from above (stomp).
+     * @param {Character} player
+     * @param {Enemies} enemy
+     * @returns {boolean} True if stomp criteria are met.
+     */
     isStompFromAbove(player, enemy) {
         const p = player.getHitbox();
         const e = enemy.getHitbox();
@@ -67,40 +95,48 @@ class CollisionSystem {
         return playerIsFalling && playerBottom <= enemyMiddleY;
     }
 
+    /**
+     * Resolves collisions between the player and all enemies.
+     */
     handleEnemyCollisions() {
         const { character, enemies } = this.world;
-
-        enemies.forEach(enemy => {
-            this.handleSingleEnemyCollision(character, enemy);
-        });
+        enemies.forEach(enemy => this.handleSingleEnemyCollision(character, enemy));
     }
 
+    /**
+     * Handles collision between the player and a single enemy.
+     * Supports stomping from above or taking damage.
+     * @param {Character} character
+     * @param {Enemies} enemy
+     */
     handleSingleEnemyCollision(character, enemy) {
         if (enemy.isDead) return;
         if (!this.hitTest(character, enemy)) return;
 
         if (this.isStompFromAbove(character, enemy)) {
-            if (!enemy.isDead) {
-                enemy.die();
-            }
+            enemy.die();
             character.speedY = -6;
             return;
         }
 
-        character.takeDamage(1);
+        character.takeDamage(0.2);
     }
 
-
+    /**
+     * Resolves collisions between the player and collectable items.
+     */
     handleCollectableCollisions() {
         const { character, collectables } = this.world;
 
         collectables.forEach(item => {
             if (!this.hitTest(character, item)) return;
-
             item.onCollect(this.world);
         });
     }
 
+    /**
+     * Resolves all projectile-related collisions in the world.
+     */
     handleProjectileCollisions() {
         const { projectiles } = this.world;
 
@@ -111,6 +147,10 @@ class CollisionSystem {
         });
     }
 
+    /**
+     * Checks bottle collisions with regular enemies.
+     * @param {MovableObject} bottle
+     */
     handleProjectileEnemyHits(bottle) {
         const { enemies, endboss } = this.world;
 
@@ -123,6 +163,10 @@ class CollisionSystem {
         });
     }
 
+    /**
+     * Checks bottle collisions with the endboss.
+     * @param {MovableObject} bottle
+     */
     handleProjectileBossHit(bottle) {
         const { endboss } = this.world;
         if (!endboss || endboss.isDead) return;
@@ -131,5 +175,4 @@ class CollisionSystem {
         endboss.takeDamage(20);
         bottle.break();
     }
-
 }

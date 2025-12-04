@@ -9,8 +9,8 @@ class BaseScreen {
         this.canvas = canvas;
         this.screenManager = screenManager;
 
-        this.baseWidth = screenManager?.baseWidth ?? canvas.width;
-        this.baseHeight = screenManager?.baseHeight ?? canvas.height;
+        this.baseWidth = screenManager.baseWidth ?? canvas.width;
+        this.baseHeight = screenManager.baseHeight ?? canvas.height;
 
         this.buttons = [];
     }

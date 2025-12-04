@@ -108,6 +108,6 @@ class Endscreen extends BaseScreen {
      */
     onBackToStart() {
         this.world.setState(GAME_STATE.START);
-        stopAllAudio();
+        soundManager.stopAllAudio();
     }
 }

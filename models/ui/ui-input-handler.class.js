@@ -78,8 +78,8 @@ class UIInputManager {
             return;
         }
 
-        this.world.headerBar?.handlePointerDown(x, y);
-        this.world.mobileControls?.handlePointerDown(x, y);
+        this.world.headerBar.handlePointerDown(x, y);
+        this.world.mobileControls.handlePointerDown(x, y);
     }
 
     routePointerMove(x, y) {
@@ -88,8 +88,8 @@ class UIInputManager {
         if (this.activeOverlay) {
             hovering = !!this.activeOverlay.handlePointerMove(x, y);
         } else {
-            const headerHover = this.world.headerBar?.handlePointerMove(x, y) || false;
-            const mobileHover = this.world.mobileControls?.handlePointerMove(x, y) || false;
+            const headerHover = this.world.headerBar.handlePointerMove(x, y) || false;
+            const mobileHover = this.world.mobileControls.handlePointerMove(x, y) || false;
             hovering = headerHover || mobileHover;
         }
 
@@ -102,8 +102,8 @@ class UIInputManager {
             return;
         }
 
-        this.world.headerBar?.handlePointerUp();
-        this.world.mobileControls?.handlePointerUp();
+        this.world.headerBar.handlePointerUp();
+        this.world.mobileControls.handlePointerUp();
     }
 
     /* ---------- Cursor ---------- */
