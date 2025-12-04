@@ -55,20 +55,26 @@ class StartScreen extends BaseScreen {
     }
 
     /**
-     * Creates the top-center row of buttons (Controls & Story).
-     * @returns {CanvasButton[]}
-     */
+   * Creates the top-center row of buttons (Controls & Story).
+   * On mobile only Story is shown and centered.
+   * @returns {CanvasButton[]}
+   */
     createCenterButtons() {
+        const isMobile = ScreenManager.isMobileOrSmallScreen();
         const w = START_SCREEN_CONFIG.centerButtonWidth;
         const h = START_SCREEN_CONFIG.centerButtonHeight;
         const y = START_SCREEN_CONFIG.centerButtonY;
         const gap = START_SCREEN_CONFIG.centerButtonGapX;
-
-        return [
-            new CanvasButton(0.5 - w - gap, y, w, h, "Controls", state => state && this.openControls(), "wood"),
-            new CanvasButton(0.5 + gap, y, w, h, "Story", state => state && this.openStory(), "wood")
-        ];
+        const buttons = [];
+        if (isMobile) {
+            buttons.push(new CanvasButton(0.5 - w * 0.5, y, w, h, "Story", s => s && this.openStory(), "wood"));
+            return buttons;
+        }
+        buttons.push(new CanvasButton(0.5 - w - gap, y, w, h, "Controls", s => s && this.openControls(), "wood"));
+        buttons.push(new CanvasButton(0.5 + gap, y, w, h, "Story", s => s && this.openStory(), "wood"));
+        return buttons;
     }
+
 
     /**
      * Creates the bottom row (Start, Legal, Privacy).
@@ -81,8 +87,8 @@ class StartScreen extends BaseScreen {
 
         return [
             new CanvasButton(0.5 - w / 2, y, w, h, "▶ Start", state => state && this.startGame(), "green"),
-            new CanvasButton(START_SCREEN_CONFIG.bottomLegalX, y, w, h, "Legal Notice", state => state && this.openLegalNotice(), "wood"),
-            new CanvasButton(START_SCREEN_CONFIG.bottomPrivacyRightX - w, y, w, h, "Privacy Policy", state => state && this.openPrivacyPolicy(), "wood")
+            new CanvasButton(START_SCREEN_CONFIG.bottomLegalX, y, w, h, "Impressum", state => state && this.openLegalNotice(), "wood"),
+            new CanvasButton(START_SCREEN_CONFIG.bottomPrivacyRightX - w, y, w, h, "Datenschutz", state => state && this.openPrivacyPolicy(), "wood")
         ];
     }
 

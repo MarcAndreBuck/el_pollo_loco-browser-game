@@ -106,21 +106,27 @@ class HeaderBar extends BaseScreen {
         return new CanvasButton(HEADER_BAR_CONFIG.menuX, y, w, h, "☰", state => state && this.handleMenu(), "wood");
     }
 
-    /**
-     * Assigns buttons to instance properties and button list.
-     *
-     * @private
-     * @param {CanvasButton} fullscreen
-     * @param {CanvasButton} mute
-     * @param {CanvasButton|null} menu
-     * @returns {void}
-     */
-    applyButtons(fullscreen, mute, menu) {
-        const buttons = menu ? [fullscreen, menu, mute] : [fullscreen, mute];
 
-        this.fullscreenButton = fullscreen;
-        this.menuButton = menu;
+    /**
+ * Applies header bar buttons based on device type and menu visibility.
+ * Fullscreen is omitted on mobile devices.
+ *
+ * @param {CanvasButton} fullscreen - Button for toggling fullscreen mode.
+ * @param {CanvasButton} mute - Button for toggling global sound mute.
+ * @param {CanvasButton|null} menu - Optional menu button (only when running).
+ * @returns {void}
+ */
+    applyButtons(fullscreen, mute, menu) {
+        const isMobile = ScreenManager.isMobileOrSmallScreen();
+        const buttons = [];
+
+        this.fullscreenButton = isMobile ? null : fullscreen;
+        if (this.fullscreenButton) buttons.push(this.fullscreenButton);
+        this.menuButton = menu || null;
+        if (this.menuButton) buttons.push(this.menuButton);
         this.muteButton = mute;
+        buttons.push(this.muteButton);
+
         this.buttons = buttons;
     }
 

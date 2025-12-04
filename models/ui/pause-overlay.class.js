@@ -26,31 +26,75 @@ class PauseOverlay extends BaseScreen {
     }
 
     /**
-     * Creates all pause screen buttons.
-     *
-     * @returns {CanvasButton[]}
-     */
+    * Builds all pause overlay buttons.
+    * @returns {CanvasButton[]}
+    */
     createButtons() {
-        const w = PAUSE_OVERLAY_CONFIG.buttonWidth;
-        const h = PAUSE_OVERLAY_CONFIG.buttonHeight;
-        const gap = PAUSE_OVERLAY_CONFIG.buttonGap;
-        const legalX = PAUSE_OVERLAY_CONFIG.legalOffsetX;
+        /** @type {CanvasButton[]} */
+        const buttons = [];
+        this.lastButtonY = 0;
 
+        this.createCoreButtons(buttons);
+        this.createControlsButton(buttons);
+        this.createLegalButtons(buttons);
+
+        return buttons;
+    }
+
+    /**
+     * Creates main action buttons: Back, Restart, Back to Start.
+     * @param {CanvasButton[]} buttons
+     */
+    createCoreButtons(buttons) {
+        const c = PAUSE_OVERLAY_CONFIG;
+        const w = c.buttonWidth;
+        const h = c.buttonHeight;
+        const gap = c.buttonGap;
+        const centerX = 0.5 - w * 0.5;
+        let y = 0.5 - h - gap;
+        buttons.push(new CanvasButton(centerX, y, w, h, "Back to Game", s => s && this.onResume(), "wood"));
+        y += h + gap;
+        buttons.push(new CanvasButton(centerX, y, w, h, "Restart", s => s && this.onRestart(), "wood"));
+        y += h + gap;
+        buttons.push(new CanvasButton(centerX, y, w, h, "Back to Start", s => s && this.onBackToStart(), "wood"));
+        this.lastButtonY = y;
+    }
+
+    /**
+     * Adds the Controls button on desktop only.
+     * @param {CanvasButton[]} buttons
+     */
+    createControlsButton(buttons) {
+        if (ScreenManager.isMobileOrSmallScreen()) return;
+
+        const c = PAUSE_OVERLAY_CONFIG;
+        const w = c.buttonWidth;
+        const h = c.buttonHeight;
+        const gap = c.buttonGap;
+        const centerX = 0.5 - w * 0.5;
+
+        const y = this.lastButtonY + h + gap;
+        buttons.push(new CanvasButton(centerX, y, w, h, "Controls", s => s && this.onControls(), "wood"));
+        this.lastButtonY = y;
+    }
+
+    /**
+     * Adds legal/privacy buttons at the bottom.
+     * @param {CanvasButton[]} buttons
+     */
+    createLegalButtons(buttons) {
+        const c = PAUSE_OVERLAY_CONFIG;
+        const w = c.buttonWidth;
+        const h = c.buttonHeight;
+        const gap = c.buttonGap;
+        const legalX = c.legalOffsetX;
         const half = w * 0.5;
         const smallW = w * 0.5 - legalX;
-        const centerX = 0.5 - half;
         const centerBottom = 0.5;
+        const y = this.lastButtonY + h + gap * 2;
 
-        let y = 0.5 - h - gap;
-
-        return [
-            new CanvasButton(centerX, y, w, h, "Back to Game", s => s && this.onResume(), "wood"),
-            new CanvasButton(centerX, (y += h + gap), w, h, "Restart", s => s && this.onRestart(), "wood"),
-            new CanvasButton(centerX, (y += h + gap), w, h, "Back to Start", s => s && this.onBackToStart(), "wood"),
-            new CanvasButton(centerX, (y += h + gap), w, h, "Controls", s => s && this.onControls(), "wood"),
-            new CanvasButton(centerBottom - half, (y += h + gap * 2), smallW, h, "Privacy Policy", s => s && this.openPrivacyPolicy(), "wood"),
-            new CanvasButton(centerBottom + legalX, y, smallW, h, "Legal Notice", s => s && this.openLegalNotice(), "wood")
-        ];
+        buttons.push(new CanvasButton(centerBottom - half, y, smallW, h, "Datenschutz", s => s && this.openPrivacyPolicy(), "wood"));
+        buttons.push(new CanvasButton(centerBottom + legalX, y, smallW, h, "Impressum", s => s && this.openLegalNotice(), "wood"));
     }
 
     /**
