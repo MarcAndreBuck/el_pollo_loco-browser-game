@@ -1,3 +1,14 @@
+/**
+ * Central asset registry containing all image paths used in the game.
+ * 
+ * Structure:
+ * - character, enemies, boss, backgrounds, UI elements, collectibles, etc.
+ * - Arrays represent animation frames in correct order.
+ *
+ * @typedef {Object.<string, string[] | Object>} AssetSet
+ *
+ * @type {AssetSet}
+ */
 const ASSETS = {
     character: {
         idle: Array.from({ length: 10 }, (_, i) =>

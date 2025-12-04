@@ -1,8 +1,15 @@
-
-
+/**
+ * Global sound configuration map used by the SoundManager.
+ *
+ * @typedef {Object} SoundConfig
+ * @property {string} src - File path to the audio file.
+ * @property {boolean} [loop] - Whether the sound loops.
+ * @property {number} volume - Playback volume (0.0–1.0).
+ * @property {"music" | "sfx" | "ui"} category - Type of sound.
+ *
+ * @type {Object.<string, SoundConfig>}
+ */
 const SOUNDS = {
-
-
 
     music_level: {
         src: "sounds/freepik__vibrant-shadows-of-the-fiesta__1131.mp3",
@@ -17,9 +24,6 @@ const SOUNDS = {
         volume: 0.6,
         category: "music",
     },
-
-
-
 
     boss_hurt: {
         src: "sounds/chicken-hurt.wav",
@@ -56,18 +60,12 @@ const SOUNDS = {
         category: "sfx",
     },
 
-
-    /* ---------------- CHICKEN ---------------- */
-
     chicken_death: {
         src: "sounds/chicken-430403.mp3",
         loop: false,
         volume: 0.9,
         category: "sfx",
     },
-
-
-    /* ---------------- PLAYER ---------------- */
 
     player_jump: {
         src: "sounds/pixel-jump-319167.mp3",
@@ -117,19 +115,12 @@ const SOUNDS = {
         category: "sfx",
     },
 
-
-
-    /* ---------------- UI ---------------- */
-
     ui_click: {
         src: "sounds/mouse-click-290204.mp3",
         loop: false,
         volume: 0.6,
         category: "ui",
     },
-
-
-    /* ---------------- GAME EVENTS ---------------- */
 
     game_win: {
         src: "sounds/orchestral-win-331233.mp3",
@@ -145,4 +136,3 @@ const SOUNDS = {
         category: "sfx",
     },
 };
-

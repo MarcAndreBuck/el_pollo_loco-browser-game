@@ -1,9 +1,27 @@
+/**
+ * Number of horizontal background segments in Level 1.
+ * @type {number}
+ */
 const LEVEL1_SEGMENTS = 8;
+
+/**
+ * Width of a single repeating background tile in pixels.
+ * @type {number}
+ */
 const TILE_WIDTH = 719;
+
+/**
+ * Total world width for Level 1 based on number of segments.
+ * @type {number}
+ */
 const LEVEL1_WIDTH = LEVEL1_SEGMENTS * TILE_WIDTH;
 
-
-
+/**
+ * Creates Level 1 including enemies, background layers,
+ * clouds, collectables and the total level width.
+ *
+ * @returns {Level} Fully configured level instance.
+ */
 function createLevel1() {
     return new Level(
         [
