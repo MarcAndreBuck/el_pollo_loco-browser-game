@@ -133,9 +133,9 @@ class WorldRenderer {
 
         this.addObjectToMap(w.backgroundObjects);
         this.addObjectToMap(w.clouds);
-        this.addObjectToMap(w.collectables);
-        this.addToMap(w.character);
         this.addObjectToMap(w.enemies);
+        this.addToMap(w.character);
+        this.addObjectToMap(w.collectables);
         this.addObjectToMap(w.projectiles);
     }
 
