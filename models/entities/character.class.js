@@ -59,24 +59,15 @@ class Character extends MovableObject {
      * @param {number} [width=CHARACTER_CONFIG.width] - Character sprite width.
      * @param {number} [height=CHARACTER_CONFIG.height] - Character sprite height.
      */
-    constructor(
-        x = CHARACTER_CONFIG.startX,
-        y = CHARACTER_CONFIG.startY,
-        width = CHARACTER_CONFIG.width,
-        height = CHARACTER_CONFIG.height
-    ) {
+    constructor(x = CHARACTER_CONFIG.startX, y = CHARACTER_CONFIG.startY, width = CHARACTER_CONFIG.width, height = CHARACTER_CONFIG.height) {
         super(x, y, width, height);
-
         this.speed = CHARACTER_CONFIG.speed;
         this.health = CHARACTER_CONFIG.health;
-
         this.animations = ASSETS.character;
         this.preloadAnimations(this.animations);
         this.loadImage(this.animations.idle[0]);
-
-        const h = CHARACTER_CONFIG.hitbox;
-        this.setHitbox(h.x, h.y, h.width, h.height);
         this.snapToGround();
+        this.updateHitbox();
     }
 
     /**
@@ -103,7 +94,22 @@ class Character extends MovableObject {
         if (keyboard.LEFT) {
             this.characterMoveLeft();
         }
+
+        this.updateHitbox();
         return false;
+    }
+
+    /**
+ * Updates hitbox offset based on facing direction.
+ * @returns {void}
+ */
+    updateHitbox() {
+        const hitbox = CHARACTER_CONFIG.hitbox;
+        const x = this.otherDirection
+            ? this.width - (hitbox.x + hitbox.width)
+            : hitbox.x;
+
+        this.setHitbox(x, hitbox.y, hitbox.width, hitbox.height);
     }
 
     /**
@@ -339,6 +345,7 @@ class Character extends MovableObject {
         this.wasGrounded = this.isGrounded;
         this.applyGravity();
         this.updateAnimation();
+        this.updateHitbox();
     }
 
     /**
