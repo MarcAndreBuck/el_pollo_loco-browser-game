@@ -39,6 +39,8 @@ class UIInputManager {
         this.canvas.addEventListener("touchmove", e => this.handleTouchMove(e), { passive: false });
         this.canvas.addEventListener("touchend", () => this.handlePointerUp());
         this.canvas.addEventListener("touchcancel", () => this.handlePointerUp());
+
+        this.canvas.addEventListener("contextmenu", e => e.preventDefault());
     }
 
     /**
