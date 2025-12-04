@@ -1,6 +1,8 @@
 html,
 body {
   height: 100%;
+  max-width: 1440px;
+  margin: auto;
 }
 
 * {
@@ -18,12 +20,13 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
+  background-attachment: fixed;
 }
 
 h1 {
   font-size: 80px;
   font-weight: bold;
-  color: #eec223;
+  color: #3B4A2D;
   padding: 64px;
 
   text-shadow:
