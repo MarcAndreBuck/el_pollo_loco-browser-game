@@ -2,7 +2,7 @@
  * Configuration for the throw system timing and spawn offsets.
  */
 const THROW_SYSTEM_CONFIG = {
-    cooldownMs: 300,
+    cooldownMs: 530,
     spawnOffsetFactorX: 0.6,
     spawnOffsetLeftX: -10,
     spawnOffsetFactorY: 0.5
@@ -13,7 +13,7 @@ const THROW_SYSTEM_CONFIG = {
  *
  * @class
  */
-class ThrowSystem {
+class ThrowEngine {
     /**
      * Creates a new throw system instance for the given world.
      *

@@ -30,7 +30,7 @@ class World {
     character;
     collisionSystem;
     debug;
-    throwSystem;
+    ThrowEngine;
 
     camera;
     worldWidth;
@@ -218,7 +218,7 @@ class World {
     initSystems() {
         this.collisionSystem = new CollisionSystem(this);
         this.debug = new DebugSystem(this);
-        this.throwSystem = new ThrowSystem(this);
+        this.ThrowEngine = new ThrowEngine(this);
     }
 
     /**
@@ -293,7 +293,7 @@ class World {
      */
     updateLevel() {
         this.updateLevelObjects();
-        this.throwSystem.update();
+        this.ThrowEngine.update();
         this.collisionSystem.update();
         Endboss.ensureSpawned(this);
     }
