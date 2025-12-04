@@ -1,8 +1,26 @@
+/**
+ * Configuration for header bar button layout.
+ */
+const HEADER_BAR_CONFIG = {
+    buttonWidth: 0.06,
+    buttonHeight: 0.08,
+    buttonY: 0.05,
+    fullscreenX: 0.82,
+    menuX: 0.74,
+    muteX: 0.9
+};
+
+/**
+ * Header bar that provides mute, fullscreen and menu controls.
+ *
+ * @class
+ * @extends BaseScreen
+ */
 class HeaderBar extends BaseScreen {
     /**
-     * @param {World} world
-     * @param {HTMLCanvasElement} canvas
-     * @param {ScreenManager} screenManager
+     * @param {World} world - The current world instance.
+     * @param {HTMLCanvasElement} canvas - The game canvas.
+     * @param {ScreenManager} screenManager - Manages canvas scaling and fullscreen.
      */
     constructor(world, canvas, screenManager) {
         super(world, canvas, screenManager);
@@ -10,63 +28,95 @@ class HeaderBar extends BaseScreen {
         this.isMuted = soundManager.muted;
         this.isFullscreen = !!document.fullscreenElement;
 
+        /** @type {CanvasButton|null} */
         this.muteButton = null;
+
+        /** @type {CanvasButton|null} */
         this.menuButton = null;
+
+        /** @type {CanvasButton|null} */
         this.fullscreenButton = null;
 
         this.rebuildButtons();
     }
 
+    /**
+     * Checks whether the menu button should be visible.
+     *
+     * @returns {boolean} True if the menu button should be shown.
+     */
     isMenuVisible() {
         return this.world.state === GAME_STATE.RUNNING;
     }
 
+    /**
+     * Rebuilds header buttons based on current state (menu visibility, mute state).
+     *
+     * @returns {void}
+     */
     rebuildButtons() {
-        const w = 0.06;
-        const h = 0.08;
-        const y = 0.05;
+        const w = HEADER_BAR_CONFIG.buttonWidth;
+        const h = HEADER_BAR_CONFIG.buttonHeight;
+        const y = HEADER_BAR_CONFIG.buttonY;
 
-        const fullscreenX = 0.82;
-        const menuX = 0.74;
-        const muteX = 0.90;
+        const fullscreen = this.createFullscreenButton(w, h, y);
+        const mute = this.createMuteButton(w, h, y);
+        const menu = this.isMenuVisible() ? this.createMenuButton(w, h, y) : null;
 
-        const fullscreen = new CanvasButton(
-            fullscreenX,
-            y,
-            w,
-            h,
-            "⛶",
-            state => state && this.toggleFullscreen(),
-            "wood"
-        );
+        this.applyButtons(fullscreen, mute, menu);
+    }
 
-        const mute = new CanvasButton(
-            muteX,
-            y,
-            w,
-            h,
-            this.isMuted ? "🔇" : "🔊",
-            state => state && this.toggleMute(),
-            "wood"
-        );
+    /**
+     * Creates the fullscreen toggle button.
+     *
+     * @private
+     * @param {number} w - Button width (relative).
+     * @param {number} h - Button height (relative).
+     * @param {number} y - Button y-position (relative).
+     * @returns {CanvasButton}
+     */
+    createFullscreenButton(w, h, y) {
+        return new CanvasButton(HEADER_BAR_CONFIG.fullscreenX, y, w, h, "⛶", state => state && this.toggleFullscreen(), "wood");
+    }
 
-        let menu = null;
-        let buttons;
+    /**
+     * Creates the mute toggle button.
+     *
+     * @private
+     * @param {number} w - Button width (relative).
+     * @param {number} h - Button height (relative).
+     * @param {number} y - Button y-position (relative).
+     * @returns {CanvasButton}
+     */
+    createMuteButton(w, h, y) {
+        const label = this.isMuted ? "🔇" : "🔊";
+        return new CanvasButton(HEADER_BAR_CONFIG.muteX, y, w, h, label, state => state && this.toggleMute(), "wood");
+    }
 
-        if (this.isMenuVisible()) {
-            menu = new CanvasButton(
-                menuX,
-                y,
-                w,
-                h,
-                "☰",
-                state => state && this.handleMenu(),
-                "wood"
-            );
-            buttons = [fullscreen, menu, mute];
-        } else {
-            buttons = [fullscreen, mute];
-        }
+    /**
+     * Creates the menu toggle button.
+     *
+     * @private
+     * @param {number} w - Button width (relative).
+     * @param {number} h - Button height (relative).
+     * @param {number} y - Button y-position (relative).
+     * @returns {CanvasButton}
+     */
+    createMenuButton(w, h, y) {
+        return new CanvasButton(HEADER_BAR_CONFIG.menuX, y, w, h, "☰", state => state && this.handleMenu(), "wood");
+    }
+
+    /**
+     * Assigns buttons to instance properties and button list.
+     *
+     * @private
+     * @param {CanvasButton} fullscreen
+     * @param {CanvasButton} mute
+     * @param {CanvasButton|null} menu
+     * @returns {void}
+     */
+    applyButtons(fullscreen, mute, menu) {
+        const buttons = menu ? [fullscreen, menu, mute] : [fullscreen, mute];
 
         this.fullscreenButton = fullscreen;
         this.menuButton = menu;
@@ -74,17 +124,32 @@ class HeaderBar extends BaseScreen {
         this.buttons = buttons;
     }
 
+    /**
+     * Updates the mute button icon based on current mute state.
+     *
+     * @returns {void}
+     */
     updateMuteIcon() {
         if (!this.muteButton) return;
         this.muteButton.text = this.isMuted ? "🔇" : "🔊";
     }
 
+    /**
+     * Toggles global sound mute state and updates the button icon.
+     *
+     * @returns {void}
+     */
     toggleMute() {
         soundManager.toggleMute();
         this.isMuted = soundManager.muted;
         this.updateMuteIcon();
     }
 
+    /**
+     * Toggles fullscreen mode using the ScreenManager.
+     *
+     * @returns {void}
+     */
     toggleFullscreen() {
         const manager = this.world.screenManager;
         if (!manager.isFullscreen) {
@@ -94,6 +159,11 @@ class HeaderBar extends BaseScreen {
         }
     }
 
+    /**
+     * Handles menu button logic: toggles between RUNNING and PAUSED states.
+     *
+     * @returns {void}
+     */
     handleMenu() {
         const state = this.world.state;
 
@@ -107,6 +177,12 @@ class HeaderBar extends BaseScreen {
         }
     }
 
+    /**
+     * Draws the header bar buttons.
+     *
+     * @param {CanvasRenderingContext2D} ctx - Rendering context.
+     * @returns {void}
+     */
     draw(ctx) {
         this.drawButtons(ctx);
     }
