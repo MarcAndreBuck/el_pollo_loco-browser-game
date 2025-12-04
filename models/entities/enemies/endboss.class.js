@@ -1,11 +1,50 @@
+/**
+ * Configuration for the end boss stats, dimensions, and behavior.
+ */
+const BOSS_CONFIG = {
+    width: 400,
+    height: 400,
+    feetOffset: 30,
+
+    spawnOffsetX: 300,       // how far from the right edge the boss spawns
+    hitbox: { x: 80, y: 150, width: 300, height: 200 },
+
+    health: 100,
+
+    movementSpeed: 0.4,
+
+    triggerRatio: 0.6,
+    hurtDuration: 400,
+
+    attack: {
+        range: 100,
+        cooldown: 250,
+        damage: 5
+    },
+
+    alertRange: 300
+};
+
+/**
+ * Controls the behavior, movement, and combat logic of the end boss.
+ *
+ * @class
+ * @extends MovableObject
+ */
 class Endboss extends MovableObject {
     collisionCategory = "boss";
-    static TRIGGER_RATIO = 0.6;
+    static TRIGGER_RATIO = BOSS_CONFIG.triggerRatio;
+
     lastAttackTime = 0;
-    attackCooldown = 250;
+    attackCooldown = BOSS_CONFIG.attack.cooldown;
+
     deathSoundPlayed = false;
 
-
+    /**
+     * Creates a new end boss instance.
+     *
+     * @param {World} world - The current world instance.
+     */
     constructor(world) {
         super();
         this.world = world;
@@ -16,76 +55,99 @@ class Endboss extends MovableObject {
         this.initStats();
     }
 
+    /** @returns {void} */
     initDimensions() {
-        this.height = 400;
-        this.width = 400;
-        this.feetOffset = 30;
+        this.width = BOSS_CONFIG.width;
+        this.height = BOSS_CONFIG.height;
+        this.feetOffset = BOSS_CONFIG.feetOffset;
     }
 
+    /** @returns {void} */
     initMovement() {
-        this.speed = 0.4;
+        this.speed = BOSS_CONFIG.movementSpeed;
     }
 
+    /** @returns {void} */
     initPosition() {
-        this.x = this.world.worldWidth - 300;
+        this.x = this.world.worldWidth - BOSS_CONFIG.spawnOffsetX;
         this.snapToGround();
     }
 
+    /** @returns {void} */
     initStats() {
         this.animations = ASSETS.boss_chicken;
+
         this.preloadAnimations(this.animations);
         this.loadImage(this.animations.walk[0]);
-        this.setHitbox(80, 150, 300, 200);
-        this.health = 100;
-        this.maxHealth = 100;
+
+        const h = BOSS_CONFIG.hitbox;
+        this.setHitbox(h.x, h.y, h.width, h.height);
+
+        this.health = BOSS_CONFIG.health;
+        this.maxHealth = BOSS_CONFIG.health;
     }
 
+    /**
+     * Ensures the boss is only spawned once.
+     *
+     * @param {World} world
+     * @returns {void}
+     */
     static ensureSpawned(world) {
         if (world.bossFightStarted) return;
+
         const triggerX = world.worldWidth * Endboss.TRIGGER_RATIO;
         if (world.character.x < triggerX) return;
+
         soundManager.playMusic("music_boss");
+
         const boss = new Endboss(world);
-        boss.x = world.worldWidth - 350;
+
+        // ❗ Removed the inconsistent hardcoded 350px
+        // The boss spawn position is now fully defined in BOSS_CONFIG + initPosition()
+
         world.endboss = boss;
         world.level.enemies.push(boss);
         world.bossHealthBar = new ChickenBossHealth(world);
+
         world.bossFightStarted = true;
     }
 
-
+    /** @returns {void} */
     update() {
         this.applyGravity();
         this.updateBehaviour();
     }
 
-
+    /** @returns {void} */
     updateBehaviour() {
         if (this.handleDeath()) return;
         if (this.handleHurt()) return;
         if (this.handleAttack()) return;
         if (this.handleAlert()) return;
-
         this.handleWalk();
     }
 
-
+    /** @returns {boolean} */
     handleDeath() {
         if (!this.isDead) return false;
 
-        this.playAnimation(this.animations.dead, 8, false, () => { this.world.setState(GAME_STATE.WON) });
-        this.playDeathSound()
+        this.playAnimation(this.animations.dead, 8, false, () => {
+            this.world.setState(GAME_STATE.WON);
+        });
 
+        this.playDeathSound();
         return true;
     }
 
+    /** @returns {void} */
     playDeathSound() {
         if (this.deathSoundPlayed) return;
         this.deathSoundPlayed = true;
         soundManager.play("boss_death", true);
     }
 
-
+    /** @returns {boolean} */
     handleHurt() {
         const now = performance.now();
         const stillHurt = this.isHurt && now < this.hurtUntil;
@@ -100,10 +162,10 @@ class Endboss extends MovableObject {
         return true;
     }
 
-
+    /** @returns {boolean} */
     handleAttack() {
-        const ATTACK_RANGE = 100;
-        if (!this.isCharacterInRange(ATTACK_RANGE)) return false;
+        const range = BOSS_CONFIG.attack.range;
+        if (!this.isCharacterInRange(range)) return false;
 
         this.playAnimation(this.animations.attack, 8);
         soundManager.play("boss_attack");
@@ -114,36 +176,37 @@ class Endboss extends MovableObject {
         return true;
     }
 
+    /** @returns {boolean} */
     canDealDamage() {
         const now = performance.now();
-        const timeSinceLastAttack = now - this.lastAttackTime;
-        return timeSinceLastAttack >= this.attackCooldown;
+        return now - this.lastAttackTime >= this.attackCooldown;
     }
 
+    /** @returns {void} */
     dealAttackDamage() {
         this.lastAttackTime = performance.now();
-        this.world.character.takeDamage(5);
+        this.world.character.takeDamage(BOSS_CONFIG.attack.damage);
     }
 
-
+    /** @returns {boolean} */
     handleAlert() {
-        const ALERT_RANGE = 300;
-
-        if (!this.isCharacterInRange(ALERT_RANGE)) return false;
+        const range = BOSS_CONFIG.alertRange;
+        if (!this.isCharacterInRange(range)) return false;
 
         this.playAnimation(this.animations.alert, 8);
         soundManager.play("boss_alert");
+
         this.moveTowardsCharacter();
         return true;
     }
 
+    /** @returns {void} */
     handleWalk() {
         this.moveLeft(this.speed);
         this.playAnimation(this.animations.walk, 8);
-        // soundManager.play("boss_idle"); 
     }
 
-
+    /** @returns {void} */
     moveTowardsCharacter() {
         const character = this.world.character;
 
@@ -156,21 +219,26 @@ class Endboss extends MovableObject {
         }
     }
 
+    /**
+     * @param {number} [amount=1]
+     * @returns {void}
+     */
     takeDamage(amount = 1) {
         if (this.isDead) return;
 
         this.health = Math.max(0, this.health - amount);
         this.isHurt = true;
-        this.hurtUntil = performance.now() + 400;
+        this.hurtUntil = performance.now() + BOSS_CONFIG.hurtDuration;
 
-        if (this.health === 0) {
-            this.die();
-        }
+        if (this.health === 0) this.die();
     }
 
+    /**
+     * @param {number} range
+     * @returns {boolean}
+     */
     isCharacterInRange(range) {
         const character = this.world.character;
-        const distanceX = Math.abs(character.x - this.x);
-        return distanceX <= range;
+        return Math.abs(character.x - this.x) <= range;
     }
 }
