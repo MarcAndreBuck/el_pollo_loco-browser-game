@@ -24,7 +24,7 @@ class Coin extends Collectable {
 
         this.value = 1;
 
-        this.setHitbox(40, 40, 20, 20);
+        this.setHitbox(35, 35, 30, 30);
     }
 
     /**
