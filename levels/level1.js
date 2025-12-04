@@ -9,12 +9,15 @@ const LEVEL1_SEGMENTS = 8;
  * @type {number}
  */
 const TILE_WIDTH = 719;
+const TILE_WIDTH_LAYER_2 = 718;
+const TILE_WIDTH_LAYER_3 = 717;
+const TILE_WIDTH_LAYER_4 = 716;
 
 /**
  * Total world width for Level 1 based on number of segments.
  * @type {number}
  */
-const LEVEL1_WIDTH = LEVEL1_SEGMENTS * TILE_WIDTH;
+const LEVEL1_WIDTH = LEVEL1_SEGMENTS * TILE_WIDTH_LAYER_4;
 
 /**
  * Creates Level 1 including enemies, background layers,
@@ -42,50 +45,50 @@ function createLevel1() {
             new BackgroundObject("assets/5_background/layers/2_second_layer/1.png", 0, 0),
             new BackgroundObject("assets/5_background/layers/1_first_layer/1.png", 0, 0),
 
-            new BackgroundObject("assets/5_background/layers/air.png", 719, 0),
-            new BackgroundObject("assets/5_background/layers/3_third_layer/2.png", 719, 0),
-            new BackgroundObject("assets/5_background/layers/2_second_layer/2.png", 719, 0),
-            new BackgroundObject("assets/5_background/layers/1_first_layer/2.png", 719, 0),
+            new BackgroundObject("assets/5_background/layers/air.png", TILE_WIDTH, 0),
+            new BackgroundObject("assets/5_background/layers/3_third_layer/2.png", TILE_WIDTH_LAYER_2, 0),
+            new BackgroundObject("assets/5_background/layers/2_second_layer/2.png", TILE_WIDTH_LAYER_3, 0),
+            new BackgroundObject("assets/5_background/layers/1_first_layer/2.png", TILE_WIDTH_LAYER_4, 0),
 
-            new BackgroundObject("assets/5_background/layers/air.png", 719 * 2, 0),
-            new BackgroundObject("assets/5_background/layers/3_third_layer/1.png", 719 * 2, 0),
-            new BackgroundObject("assets/5_background/layers/2_second_layer/1.png", 719 * 2, 0),
-            new BackgroundObject("assets/5_background/layers/1_first_layer/1.png", 719 * 2, 0),
+            new BackgroundObject("assets/5_background/layers/air.png", TILE_WIDTH * 2, 0),
+            new BackgroundObject("assets/5_background/layers/3_third_layer/1.png", TILE_WIDTH_LAYER_2 * 2, 0),
+            new BackgroundObject("assets/5_background/layers/2_second_layer/1.png", TILE_WIDTH_LAYER_3 * 2, 0),
+            new BackgroundObject("assets/5_background/layers/1_first_layer/1.png", TILE_WIDTH_LAYER_4 * 2, 0),
 
-            new BackgroundObject("assets/5_background/layers/air.png", 719 * 3, 0),
-            new BackgroundObject("assets/5_background/layers/3_third_layer/2.png", 719 * 3, 0),
-            new BackgroundObject("assets/5_background/layers/2_second_layer/2.png", 719 * 3, 0),
-            new BackgroundObject("assets/5_background/layers/1_first_layer/2.png", 719 * 3, 0),
+            new BackgroundObject("assets/5_background/layers/air.png", TILE_WIDTH * 3, 0),
+            new BackgroundObject("assets/5_background/layers/3_third_layer/2.png", TILE_WIDTH_LAYER_2 * 3, 0),
+            new BackgroundObject("assets/5_background/layers/2_second_layer/2.png", TILE_WIDTH_LAYER_3 * 3, 0),
+            new BackgroundObject("assets/5_background/layers/1_first_layer/2.png", TILE_WIDTH_LAYER_4 * 3, 0),
 
-            new BackgroundObject("assets/5_background/layers/air.png", 719 * 4, 0),
-            new BackgroundObject("assets/5_background/layers/3_third_layer/1.png", 719 * 4, 0),
-            new BackgroundObject("assets/5_background/layers/2_second_layer/1.png", 719 * 4, 0),
-            new BackgroundObject("assets/5_background/layers/1_first_layer/1.png", 719 * 4, 0),
+            new BackgroundObject("assets/5_background/layers/air.png", TILE_WIDTH * 4, 0),
+            new BackgroundObject("assets/5_background/layers/3_third_layer/1.png", TILE_WIDTH_LAYER_2 * 4, 0),
+            new BackgroundObject("assets/5_background/layers/2_second_layer/1.png", TILE_WIDTH_LAYER_3 * 4, 0),
+            new BackgroundObject("assets/5_background/layers/1_first_layer/1.png", TILE_WIDTH_LAYER_4 * 4, 0),
 
-            new BackgroundObject("assets/5_background/layers/air.png", 719 * 5, 0),
-            new BackgroundObject("assets/5_background/layers/3_third_layer/2.png", 719 * 5, 0),
-            new BackgroundObject("assets/5_background/layers/2_second_layer/2.png", 719 * 5, 0),
-            new BackgroundObject("assets/5_background/layers/1_first_layer/2.png", 719 * 5, 0),
+            new BackgroundObject("assets/5_background/layers/air.png", TILE_WIDTH * 5, 0),
+            new BackgroundObject("assets/5_background/layers/3_third_layer/2.png", TILE_WIDTH_LAYER_2 * 5, 0),
+            new BackgroundObject("assets/5_background/layers/2_second_layer/2.png", TILE_WIDTH_LAYER_3 * 5, 0),
+            new BackgroundObject("assets/5_background/layers/1_first_layer/2.png", TILE_WIDTH_LAYER_4 * 5, 0),
 
-            new BackgroundObject("assets/5_background/layers/air.png", 719 * 6, 0),
-            new BackgroundObject("assets/5_background/layers/3_third_layer/1.png", 719 * 6, 0),
-            new BackgroundObject("assets/5_background/layers/2_second_layer/1.png", 719 * 6, 0),
-            new BackgroundObject("assets/5_background/layers/1_first_layer/1.png", 719 * 6, 0),
+            new BackgroundObject("assets/5_background/layers/air.png", TILE_WIDTH * 6, 0),
+            new BackgroundObject("assets/5_background/layers/3_third_layer/1.png", TILE_WIDTH_LAYER_2 * 6, 0),
+            new BackgroundObject("assets/5_background/layers/2_second_layer/1.png", TILE_WIDTH_LAYER_3 * 6, 0),
+            new BackgroundObject("assets/5_background/layers/1_first_layer/1.png", TILE_WIDTH_LAYER_4 * 6, 0),
 
-            new BackgroundObject("assets/5_background/layers/air.png", 719 * 7, 0),
-            new BackgroundObject("assets/5_background/layers/3_third_layer/2.png", 719 * 7, 0),
-            new BackgroundObject("assets/5_background/layers/2_second_layer/2.png", 719 * 7, 0),
-            new BackgroundObject("assets/5_background/layers/1_first_layer/2.png", 719 * 7, 0),
+            new BackgroundObject("assets/5_background/layers/air.png", TILE_WIDTH * 7, 0),
+            new BackgroundObject("assets/5_background/layers/3_third_layer/2.png", TILE_WIDTH_LAYER_2 * 7, 0),
+            new BackgroundObject("assets/5_background/layers/2_second_layer/2.png", TILE_WIDTH_LAYER_3 * 7, 0),
+            new BackgroundObject("assets/5_background/layers/1_first_layer/2.png", TILE_WIDTH_LAYER_4 * 7, 0),
         ],
         [
             new Cloud(0),
-            new Cloud(719 * 1),
-            new Cloud(719 * 2),
-            new Cloud(719 * 3),
-            new Cloud(719 * 4),
-            new Cloud(719 * 5),
-            new Cloud(719 * 6),
-            new Cloud(719 * 7),
+            new Cloud(TILE_WIDTH * 1),
+            new Cloud(TILE_WIDTH * 2),
+            new Cloud(TILE_WIDTH * 3),
+            new Cloud(TILE_WIDTH * 4),
+            new Cloud(TILE_WIDTH * 5),
+            new Cloud(TILE_WIDTH * 6),
+            new Cloud(TILE_WIDTH * 7),
         ],
         [
             new Coin(620, 280),
