@@ -1,5 +1,13 @@
+/**
+ * Manages canvas sizing, scaling and fullscreen behavior.
+ * Keeps a logical base resolution and adapts to screen and device size.
+ */
 class ScreenManager {
-
+    /**
+     * @param {HTMLCanvasElement} canvas - Target canvas element.
+     * @param {number} [baseWidth=720] - Logical game width.
+     * @param {number} [baseHeight=480] - Logical game height.
+     */
     constructor(canvas, baseWidth = 720, baseHeight = 480) {
         this.canvas = canvas;
         this.baseWidth = baseWidth;
@@ -7,20 +15,27 @@ class ScreenManager {
         this.isFullscreen = !!document.fullscreenElement;
         this.scaleX = 1;
         this.scaleY = 1;
+
         this.canvas.width = this.baseWidth;
         this.canvas.height = this.baseHeight;
+
         this.applyResponsiveSize();
         this.registerEvents();
     }
 
-
+    /**
+     * Detects mobile or small-screen devices based on touch and width.
+     * @returns {boolean} True if device is mobile or narrow.
+     */
     static isMobileOrSmallScreen() {
         const touch = navigator.maxTouchPoints > 0;
         const small = window.innerWidth < 760;
         return touch || small;
     }
 
-
+    /**
+     * Registers resize and fullscreen-related event listeners.
+     */
     registerEvents() {
         document.addEventListener("fullscreenchange", () => this.handleFullscreenChange());
         window.addEventListener("resize", () => this.handleResize());
@@ -30,7 +45,10 @@ class ScreenManager {
         }
     }
 
-
+    /**
+     * Applies responsive sizing based on fullscreen and device state.
+     * Updates canvas size and title visibility.
+     */
     applyResponsiveSize() {
         const title = document.getElementById("gameTitle");
         const { vw, vh } = this.getViewportSize();
@@ -45,15 +63,22 @@ class ScreenManager {
         this.applyBaseSize();
         this.toggleTitle(title, false);
     }
-    
-    
+
+    /**
+     * Returns the current viewport size, using visualViewport when available.
+     * @returns {{vw: number, vh: number}} Width and height of the viewport.
+     */
     getViewportSize() {
-        const vw = window.visualViewport?.width || window.innerWidth;
-        const vh = window.visualViewport?.height || window.innerHeight;
+        const vw = window.visualViewport.width || window.innerWidth;
+        const vh = window.visualViewport.height || window.innerHeight;
         return { vw, vh };
     }
 
-
+    /**
+     * Applies full available size to the canvas and updates scale factors.
+     * @param {number} vw - Viewport width in pixels.
+     * @param {number} vh - Viewport height in pixels.
+     */
     applyFullSize(vw, vh) {
         this.canvas.width = vw;
         this.canvas.height = vh;
@@ -63,7 +88,9 @@ class ScreenManager {
         this.scaleY = vh / this.baseHeight;
     }
 
-
+    /**
+     * Resets canvas to the logical base size and clears scaling.
+     */
     applyBaseSize() {
         const { baseWidth, baseHeight } = this;
         this.canvas.width = baseWidth;
@@ -74,19 +101,28 @@ class ScreenManager {
         this.scaleY = 1;
     }
 
-
+    /**
+     * Shows or hides the game title based on fullscreen state.
+     * @param {HTMLElement|null} title - Title element.
+     * @param {boolean} hidden - True to hide, false to show.
+     */
     toggleTitle(title, hidden) {
         if (!title) return;
         title.classList.toggle("hide-in-fullscreen", hidden);
     }
 
-
+    /**
+     * Handles window and viewport resize events.
+     * Re-applies responsive sizing with an extra animation frame.
+     */
     handleResize() {
         this.applyResponsiveSize();
         requestAnimationFrame(() => this.applyResponsiveSize());
     }
 
-
+    /**
+     * Handles fullscreen state changes and updates controls and layout.
+     */
     handleFullscreenChange() {
         this.isFullscreen = !!document.fullscreenElement;
 
@@ -100,7 +136,11 @@ class ScreenManager {
         this.applyResponsiveSize();
     }
 
-
+    /**
+     * Requests fullscreen mode for the canvas if supported.
+     * @async
+     * @returns {Promise<void>} Resolves when fullscreen request completes.
+     */
     async enterFullscreen() {
         if (this.canvas.requestFullscreen) {
             await this.canvas.requestFullscreen();
@@ -109,7 +149,11 @@ class ScreenManager {
         }
     }
 
-
+    /**
+     * Exits fullscreen mode if currently active.
+     * @async
+     * @returns {Promise<void>} Resolves when fullscreen is exited.
+     */
     async exitFullscreen() {
         if (!document.fullscreenElement) return;
         if (document.exitFullscreen) {
@@ -119,12 +163,16 @@ class ScreenManager {
         }
     }
 
-
+    /**
+     * Converts mouse or touch event coordinates into logical canvas space.
+     * @param {MouseEvent|TouchEvent} event - Pointer event.
+     * @returns {{x: number, y: number}} Normalized canvas coordinates.
+     */
     getCanvasCoords(event) {
         const rect = this.canvas.getBoundingClientRect();
         const touch = event.touches ? event.touches[0] : null;
         const clientX = touch ? touch.clientX : event.clientX;
-        const clientY = touch ? touch.clientY : event.clientY;
+        const clientY = touch ? clientY = touch.clientY : event.clientY;
         const scaleX = this.baseWidth / rect.width;
         const scaleY = this.baseHeight / rect.height;
         return {

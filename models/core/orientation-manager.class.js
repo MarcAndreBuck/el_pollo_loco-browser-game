@@ -1,6 +1,10 @@
+/**
+ * Manages device orientation for mobile users.
+ * Locks the game when in portrait mode and shows an overlay.
+ */
 class OrientationManager {
     /**
-     * @param {World} world
+     * @param {World} world - Active game world instance.
      */
     constructor(world) {
         this.world = world;
@@ -13,14 +17,25 @@ class OrientationManager {
         window.addEventListener("orientationchange", () => this.updateState());
     }
 
+    /**
+     * Checks whether the device is currently in landscape orientation.
+     * @returns {boolean} True if width > height.
+     */
     isLandscape() {
         return window.innerWidth > window.innerHeight;
     }
 
+    /**
+     * Detects whether the device is a mobile/touch device.
+     * @returns {boolean} True if touch capability exists.
+     */
     isMobileDevice() {
         return navigator.maxTouchPoints > 0;
     }
 
+    /**
+     * Updates the orientation state and locks/unlocks the game accordingly.
+     */
     updateState() {
         const isMobile = this.isMobileDevice();
         const wrongOrientation = isMobile && !this.isLandscape();
@@ -32,6 +47,10 @@ class OrientationManager {
         }
     }
 
+    /**
+     * Locks the game when the orientation is incorrect.
+     * Pauses game and disables mobile controls.
+     */
     lockForOrientation() {
         if (this.world.state === GAME_STATE.RUNNING) {
             this.wasRunningBeforeLock = true;
@@ -47,9 +66,12 @@ class OrientationManager {
         this.toggleOverlay(true);
     }
 
+    /**
+     * Unlocks the game when the device returns to landscape mode.
+     * Re-enables mobile controls and resumes gameplay if needed.
+     */
     unlockForOrientation() {
         if (this.world.mobileControls) {
-            // Buttons nur auf echten Touch-Geräten aktivieren
             this.world.mobileControls.enabled = this.isMobileDevice();
         }
 
@@ -63,6 +85,10 @@ class OrientationManager {
         }
     }
 
+    /**
+     * Toggles the visibility of the rotate-screen overlay.
+     * @param {boolean} show - True to show, false to hide.
+     */
     toggleOverlay(show) {
         if (!this.overlay) return;
         this.overlay.classList.toggle("hidden", !show);

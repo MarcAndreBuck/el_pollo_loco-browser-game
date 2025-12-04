@@ -1,4 +1,11 @@
+/**
+ * Endscreen overlay shown after winning or losing the game.
+ * Displays a random image and offers restart and back-to-start actions.
+ */
 class Endscreen extends BaseScreen {
+    /**
+     * @param {World} world - Active game world instance.
+     */
     constructor(world) {
         super(world, world.canvas, world.screenManager);
         this.isWin = false;
@@ -7,7 +14,11 @@ class Endscreen extends BaseScreen {
         this.buttons = this.createButtons();
     }
 
-
+    /**
+     * Returns a random image object from the given list of paths.
+     * @param {string[]} paths - Array of image paths.
+     * @returns {HTMLImageElement} Image instance with source set.
+     */
     getRandomImage(paths) {
         const path = paths[Math.floor(Math.random() * paths.length)];
         const img = new Image();
@@ -15,7 +26,11 @@ class Endscreen extends BaseScreen {
         return img;
     }
 
-
+    /**
+     * Opens the endscreen with either win or lose state.
+     * Loads random images and plays the corresponding sound.
+     * @param {boolean} isWin - True if the player has won.
+     */
     open(isWin) {
         this.isWin = isWin;
         this.winImage = this.getRandomImage(ASSETS.start_and_end_screen.win);
@@ -28,8 +43,10 @@ class Endscreen extends BaseScreen {
         }
     }
 
-
-
+    /**
+     * Draws the dark overlay, endscreen image content and buttons.
+     * @param {CanvasRenderingContext2D} ctx - Canvas 2D context.
+     */
     draw(ctx) {
         const width = this.baseWidth;
         const height = this.baseHeight;
@@ -41,8 +58,10 @@ class Endscreen extends BaseScreen {
         ctx.restore();
     }
 
-
-
+    /**
+     * Creates the restart and back-to-start buttons.
+     * @returns {CanvasButton[]} List of endscreen buttons.
+     */
     createButtons() {
         const buttonWidth = 0.30;
         const buttonHeight = 0.08;
@@ -56,7 +75,12 @@ class Endscreen extends BaseScreen {
         ];
     }
 
-
+    /**
+     * Draws the win or lose image centered and scaled within the screen.
+     * @param {CanvasRenderingContext2D} ctx - Canvas 2D context.
+     * @param {number} width - Base screen width.
+     * @param {number} height - Base screen height.
+     */
     drawContent(ctx, width, height) {
         const img = this.isWin ? this.winImage : this.loseImage;
         const maxWidth = width * 0.9;
@@ -72,14 +96,18 @@ class Endscreen extends BaseScreen {
         ctx.drawImage(img, drawX, drawY, drawW, drawH);
     }
 
-
+    /**
+     * Button callback to restart the game.
+     */
     onRestart() {
-        restartGame()
+        restartGame();
     }
 
-    
+    /**
+     * Button callback to return to the start state and stop all audio.
+     */
     onBackToStart() {
         this.world.setState(GAME_STATE.START);
-        stopAllAudio()
+        stopAllAudio();
     }
 }

@@ -1,5 +1,13 @@
+/**
+ * Handles keyboard input for player actions.
+ * Maps key codes to game actions and exposes simple getters.
+ */
 class Keyboard {
     constructor() {
+        /**
+         * Key bindings for each action.
+         * @type {Object<string, string[]>}
+         */
         this.bindings = {
             LEFT: ["ArrowLeft"],
             RIGHT: ["ArrowRight"],
@@ -9,6 +17,10 @@ class Keyboard {
             THROW: ["KeyF"],
         };
 
+        /**
+         * Current on/off state of each action.
+         * @type {Object<string, boolean>}
+         */
         this.state = {
             LEFT: false,
             RIGHT: false,
@@ -22,6 +34,11 @@ class Keyboard {
         window.addEventListener("keyup", (e) => this.updateState(e, false));
     }
 
+    /**
+     * Updates action state when a key is pressed or released.
+     * @param {KeyboardEvent} event - Key event.
+     * @param {boolean} isDown - True when key is pressed.
+     */
     updateState(event, isDown) {
         const code = event.code;
 
@@ -33,6 +50,11 @@ class Keyboard {
         }
     }
 
+    /**
+     * Rebinds an action to a new key code.
+     * @param {string} action - Action name (e.g., "LEFT").
+     * @param {string} newKey - New KeyboardEvent.code value.
+     */
     rebind(action, newKey) {
         this.bindings[action] = [newKey];
     }

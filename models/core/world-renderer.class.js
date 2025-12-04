@@ -1,9 +1,19 @@
+/**
+ * Handles all drawing for the world depending on the current game state.
+ * Uses camera offset and screen scaling to render world and UI.
+ */
 class WorldRenderer {
+    /**
+     * @param {World} world - Active game world instance.
+     */
     constructor(world) {
         this.world = world;
         this.ctx = world.ctx;
     }
 
+    /**
+     * Draws the world based on the current game state.
+     */
     draw() {
         const { state } = this.world;
 
@@ -25,8 +35,11 @@ class WorldRenderer {
         this.drawRunning();
     }
 
-    /* ---------- State-spezifisches Drawing ---------- */
+    /* ---------- State-specific drawing ---------- */
 
+    /**
+     * Draws the start screen, header and controls overlay.
+     */
     drawStartScreen() {
         this.clearCanvas();
 
@@ -37,6 +50,9 @@ class WorldRenderer {
         });
     }
 
+    /**
+     * Draws the running game: world, UI, debug and mobile controls.
+     */
     drawRunning() {
         this.clearCanvas();
 
@@ -50,43 +66,52 @@ class WorldRenderer {
         });
     }
 
+    /**
+     * Draws the paused view with world, UI and pause overlays.
+     */
     drawPaused() {
         this.clearCanvas();
 
         this.withScale(() => {
-            // Welt + HUD im Hintergrund
             this.drawWorldObjects();
             this.drawUI();
 
-            // Overlay + Header oben drauf
             this.world.pauseOverlay.draw(this.ctx);
             this.world.headerBar.draw(this.ctx);
             this.world.controlsOverlay.draw(this.ctx);
         });
     }
 
+    /**
+     * Draws the world with UI and endscreen on top.
+     */
     drawWithEndscreen() {
         this.clearCanvas();
 
         this.withScale(() => {
-            // Welt + HUD im Hintergrund
             this.drawWorldObjects();
             this.drawUI();
 
-            // Endscreen + Header oben drauf
             this.world.endscreen.draw(this.ctx);
             this.world.headerBar.draw(this.ctx);
         });
     }
 
-    /* ---------- Canvas Helpers ---------- */
+    /* ---------- Canvas helpers ---------- */
 
+    /**
+     * Resets transform and clears the entire canvas.
+     */
     clearCanvas() {
         const { ctx, world } = this;
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, world.canvas.width, world.canvas.height);
     }
 
+    /**
+     * Wraps drawing in a save/restore block and applies screen scaling.
+     * @param {Function} renderFn - Callback that performs the actual drawing.
+     */
     withScale(renderFn) {
         const sm = this.world.screenManager;
 
@@ -94,13 +119,15 @@ class WorldRenderer {
         if (sm) {
             this.ctx.scale(sm.scaleX, sm.scaleY);
         }
-
         renderFn();
         this.ctx.restore();
     }
 
-    /* ---------- World Content ---------- */
+    /* ---------- World content ---------- */
 
+    /**
+     * Draws all world objects in the correct order.
+     */
     drawWorldObjects() {
         const w = this.world;
 
@@ -112,6 +139,9 @@ class WorldRenderer {
         this.addObjectToMap(w.projectiles);
     }
 
+    /**
+     * Draws UI elements like health, bottles, coins and boss bar.
+     */
     drawUI() {
         const w = this.world;
 
@@ -124,35 +154,26 @@ class WorldRenderer {
         }
     }
 
+    /**
+     * Adds each object from an array to the render map.
+     * @param {Array<MovableObject>} objects - Objects to draw.
+     */
     addObjectToMap(objects) {
         objects.forEach(o => this.addToMap(o));
     }
 
+    /**
+     * Draws a single movable object with camera offset and flipping.
+     * @param {MovableObject} mo - Object to render.
+     */
     addToMap(mo) {
         const { ctx, world } = this;
         const drawX = mo.x - world.camera.x;
+        const x = mo.otherDirection ? -drawX - mo.width : drawX;
 
         ctx.save();
-
-        if (mo.otherDirection) {
-            ctx.scale(-1, 1);
-            ctx.drawImage(
-                mo.img,
-                -drawX - mo.width,
-                mo.y,
-                mo.width,
-                mo.height
-            );
-        } else {
-            ctx.drawImage(
-                mo.img,
-                drawX,
-                mo.y,
-                mo.width,
-                mo.height
-            );
-        }
-
+        if (mo.otherDirection) ctx.scale(-1, 1);
+        ctx.drawImage(mo.img, x, mo.y, mo.width, mo.height);
         ctx.restore();
     }
 }
