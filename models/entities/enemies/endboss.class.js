@@ -6,20 +6,21 @@ const BOSS_CONFIG = {
     height: 400,
     feetOffset: 30,
 
-    spawnOffsetX: 300,       // how far from the right edge the boss spawns
+    spawnOffsetX: 300,
     hitbox: { x: 80, y: 150, width: 300, height: 200 },
 
     health: 100,
 
     movementSpeed: 0.4,
+    movementSpeedAlert: 0.8,
 
     triggerRatio: 0.6,
     hurtDuration: 400,
 
     attack: {
-        range: 100,
-        cooldown: 250,
-        damage: 5
+        range: 130,
+        cooldown: 120,
+        damage: 5,
     },
 
     alertRange: 300
@@ -65,6 +66,7 @@ class Endboss extends MovableObject {
     /** @returns {void} */
     initMovement() {
         this.speed = BOSS_CONFIG.movementSpeed;
+        this.speedAlert = BOSS_CONFIG.movementSpeedAlert
     }
 
     /** @returns {void} */
@@ -98,14 +100,8 @@ class Endboss extends MovableObject {
 
         const triggerX = world.worldWidth * Endboss.TRIGGER_RATIO;
         if (world.character.x < triggerX) return;
-
         soundManager.playMusic("music_boss");
-
         const boss = new Endboss(world);
-
-        // ❗ Removed the inconsistent hardcoded 350px
-        // The boss spawn position is now fully defined in BOSS_CONFIG + initPosition()
-
         world.endboss = boss;
         world.level.enemies.push(boss);
         world.bossHealthBar = new ChickenBossHealth(world);
@@ -151,14 +147,15 @@ class Endboss extends MovableObject {
     handleHurt() {
         const now = performance.now();
         const stillHurt = this.isHurt && now < this.hurtUntil;
-
         if (!stillHurt) {
             this.isHurt = false;
             return false;
         }
-
         soundManager.play("boss_hurt", true);
         this.playAnimation(this.animations.hurt, 8);
+        if (this.isCharacterInRange(BOSS_CONFIG.attack.range) && this.canDealDamage()) {
+            this.dealAttackDamage();
+        }
         return true;
     }
 
@@ -195,6 +192,7 @@ class Endboss extends MovableObject {
 
         this.playAnimation(this.animations.alert, 8);
         soundManager.play("boss_alert");
+        this.moveLeft(2);
 
         this.moveTowardsCharacter();
         return true;
@@ -211,10 +209,10 @@ class Endboss extends MovableObject {
         const character = this.world.character;
 
         if (character.x < this.x) {
-            this.moveLeft(this.speed);
+            this.moveLeft(this.speedAlert);
             this.otherDirection = false;
         } else {
-            this.moveRight(this.speed);
+            this.moveRight(this.speedAlert);
             this.otherDirection = true;
         }
     }

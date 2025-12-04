@@ -120,6 +120,7 @@ class CollisionSystem {
         }
 
         character.takeDamage(0.2);
+        character.resetIdleTimer();
     }
 
     /**
@@ -172,7 +173,7 @@ class CollisionSystem {
         if (!endboss || endboss.isDead) return;
         if (!this.hitTest(bottle, endboss)) return;
 
-        endboss.takeDamage(20);
+        endboss.takeDamage(15);
         bottle.break();
     }
 }
